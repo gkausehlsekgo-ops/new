@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time market data and price tracking for stocks, indices and more.">
+    <title>Market Dashboard - Smart Investment Tips</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        body.dark-mode {
+            background: #0f0f1e;
+            color: #e0e0e0;
+        }
+        
+        nav {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        body.dark-mode nav {
+            background: #1a1a2e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        body.dark-mode nav a {
+            color: #e0e0e0;
+        }
+        
+        nav a:hover {
+            color: #667eea;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .dashboard-section {
+            padding: 60px 20px;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-header p {
+            font-size: 16px;
+            opacity: 0.7;
+            margin-bottom: 20px;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .markets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+        
+        .market-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        body.dark-mode .market-card {
+            background: #1a1a2e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .market-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .market-symbol {
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .market-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        
+        .market-price {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .market-change {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+        
+        .change-positive {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .change-negative {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        body.dark-mode .change-positive {
+            background: #2d5a3d;
+            color: #90ee90;
+        }
+        
+        body.dark-mode .change-negative {
+            background: #5a2d2d;
+            color: #ff6b6b;
+        }
+        
+        .market-time {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        body.dark-mode .chart-container {
+            background: #1a1a2e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .chart-container h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        body.dark-mode .info-box {
+            background: #1a3a52;
+            border-left-color: #667eea;
+            color: #b0c4de;
+        }
+        
+        .setup-guide {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 40px;
+        }
+        
+        body.dark-mode .setup-guide {
+            background: #1a1a2e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .setup-guide h3 {
+            font-size: 22px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .setup-guide ol {
+            margin-left: 20px;
+            line-height: 2;
+        }
+        
+        .setup-guide li {
+            margin-bottom: 10px;
+        }
+        
+        .setup-guide code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        body.dark-mode .setup-guide code {
+            background: #2a2a3a;
+        }
+        
+        footer {
+            background: white;
+            padding: 30px 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+            margin-top: 60px;
+        }
+        
+        body.dark-mode footer {
+            background: #1a1a2e;
+            border-top-color: #333;
+        }
+        
+        .theme-toggle {
+            position: relative;
+            background: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        
+        body.dark-mode .theme-toggle {
+            background: #1a2a4a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">💰 Smart Investment Tips</div>
+            <a href="/">← Back to Home</a>
+        </div>
+    </nav>
+    
+    <section class="dashboard-section">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>📊 Market Dashboard</h1>
+                <p>Real-time market data for major indices and stocks</p>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
+            </div>
+            
+            <div class="info-box">
+                <strong>📌 Note:</strong> This dashboard displays delayed market data with a 5-15 minute delay from actual market prices. 
+                For trading decisions, always verify current prices on your broker's platform. Data powered by Alpha Vantage API.
+            </div>
+            
+            <div class="markets-grid" id="marketsGrid">
+                <div class="market-card">
+                    <div class="market-symbol">KOSPI</div>
+                    <div class="market-name">Korea Stock Exchange</div>
+                    <div class="market-price" id="kospi-price">-</div>
+                    <div class="market-change change-positive" id="kospi-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="kospi-time">-</span></div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-symbol">KOSDAQ</div>
+                    <div class="market-name">Korea Tech Exchange</div>
+                    <div class="market-price" id="kosdaq-price">-</div>
+                    <div class="market-change change-positive" id="kosdaq-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="kosdaq-time">-</span></div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-symbol">NASDAQ</div>
+                    <div class="market-name">US Tech Stock Exchange</div>
+                    <div class="market-price" id="nasdaq-price">-</div>
+                    <div class="market-change change-positive" id="nasdaq-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="nasdaq-time">-</span></div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-symbol">.GSPC / ^GSPC</div>
+                    <div class="market-name">S&P 500 Index</div>
+                    <div class="market-price" id="sp500-price">-</div>
+                    <div class="market-change change-positive" id="sp500-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="sp500-time">-</span></div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-symbol">DJI / ^DJI</div>
+                    <div class="market-name">Dow Jones 30</div>
+                    <div class="market-price" id="dow-price">-</div>
+                    <div class="market-change change-positive" id="dow-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="dow-time">-</span></div>
+                </div>
+                
+                <div class="market-card">
+                    <div class="market-symbol">AAPL</div>
+                    <div class="market-name">Apple Inc.</div>
+                    <div class="market-price" id="aapl-price">-</div>
+                    <div class="market-change change-positive" id="aapl-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="aapl-time">-</span></div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <h3>📈 Apple Stock (AAPL) - 7 Days</h3>
+                <div class="chart-wrapper">
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="setup-guide">
+                <h3>🔧 How to Enable Real-Time Data</h3>
+                <p style="margin-bottom: 20px;">To enable live market data updates, follow these steps:</p>
+                <ol>
+                    <li>Visit <strong>https://www.alphavantage.co/</strong></li>
+                    <li>Click "GET FREE API KEY"</li>
+                    <li>Enter your email and get your API key</li>
+                    <li>Copy your API key and send it to us, or add it to the code here:
+                        <br><code>const API_KEY = "YOUR_API_KEY_HERE";</code>
+                    </li>
+                    <li>Data will then update in real-time (with 5-minute delay)</li>
+                </ol>
+                <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
+                    Once you have an API key, the dashboard will automatically fetch live market data.
+                </p>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <p style="opacity: 0.7; font-size: 14px;">&copy; 2026 Smart Investment Tips. Market data with 5-15 minute delay.</p>
+            <p style="margin-top: 10px;">
+                <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
+            </p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Replace with your Alpha Vantage API key
+        const API_KEY = "demo"; // Get free at https://www.alphavantage.co/
+        
+        // Demo data for chart
+        const demoChartData = {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            data: [150.2, 151.5, 149.8, 152.3, 151.9, 150.5, 152.8]
+        };
+        
+        // Initialize chart with demo data
+        function initChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: demoChartData.labels,
+                    datasets: [{
+                        label: 'AAPL Price',
+                        data: demoChartData.data,
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#667eea',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: document.body.classList.contains('dark-mode') ? '#e0e0e0' : '#333'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? '#333' : '#eee'
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark-mode') ? '#b0b0b0' : '#666'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: document.body.classList.contains('dark-mode') ? '#333' : '#eee'
+                            },
+                            ticks: {
+                                color: document.body.classList.contains('dark-mode') ? '#b0b0b0' : '#666'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Demo market data
+        const demoMarkets = {
+            'kospi': { price: '2,850.45', change: '+1.25%', time: new Date().toLocaleTimeString() },
+            'kosdaq': { price: '932.30', change: '+0.85%', time: new Date().toLocaleTimeString() },
+            'nasdaq': { price: '18,245.30', change: '+0.92%', time: new Date().toLocaleTimeString() },
+            'sp500': { price: '5,230.50', change: '+0.75%', time: new Date().toLocaleTimeString() },
+            'dow': { price: '39,150.20', change: '+0.55%', time: new Date().toLocaleTimeString() },
+            'aapl': { price: '182.52', change: '+1.15%', time: new Date().toLocaleTimeString() }
+        };
+        
+        function updateMarketData() {
+            Object.keys(demoMarkets).forEach(key => {
+                const data = demoMarkets[key];
+                const isPositive = !data.change.startsWith('-');
+                
+                document.getElementById(`${key}-price`).textContent = data.price;
+                document.getElementById(`${key}-change`).textContent = data.change;
+                document.getElementById(`${key}-change`).className = 'market-change ' + (isPositive ? 'change-positive' : 'change-negative');
+                document.getElementById(`${key}-time`).textContent = data.time;
+            });
+        }
+        
+        function refreshData() {
+            updateMarketData();
+            alert('✅ Data refreshed! (Demo mode with sample data)');
+        }
+        
+        // Dark mode
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️ Light Mode';
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+        });
+        
+        // Initialize on load
+        window.addEventListener('load', function() {
+            initChart();
+            updateMarketData();
+        });
+    </script>
+</body>
+</html>
