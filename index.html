@@ -116,9 +116,88 @@
             margin-bottom: 20px;
             border: 1px solid #c3e6cb;
         }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* 다크모드 스타일 */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        body.dark-mode .container {
+            background: #0f3460;
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode h1 {
+            color: #ffffff;
+        }
+        
+        body.dark-mode h2 {
+            color: #ffffff !important;
+        }
+        
+        body.dark-mode .subtitle {
+            color: #b0b0b0;
+        }
+        
+        body.dark-mode label {
+            color: #e0e0e0;
+        }
+        
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="email"],
+        body.dark-mode input[type="tel"],
+        body.dark-mode textarea {
+            background: #1a2a4a;
+            color: #e0e0e0;
+            border-color: #3a5a8a;
+        }
+        
+        body.dark-mode input[type="text"]:focus,
+        body.dark-mode input[type="email"]:focus,
+        body.dark-mode input[type="tel"]:focus,
+        body.dark-mode textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        body.dark-mode hr {
+            border-color: #2a4a6a !important;
+        }
+        
+        body.dark-mode .theme-toggle {
+            background: #1a2a4a;
+            color: #ffd700;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        body.dark-mode .theme-toggle:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+        }
     </style>
 </head>
 <body>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+    
     <div class="container">
         <h1>제휴 문의</h1>
         <p class="subtitle">우리와 함께 성장할 파트너를 찾고 있습니다.</p>
@@ -163,6 +242,31 @@
     </div>
     
     <script>
+        // 다크모드 토글 기능
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        const body = document.body;
+        
+        // 저장된 테마 설정 불러오기
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+        
+        // 테마 토글 이벤트
+        themeToggle.addEventListener('click', function() {
+            if (body.classList.contains('dark-mode')) {
+                body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+                themeToggle.textContent = '🌙';
+            } else {
+                body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+                themeToggle.textContent = '☀️';
+            }
+        });
+        
         document.getElementById('partnershipForm').addEventListener('submit', function(e) {
             // Formspree에서 자동으로 처리하므로 기본 동작 허용
             // 원하면 성공 메시지 표시하도록 커스터마이징 가능
