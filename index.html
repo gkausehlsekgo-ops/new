@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>제휴 문의</title>
+    <meta name="description" content="Smart Investment Tips - Learn trading strategies, investment basics, and financial growth tips from expert guides.">
+    <meta name="keywords" content="trading, investment, financial tips, stock trading, beginner guide">
+    <title>Smart Investment Tips - Trading & Investment Guides</title>
     <style>
         * {
             margin: 0;
@@ -13,108 +15,14 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-        }
-        
-        h1 {
+            background: #f8f9fa;
             color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
+            transition: background 0.3s, color 0.3s;
         }
         
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="tel"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
-        textarea {
-            resize: vertical;
-            min-height: 120px;
-        }
-        
-        button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 14px 32px;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .required {
-            color: #e74c3c;
-        }
-        
-        .success-message {
-            display: none;
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 20px;
-            border: 1px solid #c3e6cb;
+        body.dark-mode {
+            background: #0f0f1e;
+            color: #e0e0e0;
         }
         
         .theme-toggle {
@@ -134,127 +42,461 @@
         
         .theme-toggle:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        }
-        
-        /* 다크모드 스타일 */
-        body.dark-mode {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-        }
-        
-        body.dark-mode .container {
-            background: #0f3460;
-            color: #e0e0e0;
-        }
-        
-        body.dark-mode h1 {
-            color: #ffffff;
-        }
-        
-        body.dark-mode h2 {
-            color: #ffffff !important;
-        }
-        
-        body.dark-mode .subtitle {
-            color: #b0b0b0;
-        }
-        
-        body.dark-mode label {
-            color: #e0e0e0;
-        }
-        
-        body.dark-mode input[type="text"],
-        body.dark-mode input[type="email"],
-        body.dark-mode input[type="tel"],
-        body.dark-mode textarea {
-            background: #1a2a4a;
-            color: #e0e0e0;
-            border-color: #3a5a8a;
-        }
-        
-        body.dark-mode input[type="text"]:focus,
-        body.dark-mode input[type="email"]:focus,
-        body.dark-mode input[type="tel"]:focus,
-        body.dark-mode textarea:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
-        }
-        
-        body.dark-mode hr {
-            border-color: #2a4a6a !important;
         }
         
         body.dark-mode .theme-toggle {
             background: #1a2a4a;
-            color: #ffd700;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
         
-        body.dark-mode .theme-toggle:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+        /* Navigation */
+        nav {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        
+        body.dark-mode nav {
+            background: #1a1a2e;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        body.dark-mode nav a {
+            color: #e0e0e0;
+        }
+        
+        nav a:hover {
+            color: #667eea;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        
+        body.dark-mode .hero {
+            background: linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%);
+        }
+        
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 20px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-button {
+            background: white;
+            color: #667eea;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Blog Grid */
+        .blog-section {
+            padding: 60px 20px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 50px;
+            font-weight: 700;
+        }
+        
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .blog-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: #333;
+            cursor: pointer;
+        }
+        
+        body.dark-mode .blog-card {
+            background: #1a1a2e;
+            color: #e0e0e0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .blog-thumbnail {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .blog-content {
+            padding: 25px;
+        }
+        
+        .blog-category {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .blog-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .blog-excerpt {
+            font-size: 14px;
+            opacity: 0.7;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        body.dark-mode .blog-excerpt {
+            opacity: 0.6;
+        }
+        
+        .blog-meta {
+            font-size: 12px;
+            opacity: 0.6;
+        }
+        
+        /* About Section */
+        .about-section {
+            background: white;
+            padding: 60px 20px;
+        }
+        
+        body.dark-mode .about-section {
+            background: #1a1a2e;
+        }
+        
+        .about-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .about-section h2 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+        
+        .about-section p {
+            font-size: 16px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+        
+        body.dark-mode .about-section p {
+            opacity: 0.7;
+        }
+        
+        /* Newsletter Section */
+        .newsletter-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        
+        body.dark-mode .newsletter-section {
+            background: linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%);
+        }
+        
+        .newsletter-section h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+        }
+        
+        .newsletter-section p {
+            font-size: 16px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .newsletter-form {
+            display: flex;
+            gap: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .newsletter-form input {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            flex: 1;
+            min-width: 250px;
+            font-size: 14px;
+        }
+        
+        .newsletter-form button {
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .newsletter-form button:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        footer {
+            background: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+        
+        body.dark-mode footer {
+            background: #1a1a2e;
+            border-top-color: #333;
+        }
+        
+        footer p {
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        
+        footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 15px;
+        }
+        
+        footer a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <button class="theme-toggle" id="themeToggle">🌙</button>
     
-    <div class="container">
-        <h1>제휴 문의</h1>
-        <p class="subtitle">우리와 함께 성장할 파트너를 찾고 있습니다.</p>
-        
-        <div class="success-message" id="successMessage">
-            문의가 성공적으로 전송되었습니다. 빠른 시일 내에 연락드리겠습니다.
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo">💰 Smart Investment Tips</div>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/blog/">Blog</a></li>
+                <li><a href="/#about">About</a></li>
+                <li><a href="/contact/">Contact</a></li>
+            </ul>
         </div>
-        
-        <form id="partnershipForm" action="https://formspree.io/f/mqedglyo" method="POST">
-            <div class="form-group">
-                <label for="company">회사명 <span class="required">*</span></label>
-                <input type="text" id="company" name="company" required>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Master Your Financial Future</h1>
+            <p>Learn proven trading strategies, investment basics, and expert financial tips to grow your wealth.</p>
+            <a href="/blog/" class="cta-button">Read Latest Articles →</a>
+        </div>
+    </section>
+    
+    <!-- Blog Preview -->
+    <section class="blog-section">
+        <div class="container">
+            <h2 class="section-title">Featured Stories</h2>
+            <div class="blog-grid">
+                <a href="/blog/post-1.html" class="blog-card">
+                    <div class="blog-thumbnail">📈</div>
+                    <div class="blog-content">
+                        <span class="blog-category">TRADING BASICS</span>
+                        <h3 class="blog-title">Beginner's Guide to Stock Trading</h3>
+                        <p class="blog-excerpt">Learn the fundamental concepts of stock trading, from opening an account to placing your first trade.</p>
+                        <p class="blog-meta">5 min read • Feb 24, 2026</p>
+                    </div>
+                </a>
+                
+                <a href="/blog/post-2.html" class="blog-card">
+                    <div class="blog-thumbnail">💡</div>
+                    <div class="blog-content">
+                        <span class="blog-category">STRATEGY</span>
+                        <h3 class="blog-title">5 Golden Rules of Smart Investing</h3>
+                        <p class="blog-excerpt">Discover the essential principles that separate successful investors from the rest. Master these rules to build wealth.</p>
+                        <p class="blog-meta">7 min read • Feb 24, 2026</p>
+                    </div>
+                </a>
+                
+                <a href="/blog/post-3.html" class="blog-card">
+                    <div class="blog-thumbnail">🎯</div>
+                    <div class="blog-content">
+                        <span class="blog-category">RISK MANAGEMENT</span>
+                        <h3 class="blog-title">How to Manage Investment Risk</h3>
+                        <p class="blog-excerpt">Understand portfolio diversification, stop-loss strategies, and risk management techniques that protect your capital.</p>
+                        <p class="blog-meta">6 min read • Feb 24, 2026</p>
+                    </div>
+                </a>
+                
+                <a href="/blog/post-4.html" class="blog-card">
+                    <div class="blog-thumbnail">📊</div>
+                    <div class="blog-content">
+                        <span class="blog-category">ANALYSIS</span>
+                        <h3 class="blog-title">Technical Analysis for Beginners</h3>
+                        <p class="blog-excerpt">Learn how to read charts, identify trends, and make informed trading decisions using technical analysis.</p>
+                        <p class="blog-meta">8 min read • Feb 24, 2026</p>
+                    </div>
+                </a>
+                
+                <a href="/blog/post-5.html" class="blog-card">
+                    <div class="blog-thumbnail">🏆</div>
+                    <div class="blog-content">
+                        <span class="blog-category">SUCCESS STORIES</span>
+                        <h3 class="blog-title">Common Trading Mistakes & How to Avoid Them</h3>
+                        <p class="blog-excerpt">Learn from the most common pitfalls that traders face and discover proven strategies to sidestep these errors.</p>
+                        <p class="blog-meta">6 min read • Feb 24, 2026</p>
+                    </div>
+                </a>
+                
+                <a href="/blog/post-6.html" class="blog-card">
+                    <div class="blog-thumbnail">💼</div>
+                    <div class="blog-content">
+                        <span class="blog-category">PSYCHOLOGY</span>
+                        <h3 class="blog-title">The Psychology of Winning Traders</h3>
+                        <p class="blog-excerpt">Master the mental game of trading. Learn emotional control, discipline, and the mindset of successful investors.</p>
+                        <p class="blog-meta">7 min read • Feb 24, 2026</p>
+                    </div>
+                </a>
             </div>
-            
-            <div class="form-group">
-                <label for="name">담당자명 <span class="required">*</span></label>
-                <input type="text" id="name" name="name" required>
+        </div>
+    </section>
+    
+    <!-- About Section -->
+    <section class="about-section" id="about">
+        <div class="container">
+            <div class="about-content">
+                <h2>Why Smart Investment Tips?</h2>
+                <p>We believe that financial education should be accessible to everyone. Whether you're a complete beginner or looking to refine your trading strategies, our comprehensive guides and expert tips will help you make smarter investment decisions.</p>
+                <p>Join thousands of readers who are building their wealth through informed trading and smart investment decisions.</p>
             </div>
-            
-            <div class="form-group">
-                <label for="email">이메일 <span class="required">*</span></label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="phone">전화번호</label>
-                <input type="tel" id="phone" name="phone">
-            </div>
-            
-            <div class="form-group">
-                <label for="proposal">제휴 제안 내용 <span class="required">*</span></label>
-                <textarea id="proposal" name="proposal" required></textarea>
-            </div>
-            
-            <button type="submit">문의 전송</button>
-        </form>
-        
-        <hr style="margin: 40px 0; border: none; border-top: 1px solid #ddd;">
-        
-        <h2 style="color: #333; margin-bottom: 20px; margin-top: 20px; font-size: 20px;">댓글</h2>
-        <div id="disqus_thread"></div>
-    </div>
+        </div>
+    </section>
+    
+    <!-- Newsletter Section -->
+    <section class="newsletter-section">
+        <div class="container">
+            <h2>Subscribe for Weekly Tips</h2>
+            <p>Get exclusive trading strategies and investment insights delivered directly to your inbox every week.</p>
+            <form class="newsletter-form" action="https://formspree.io/f/mqedglyo" method="POST">
+                <input type="email" name="email" placeholder="Enter your email" required>
+                <button type="submit">Subscribe</button>
+            </form>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Smart Investment Tips. All rights reserved. | <a href="/contact/">Contact Us</a> | <a href="#">Privacy Policy</a></p>
+        </div>
+    </footer>
     
     <script>
-        // 다크모드 토글 기능
+        // Dark mode toggle
         const themeToggle = document.getElementById('themeToggle');
-        const html = document.documentElement;
         const body = document.body;
         
-        // 저장된 테마 설정 불러오기
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
             themeToggle.textContent = '☀️';
         }
         
-        // 테마 토글 이벤트
         themeToggle.addEventListener('click', function() {
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
@@ -266,26 +508,6 @@
                 themeToggle.textContent = '☀️';
             }
         });
-        
-        document.getElementById('partnershipForm').addEventListener('submit', function(e) {
-            // Formspree에서 자동으로 처리하므로 기본 동작 허용
-            // 원하면 성공 메시지 표시하도록 커스터마이징 가능
-        });
     </script>
-    
-    <!-- Disqus 댓글 -->
-    <script>
-        var disqus_config = function () {
-        this.page.url = window.location.href;  // Replace PAGE_URL with your page's canonical URL variable
-        this.page.identifier = 'partnership-form'; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
-        };
-        (function() { // DON'T EDIT BELOW THIS LINE
-        var d = document, s = d.createElement('script');
-        s.src = 'https://chan-8.disqus.com/embed.js';
-        s.setAttribute('data-timestamp', +new Date());
-        (d.head || d.body).appendChild(s);
-        })();
-    </script>
-    <noscript>댓글을 보려면 JavaScript를 활성화해주세요. <a href="https://disqus.com/?ref_noscript">Disqus 이용</a></noscript>
 </body>
 </html>
