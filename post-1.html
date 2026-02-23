@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A comprehensive beginner's guide to stock trading. Learn how to open an account, analyze stocks, and place your first trade.">
+    <title>Beginner's Guide to Stock Trading - Smart Investment Tips</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        body.dark-mode {
+            background: #0f0f1e;
+            color: #e0e0e0;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+        
+        body.dark-mode .theme-toggle {
+            background: #1a2a4a;
+        }
+        
+        /* Navigation */
+        nav {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        body.dark-mode nav {
+            background: #1a1a2e;
+        }
+        
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: #333;
+            transition: color 0.3s;
+        }
+        
+        body.dark-mode nav a {
+            color: #e0e0e0;
+        }
+        
+        nav a:hover {
+            color: #667eea;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Article */
+        article {
+            background: white;
+            padding: 60px 20px;
+        }
+        
+        body.dark-mode article {
+            background: #1a1a2e;
+        }
+        
+        .article-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .article-category {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        article h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+        
+        .article-meta {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 30px;
+        }
+        
+        body.dark-mode .article-meta {
+            opacity: 0.6;
+        }
+        
+        .article-content {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+        
+        .article-content p {
+            margin-bottom: 20px;
+        }
+        
+        .article-content h2 {
+            font-size: 28px;
+            margin: 40px 0 20px 0;
+            font-weight: 700;
+        }
+        
+        .article-content h3 {
+            font-size: 22px;
+            margin: 30px 0 15px 0;
+            font-weight: 600;
+        }
+        
+        .article-content ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .article-content li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        .highlight {
+            background: #fff3cd;
+            padding: 20px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        body.dark-mode .highlight {
+            background: #3d3d1f;
+            border-left-color: #ffc107;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+    
+    <nav>
+        <div class="container">
+            <div class="logo">💰 Smart Investment Tips</div>
+            <a href="/">← Back to Home</a>
+        </div>
+    </nav>
+    
+    <article>
+        <div class="container">
+            <div class="article-header">
+                <span class="article-category">TRADING BASICS</span>
+                <h1>Beginner's Guide to Stock Trading</h1>
+                <div class="article-meta">5 min read • Feb 24, 2026 • by Investment Expert</div>
+            </div>
+            
+            <div class="article-content">
+                <p>If you're new to the world of investing and stock trading, you might feel overwhelmed by the sheer amount of information out there. But don't worry! This comprehensive guide will walk you through everything you need to know to start your trading journey confidently.</p>
+                
+                <h2>What is Stock Trading?</h2>
+                <p>Stock trading involves buying and selling shares of publicly listed companies with the goal of making a profit. Unlike long-term investing, trading often involves more frequent buying and selling of stocks over shorter time periods.</p>
+                
+                <div class="highlight">
+                    <p><strong>Key Takeaway:</strong> Trading is about timing the market and capitalizing on price movements, while investing is about holding quality companies for long-term growth.</p>
+                </div>
+                
+                <h2>Getting Started: The Basics</h2>
+                <p>Before you can start trading, you need to understand the fundamental concepts:</p>
+                
+                <h3>1. Open a Trading Account</h3>
+                <p>Choose a reputable broker and open a trading account. Look for platforms that offer:</p>
+                <ul>
+                    <li>Low trading commissions</li>
+                    <li>User-friendly interface</li>
+                    <li>Good customer support</li>
+                    <li>Educational resources</li>
+                    <li>Mobile trading apps</li>
+                </ul>
+                
+                <h3>2. Understand Stock Basics</h3>
+                <p>Familiarize yourself with key terms like:</p>
+                <ul>
+                    <li><strong>Bid Price:</strong> The highest price a buyer will pay</li>
+                    <li><strong>Ask Price:</strong> The lowest price a seller will accept</li>
+                    <li><strong>Spread:</strong> The difference between bid and ask prices</li>
+                    <li><strong>Volume:</strong> The number of shares traded in a period</li>
+                    <li><strong>Market Cap:</strong> Total value of a company's shares</li>
+                </ul>
+                
+                <h3>3. Learn About Order Types</h3>
+                <p>There are several types of orders you can place:</p>
+                <ul>
+                    <li><strong>Market Order:</strong> Buy or sell immediately at current market price</li>
+                    <li><strong>Limit Order:</strong> Buy or sell only at a specified price</li>
+                    <li><strong>Stop-Loss Order:</strong> Sell if price drops to a certain level</li>
+                    <li><strong>Day Order:</strong> Valid only for the current trading day</li>
+                </ul>
+                
+                <h2>Your First Trade</h2>
+                <p>When you're ready to place your first trade, follow these steps:</p>
+                <ol style="margin-left: 20px; margin-bottom: 20px;">
+                    <li>Research the company thoroughly</li>
+                    <li>Determine your entry price</li>
+                    <li>Set your stop-loss level</li>
+                    <li>Place your order</li>
+                    <li>Monitor your position</li>
+                    <li>Exit when your target is reached or stop-loss is hit</li>
+                </ol>
+                
+                <h2>Essential Trading Rules for Beginners</h2>
+                <p>To increase your chances of success, follow these golden rules:</p>
+                <ul>
+                    <li>Start small with paper trading or minimal capital</li>
+                    <li>Never risk more than 1% of your account on a single trade</li>
+                    <li>Always use stop-loss orders to limit losses</li>
+                    <li>Keep emotions out of your trading decisions</li>
+                    <li>Diversify your portfolio across different sectors</li>
+                    <li>Continuously educate yourself</li>
+                </ul>
+                
+                <div class="highlight">
+                    <p><strong>Pro Tip:</strong> Start with paper trading (simulated trading with virtual money) to practice without risking real capital. This helps you develop your strategy and gain confidence before you start with real money.</p>
+                </div>
+                
+                <h2>Common Beginner Mistakes to Avoid</h2>
+                <p>Learning from others' mistakes can accelerate your success. Here are common pitfalls:</p>
+                <ul>
+                    <li>Trading without a plan or strategy</li>
+                    <li>Over-leveraging your account</li>
+                    <li>Trading too frequently</li>
+                    <li>Not keeping a trading journal</li>
+                    <li>Chasing losses by taking bigger risks</li>
+                    <li>Following tips without doing your own research</li>
+                </ul>
+                
+                <h2>Conclusion</h2>
+                <p>Stock trading can be profitable, but it requires knowledge, discipline, and practice. Start small, follow your plan, and continuously learn. Remember, the goal isn't to get rich overnight—it's to build a sustainable trading practice that generates consistent returns over time.</p>
+                
+                <p>Happy trading! 📈</p>
+                
+                <a href="/" class="back-link">← Back to Home</a>
+            </div>
+        </div>
+    </article>
+    
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+        
+        themeToggle.addEventListener('click', function() {
+            body.classList.toggle('dark-mode');
+            const isDark = body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+    </script>
+</body>
+</html>
