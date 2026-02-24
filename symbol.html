@@ -447,7 +447,6 @@
         let lwChart;
         let lwSeries;
         let lwEntryLine = null;
-        let demoPrices = {};
         let simCash = SIM_INITIAL_CASH;
         let simPortfolio = {};
         let simTxs = [];
@@ -496,27 +495,38 @@
             return Math.abs(hash);
         }
 
-        function generateLightweightData(symbol) {
+        function getDayIndex(date) {
+            return Math.floor(date.getTime() / 86400000);
+        }
+
+        function seededUnit(seed, step) {
+            const x = Math.sin((seed * 0.0001) + (step * 12.9898)) * 43758.5453;
+            return x - Math.floor(x);
+        }
+
+        function getDemoPoint(symbol, date) {
             const seed = symbolSeed(symbol);
-            let current = DEMO_BASE_PRICE[symbol] || (20 + (seed % 500));
+            const base = DEMO_BASE_PRICE[symbol] || (20 + (seed % 500));
+            const step = getDayIndex(date);
+            const noise = (seededUnit(seed, step) - 0.5) * 0.02;
+            const cycle = Math.sin((step + (seed % 29)) / 6) * 0.007;
+            const value = Math.max(1, base * (1 + noise + cycle));
+            return Number(value.toFixed(2));
+        }
+
+        function generateLightweightData(symbol) {
             const points = [];
             const now = new Date();
             for (let i = 59; i >= 0; i--) {
                 const d = new Date(now);
                 d.setDate(now.getDate() - i);
-                current = Math.max(1, current * (1 + (Math.random() - 0.5) * 0.02));
-                points.push({ time: d.toISOString().slice(0, 10), value: Number(current.toFixed(2)) });
+                points.push({ time: d.toISOString().slice(0, 10), value: getDemoPoint(symbol, d) });
             }
-            demoPrices[symbol] = Number(current.toFixed(2));
             return points;
         }
 
         function getDemoPrice(symbol) {
-            if (demoPrices[symbol]) return demoPrices[symbol];
-            const seed = symbolSeed(symbol);
-            const base = DEMO_BASE_PRICE[symbol] || (20 + (seed % 500));
-            demoPrices[symbol] = Number(base.toFixed(2));
-            return demoPrices[symbol];
+            return getDemoPoint(symbol, new Date());
         }
 
         function renderEntryPriceLine() {
