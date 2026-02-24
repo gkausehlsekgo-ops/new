@@ -506,18 +506,43 @@
         let lwChart;
         let lwSeries;
 
-        function generateLightweightData(symbol) {
+        function symbolSeed(symbol) {
+            let hash = 0;
+            for (let i = 0; i < symbol.length; i++) {
+                hash = ((hash << 5) - hash) + symbol.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function getDayIndex(date) {
+            return Math.floor(date.getTime() / 86400000);
+        }
+
+        function seededUnit(seed, step) {
+            const x = Math.sin((seed * 0.0001) + (step * 12.9898)) * 43758.5453;
+            return x - Math.floor(x);
+        }
+
+        function getDemoPoint(symbol, date) {
+            const seed = symbolSeed(symbol);
             const base = symbolBasePrice[symbol] || 100;
+            const step = getDayIndex(date);
+            const noise = (seededUnit(seed, step) - 0.5) * 0.02;
+            const cycle = Math.sin((step + (seed % 29)) / 6) * 0.007;
+            const value = Math.max(1, base * (1 + noise + cycle));
+            return Number(value.toFixed(2));
+        }
+
+        function generateLightweightData(symbol) {
             const points = [];
-            let current = base;
             const now = new Date();
             for (let i = 45; i >= 0; i--) {
                 const d = new Date(now);
                 d.setDate(now.getDate() - i);
-                current = Math.max(1, current * (1 + (Math.random() - 0.5) * 0.02));
                 points.push({
                     time: d.toISOString().slice(0, 10),
-                    value: Number(current.toFixed(2))
+                    value: getDemoPoint(symbol, d)
                 });
             }
             return points;
@@ -589,11 +614,6 @@
             return 'KOSPI';
         }
 
-        function randomDelta(maxPercent) {
-            const direction = Math.random() > 0.5 ? 1 : -1;
-            return direction * (Math.random() * maxPercent);
-        }
-
         function formatChangePercent(deltaPercent) {
             const sign = deltaPercent >= 0 ? '+' : '';
             return `${sign}${deltaPercent.toFixed(2)}%`;
@@ -611,8 +631,13 @@
             ];
 
             markets.forEach(market => {
-                const deltaPercent = randomDelta(1.2);
-                const price = market.base * (1 + (deltaPercent / 100));
+                const symbol = market.id.toUpperCase();
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                const price = getDemoPoint(symbol, today);
+                const prevPrice = getDemoPoint(symbol, yesterday);
+                const deltaPercent = ((price - prevPrice) / prevPrice) * 100;
                 const isPositive = deltaPercent >= 0;
 
                 document.getElementById(`${market.id}-price`).textContent = `$${price.toFixed(2)}`;
