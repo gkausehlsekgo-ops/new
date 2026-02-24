@@ -222,7 +222,49 @@
         }
 
         .tv-wrap {
+            position: relative;
             min-height: 420px;
+        }
+
+        .tv-widget-inner {
+            height: 420px;
+        }
+
+        .trade-overlay {
+            position: absolute;
+            right: 12px;
+            top: 12px;
+            width: 220px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+            z-index: 5;
+        }
+
+        .trade-overlay h4 {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .trade-overlay .helper {
+            margin-top: 6px;
+            font-size: 11px;
+        }
+
+        .trade-overlay .row-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+
+        .trade-overlay input,
+        .trade-overlay select,
+        .trade-overlay button {
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 8px;
         }
 
         @media (max-width: 720px) {
@@ -285,7 +327,29 @@
             <div class="chart-meta" id="lightweightSource">출처: Lightweight Charts™ by TradingView (표시 데이터: 데모 생성값, 실시간 시세 아님)</div>
 
             <h3 style="margin-top:16px; font-size:16px;">TradingView Advanced Chart (보조지표 포함)</h3>
-            <div class="chart-wrap tv-wrap" id="tradingviewWidgetContainer"></div>
+            <div class="chart-wrap tv-wrap">
+                <div id="tradingviewWidgetContainer" class="tv-widget-inner"></div>
+                <form id="quickTradeOverlay" class="trade-overlay">
+                    <h4>⚡ 차트 위 가상매매</h4>
+                    <label for="quickSymbol">심볼</label>
+                    <input id="quickSymbol" type="text" readonly />
+                    <div class="row-mini" style="margin-top:6px;">
+                        <div>
+                            <label for="quickSide">방향</label>
+                            <select id="quickSide">
+                                <option value="buy">BUY</option>
+                                <option value="sell">SELL</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="quickQty">수량</label>
+                            <input id="quickQty" type="number" min="1" value="1" />
+                        </div>
+                    </div>
+                    <button type="submit" class="primary" style="margin-top:8px;">시뮬레이터로 주문 전달</button>
+                    <div class="helper">TradingView 위젯 내부 직접 주문은 불가해요. 시뮬레이터로 전달됩니다.</div>
+                </form>
+            </div>
             <div class="chart-meta" id="tvSource">출처: TradingView Advanced Chart · RSI/MACD/MA 포함</div>
         </div>
 
@@ -464,6 +528,8 @@
 
         function updateChartsForSymbol(symbol) {
             document.getElementById('chartTitle').textContent = `${symbol} 차트`;
+            const quickSymbol = document.getElementById('quickSymbol');
+            if (quickSymbol) quickSymbol.value = symbol;
             if (lwSeries) {
                 lwSeries.setData(generateLightweightData(symbol));
             }
@@ -607,6 +673,18 @@
                 setSymbol(currentSymbol);
             }
         }
+
+        document.getElementById('quickTradeOverlay').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const qty = parseInt(document.getElementById('quickQty').value, 10);
+            const side = document.getElementById('quickSide').value;
+            if (!qty || qty <= 0) {
+                alert('수량을 올바르게 입력하세요.');
+                return;
+            }
+            const to = `./simulator.html?symbol=${encodeURIComponent(currentSymbol)}&side=${encodeURIComponent(side)}&qty=${encodeURIComponent(qty)}`;
+            window.location.href = to;
+        });
 
         initLightweightChart();
         renderCategories();
