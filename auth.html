@@ -43,6 +43,9 @@
             <label for="email">Email</label>
             <input id="email" type="email" placeholder="you@example.com" />
 
+            <label for="nickname">Nickname</label>
+            <input id="nickname" type="text" placeholder="닉네임(2~20자)" />
+
             <label for="password">Password</label>
             <input id="password" type="password" placeholder="8자 이상" />
 
@@ -131,11 +134,17 @@
         document.getElementById('signUpBtn').addEventListener('click', async () => {
             const client = getClient();
             const email = document.getElementById('email').value.trim();
+            const nickname = document.getElementById('nickname').value.trim();
             const password = document.getElementById('password').value;
             const verifyCode = document.getElementById('verifyCode').value.trim();
 
             if (!email || !password || !verifyCode) {
                 authStatus.textContent = '이메일/비밀번호/인증코드(8자리)를 모두 입력하세요.';
+                return;
+            }
+
+            if (!nickname || nickname.length < 2 || nickname.length > 20) {
+                authStatus.textContent = '닉네임은 2~20자로 입력하세요.';
                 return;
             }
 
@@ -160,13 +169,22 @@
                 return;
             }
 
-            const { error: updateError } = await client.auth.updateUser({ password });
+            const { error: updateError } = await client.auth.updateUser({
+                password,
+                data: {
+                    nickname
+                }
+            });
             if (updateError) {
                 authStatus.textContent = '회원가입 마무리 실패: ' + updateError.message;
                 return;
             }
 
-            authStatus.textContent = '회원가입 완료: 코드 인증 및 비밀번호 설정이 완료되었습니다.';
+            localStorage.setItem('profile_nickname', nickname);
+            authStatus.textContent = '회원가입 완료: 홈으로 이동합니다.';
+            setTimeout(() => {
+                location.href = './index.html';
+            }, 800);
         });
 
         document.getElementById('signInBtn').addEventListener('click', async () => {
@@ -195,6 +213,11 @@
             if (error) {
                 authStatus.textContent = '로그인 실패: ' + error.message;
                 return;
+            }
+
+            const loginNickname = data?.user?.user_metadata?.nickname || '';
+            if (loginNickname) {
+                localStorage.setItem('profile_nickname', loginNickname);
             }
 
             if (!data?.user?.email_confirmed_at) {
