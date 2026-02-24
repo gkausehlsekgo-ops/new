@@ -99,25 +99,25 @@
         banner.id = 'legalConsentBanner';
         banner.className = 'legal-consent-banner';
         banner.innerHTML = `
-            <div class="legal-consent-title">쿠키 및 개인정보 처리 동의</div>
+            <div class="legal-consent-title">Cookie & Privacy Consent</div>
             <div class="legal-consent-text">
-                사이트 운영, 보안, 광고 성과 측정을 위해 쿠키 및 유사 기술을 사용할 수 있습니다.
-                "동의"를 누르면 개인화 광고에 동의하며, "필수만"을 누르면 비개인화 설정으로 이용합니다.
+                We use cookies and similar technologies for site operation, security, analytics, and advertising.
+                Select "Accept" for personalized ads, or "Essential Only" for non-personalized settings.
             </div>
             <div class="legal-consent-links">
-                <a href="/privacy.html">개인정보처리방침</a>
-                <a href="/terms.html">이용약관</a>
+                <a href="./privacy.html">Privacy Policy</a>
+                <a href="./terms.html">Terms of Service</a>
             </div>
             <div class="legal-consent-actions">
-                <button class="legal-consent-btn legal-consent-accept" id="legalConsentAccept">동의 (개인화 광고)</button>
-                <button class="legal-consent-btn legal-consent-essential" id="legalConsentEssential">필수만 (비개인화)</button>
+                <button class="legal-consent-btn legal-consent-accept" id="legalConsentAccept">Accept (Personalized Ads)</button>
+                <button class="legal-consent-btn legal-consent-essential" id="legalConsentEssential">Essential Only</button>
             </div>
         `;
 
         const manageBtn = document.createElement('button');
         manageBtn.id = 'legalConsentManage';
         manageBtn.className = 'legal-consent-manage';
-        manageBtn.textContent = '동의 설정';
+        manageBtn.textContent = 'Consent Settings';
 
         document.body.appendChild(banner);
         document.body.appendChild(manageBtn);
