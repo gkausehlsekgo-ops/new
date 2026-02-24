@@ -580,12 +580,22 @@
                 }
             });
 
-            lwSeries = lwChart.addAreaSeries({
+            const seriesOptions = {
                 lineColor: '#667eea',
                 topColor: 'rgba(102, 126, 234, 0.35)',
                 bottomColor: 'rgba(102, 126, 234, 0.05)',
                 lineWidth: 2
-            });
+            };
+
+            if (typeof lwChart.addAreaSeries === 'function') {
+                lwSeries = lwChart.addAreaSeries(seriesOptions);
+            } else if (typeof lwChart.addSeries === 'function' && window.LightweightCharts.AreaSeries) {
+                lwSeries = lwChart.addSeries(window.LightweightCharts.AreaSeries, seriesOptions);
+            } else {
+                const note = document.querySelector('.source-note');
+                if (note) note.textContent = '차트 로딩 실패: Lightweight Charts 버전 호환 문제';
+                return;
+            }
 
             lwSeries.setData(generateLightweightData('AAPL'));
             window.addEventListener('resize', () => {
