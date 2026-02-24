@@ -67,9 +67,17 @@
 
                     <div style="display:flex; gap:8px; margin-bottom:8px">
                         <input id="qtyInput" type="number" min="1" placeholder="Qty" />
-                        <select id="actionSelect"><option value="buy">Buy</option><option value="sell">Sell</option></select>
-                        <button id="tradeBtn">Execute Trade</button>
+                        <input id="limitPriceInput" type="number" min="0.01" step="0.01" placeholder="Limit Price" />
                     </div>
+
+                    <div style="display:grid; grid-template-columns:repeat(2, minmax(120px, 1fr)); gap:8px; margin-bottom:8px">
+                        <button id="marketBuyBtn" style="background:#d1fae5; border:1px solid #a7f3d0">시장가 매수</button>
+                        <button id="marketSellBtn" style="background:#fee2e2; border:1px solid #fecaca">시장가 매도</button>
+                        <button id="limitBuyBtn" style="background:#dbeafe; border:1px solid #bfdbfe">지정가 매수</button>
+                        <button id="limitSellBtn" style="background:#ede9fe; border:1px solid #ddd6fe">지정가 매도</button>
+                    </div>
+
+                    <div class="small" style="margin-bottom:8px">지정가 주문은 현재가 조건 충족 시 즉시 체결됩니다.</div>
 
                     <div style="display:flex; gap:8px; margin-top:6px">
                         <button id="resetBtn" style="background:#f8d7da; border:1px solid #f5c6cb">Reset Portfolio</button>
@@ -301,9 +309,6 @@
                 document.getElementById('symbolInput').value = symbol;
                 lookup(symbol);
             }
-            if (side === 'buy' || side === 'sell') {
-                document.getElementById('actionSelect').value = side;
-            }
             if (qty && qty > 0) {
                 document.getElementById('qtyInput').value = qty;
             }
@@ -328,7 +333,7 @@
             history.replaceState({}, '', url.toString());
 
             try {
-                await executeTrade();
+                await executeTrade('market', prefill.side || 'buy');
                 const hint = document.getElementById('quickTradeHint');
                 hint.style.display = 'block';
                 hint.textContent = `자동 가상매매 실행 완료: ${prefill.symbol} / ${prefill.side.toUpperCase()} / 수량 ${prefill.qty}`;
@@ -339,41 +344,60 @@
             }
         }
 
-        async function executeTrade(){
+        async function executeTrade(orderType, side){
             if (!currentUser) {
                 alert('로그인이 필요합니다. auth.html에서 로그인하세요.');
                 return;
             }
             const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
             const qty = parseInt(document.getElementById('qtyInput').value,10);
-            const side = document.getElementById('actionSelect').value;
             if(!sym || !qty || qty<=0){ alert('Enter valid symbol and qty'); return }
-            const price = fetchPrice(sym);
-            if(price===null){ alert('Price not available'); return }
+            const currentPrice = fetchPrice(sym);
+            if(currentPrice===null){ alert('Price not available'); return }
+
+            let execPrice = currentPrice;
+            if (orderType === 'limit') {
+                const limit = parseFloat(document.getElementById('limitPriceInput').value);
+                if (!limit || limit <= 0) {
+                    alert('지정가 가격을 입력하세요.');
+                    return;
+                }
+
+                if (side === 'buy' && currentPrice > limit) {
+                    alert(`미체결: 현재가($${format(currentPrice)})가 지정가($${format(limit)})보다 높습니다.`);
+                    return;
+                }
+                if (side === 'sell' && currentPrice < limit) {
+                    alert(`미체결: 현재가($${format(currentPrice)})가 지정가($${format(limit)})보다 낮습니다.`);
+                    return;
+                }
+
+                execPrice = limit;
+            }
 
             if(side==='buy'){
-                const cost = price * qty;
+                const cost = execPrice * qty;
                 if(cost > cash){ alert('Insufficient cash'); return }
                 cash -= cost;
-                if(!portfolio[sym]) portfolio[sym] = { qty:0, avgPrice:0, currentPrice:price };
+                if(!portfolio[sym]) portfolio[sym] = { qty:0, avgPrice:0, currentPrice:execPrice };
                 const existing = portfolio[sym];
                 const newQty = existing.qty + qty;
-                existing.avgPrice = ((existing.avgPrice * existing.qty) + (price * qty)) / newQty;
+                existing.avgPrice = ((existing.avgPrice * existing.qty) + (execPrice * qty)) / newQty;
                 existing.qty = newQty;
-                existing.currentPrice = price;
-                const t = { date:new Date().toLocaleString(), symbol: sym, side:'BUY', qty, price };
+                existing.currentPrice = execPrice;
+                const t = { date:new Date().toLocaleString(), symbol: sym, side:`BUY-${orderType.toUpperCase()}`, qty, price: execPrice };
                 txs.unshift(t);
-                await addTradeRecord('BUY', sym, qty, price);
+                await addTradeRecord('BUY', sym, qty, execPrice);
             } else {
                 if(!portfolio[sym] || portfolio[sym].qty < qty){ alert('Not enough shares to sell'); return }
-                const proceeds = price * qty;
+                const proceeds = execPrice * qty;
                 cash += proceeds;
                 portfolio[sym].qty -= qty;
-                portfolio[sym].currentPrice = price;
+                portfolio[sym].currentPrice = execPrice;
                 if(portfolio[sym].qty===0) delete portfolio[sym];
-                const t = { date:new Date().toLocaleString(), symbol: sym, side:'SELL', qty, price };
+                const t = { date:new Date().toLocaleString(), symbol: sym, side:`SELL-${orderType.toUpperCase()}`, qty, price: execPrice };
                 txs.unshift(t);
-                await addTradeRecord('SELL', sym, qty, price);
+                await addTradeRecord('SELL', sym, qty, execPrice);
             }
             await saveState();
             render();
@@ -436,7 +460,10 @@
         document.getElementById('lookupBtn').addEventListener('click', ()=>{
             const s = document.getElementById('symbolInput').value.trim(); if(!s) return; lookup(s);
         });
-        document.getElementById('tradeBtn').addEventListener('click', executeTrade);
+        document.getElementById('marketBuyBtn').addEventListener('click', () => executeTrade('market', 'buy'));
+        document.getElementById('marketSellBtn').addEventListener('click', () => executeTrade('market', 'sell'));
+        document.getElementById('limitBuyBtn').addEventListener('click', () => executeTrade('limit', 'buy'));
+        document.getElementById('limitSellBtn').addEventListener('click', () => executeTrade('limit', 'sell'));
         document.getElementById('resetBtn').addEventListener('click', resetPortfolio);
         document.getElementById('exportBtn').addEventListener('click', exportState);
         document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
