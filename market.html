@@ -469,28 +469,6 @@
                 <div class="source-note">표시 데이터: 데모 생성값(학습용)으로 실제 NASDAQ/KOSPI 시세와 다를 수 있습니다.</div>
             </div>
 
-            <div class="chart-container">
-                <h3>📺 TradingView Advanced Chart (보조지표 포함)</h3>
-                <div class="lw-toolbar">
-                    <div>
-                        <label for="tvSymbolSelect" style="font-size:12px; opacity:0.7; margin-right:6px;">심볼</label>
-                        <select id="tvSymbolSelect">
-                            <option value="TVC:KOSPI">TVC:KOSPI</option>
-                            <option value="KRX:KQ11">KRX:KQ11</option>
-                            <option value="NASDAQ:IXIC">NASDAQ:IXIC</option>
-                            <option value="SP:SPX">SP:SPX</option>
-                            <option value="DJ:DJI">DJ:DJI</option>
-                            <option value="NASDAQ:AAPL">NASDAQ:AAPL</option>
-                        </select>
-                    </div>
-                    <div style="font-size:12px; opacity:0.7;">출처: TradingView Advanced Chart (RSI/MACD/MA)</div>
-                </div>
-                <div class="tv-widget-wrap">
-                    <div id="tradingviewWidgetContainer" style="height:420px;"></div>
-                </div>
-                <div class="source-note">위젯 데이터/시각화 출처: TradingView. 지표는 우측/상단 메뉴에서 추가 변경 가능.</div>
-            </div>
-            
             <div class="setup-guide">
                 <h3>🔧 Live Data Setup</h3>
                 <p style="margin-bottom: 20px;">Live data is currently disabled to avoid external API usage. This page uses demo data only.</p>
@@ -528,17 +506,6 @@
 
         let lwChart;
         let lwSeries;
-
-        const tvSymbolMap = {
-            AAPL: 'NASDAQ:AAPL',
-            KOSPI: 'TVC:KOSPI',
-            KOSDAQ: 'KRX:KQ11',
-            NASDAQ: 'NASDAQ:IXIC',
-            SP500: 'SP:SPX',
-            DOW: 'DJ:DJI'
-        };
-
-        const tvToLwMap = Object.fromEntries(Object.entries(tvSymbolMap).map(([k, v]) => [v, k]));
 
         function generateLightweightData(symbol) {
             const base = symbolBasePrice[symbol] || 100;
@@ -610,44 +577,10 @@
             lwSeries.setData(generateLightweightData(symbol));
         }
 
-        function renderTradingViewWidget(symbol) {
-            const root = document.getElementById('tradingviewWidgetContainer');
-            if (!root) return;
-            root.innerHTML = '';
-
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-            script.async = true;
-            script.innerHTML = JSON.stringify({
-                symbol: symbol,
-                width: '100%',
-                height: 420,
-                locale: 'kr',
-                colorTheme: document.body.classList.contains('dark-mode') ? 'dark' : 'light',
-                autosize: true,
-                interval: 'D',
-                timezone: 'Asia/Seoul',
-                fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans, sans-serif',
-                withdateranges: true,
-                hide_side_toolbar: true,
-                allow_symbol_change: true,
-                studies: [
-                    'RSI@tv-basicstudies',
-                    'MACD@tv-basicstudies',
-                    'MASimple@tv-basicstudies'
-                ]
-            });
-            root.appendChild(script);
-        }
-
         function applySelectedSymbol(lwSymbol) {
             const lwSelect = document.getElementById('lwSymbolSelect');
-            const tvSelect = document.getElementById('tvSymbolSelect');
             lwSelect.value = lwSymbol;
-            tvSelect.value = tvSymbolMap[lwSymbol] || tvSymbolMap.KOSPI;
             updateLightweightSymbol(lwSymbol);
-            renderTradingViewWidget(tvSelect.value);
         }
 
         function getInitialSymbol() {
@@ -710,7 +643,6 @@
             const isDark = body.classList.contains('dark-mode');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
             themeToggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
-            renderTradingViewWidget(document.getElementById('tvSymbolSelect').value);
         });
         
         // Initialize on load
@@ -719,18 +651,8 @@
             updateMarketData();
 
             const lwSelect = document.getElementById('lwSymbolSelect');
-            const tvSelect = document.getElementById('tvSymbolSelect');
             lwSelect.addEventListener('change', () => {
-                const lwSymbol = lwSelect.value;
-                tvSelect.value = tvSymbolMap[lwSymbol] || tvSymbolMap.KOSPI;
-                updateLightweightSymbol(lwSymbol);
-                renderTradingViewWidget(tvSelect.value);
-            });
-            tvSelect.addEventListener('change', () => {
-                const lwSymbol = tvToLwMap[tvSelect.value] || 'KOSPI';
-                lwSelect.value = lwSymbol;
-                updateLightweightSymbol(lwSymbol);
-                renderTradingViewWidget(tvSelect.value);
+                updateLightweightSymbol(lwSelect.value);
             });
 
             applySelectedSymbol(getInitialSymbol());
