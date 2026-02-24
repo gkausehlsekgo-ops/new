@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>로그인 / 회원가입 - Smart Investment Tips</title>
+    <title>Login / Sign Up - Smart Investment Tips</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; }
@@ -29,9 +29,9 @@
 <body>
     <div class="wrap">
         <div class="card" id="supabaseConfigPanel">
-            <h1>로그인 / 회원가입</h1>
-            <p>개인별 가상계좌와 거래내역을 저장하려면 먼저 계정이 필요합니다.</p>
-            <div class="helper">설정한 URL/키는 브라우저에 저장됩니다.</div>
+            <h1>Login / Sign Up</h1>
+            <p>An account is required to save your personal virtual portfolio and trade history.</p>
+            <div class="helper">Configured URL/keys are stored in your browser.</div>
 
             <label for="supabaseUrl">Supabase URL</label>
             <input id="supabaseUrl" placeholder="https://xxxx.supabase.co" />
@@ -39,7 +39,7 @@
             <label for="supabaseAnonKey">Supabase Anon Key</label>
             <input id="supabaseAnonKey" placeholder="eyJ..." />
 
-            <button id="saveConfigBtn" class="ghost">Supabase 설정 저장</button>
+            <button id="saveConfigBtn" class="ghost">Save Supabase Settings</button>
             <div id="configStatus" class="status"></div>
         </div>
 
@@ -48,34 +48,34 @@
             <input id="email" type="email" placeholder="you@example.com" />
 
             <label for="nickname">Nickname</label>
-            <input id="nickname" type="text" placeholder="닉네임(2~20자)" />
+            <input id="nickname" type="text" placeholder="Nickname (2-20 chars)" />
 
             <label for="password">Password</label>
-            <input id="password" type="password" placeholder="8자 이상" />
+            <input id="password" type="password" placeholder="At least 8 characters" />
 
-            <label for="verifyCode">인증 코드</label>
-            <input id="verifyCode" type="text" placeholder="이메일로 받은 8자리 코드" />
+            <label for="verifyCode">Verification Code</label>
+            <input id="verifyCode" type="text" placeholder="8-digit code from your email" />
 
-            <button id="sendCodeBtn" class="ghost">인증 코드 발송</button>
+            <button id="sendCodeBtn" class="ghost">Send Verification Code</button>
 
             <div class="row">
-                <button id="signUpBtn">코드 확인 후 회원가입</button>
-                <button id="signInBtn" class="ghost">로그인</button>
+                <button id="signUpBtn">Verify Code & Sign Up</button>
+                <button id="signInBtn" class="ghost">Login</button>
             </div>
             <div class="agree-wrap">
                 <label class="agree-row" for="agreeRequired" style="margin:0;">
                     <input id="agreeRequired" type="checkbox" />
-                    <span>[필수] <a href="./privacy.html" target="_blank" rel="noopener">개인정보처리방침</a> 및 <a href="./terms.html" target="_blank" rel="noopener">이용약관</a>에 동의합니다.</span>
+                    <span>[Required] I agree to the <a href="./privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="./terms.html" target="_blank" rel="noopener">Terms of Service</a>.</span>
                 </label>
                 <label class="agree-row" for="agreeCommunity" style="margin:8px 0 0 0;">
                     <input id="agreeCommunity" type="checkbox" />
-                    <span>[필수] <a href="./community-rules.html" target="_blank" rel="noopener">커뮤니티 운영정책</a>(개인 광고/성적 발언 금지, 위반 시 밴 가능)에 동의합니다.</span>
+                    <span>[Required] I agree to the <a href="./community-rules.html" target="_blank" rel="noopener">Community Rules</a> (no personal ads/sexual content; violations may result in a ban).</span>
                 </label>
             </div>
-            <button id="resendBtn" class="ghost">인증 메일 다시 보내기</button>
+            <button id="resendBtn" class="ghost">Resend Verification Email</button>
             <div id="authStatus" class="status"></div>
-            <div class="helper">회원가입 순서: 인증 코드 발송 → 코드 입력 → 필수 동의(정책/커뮤니티) 체크 → 회원가입 버튼</div>
-            <div class="helper"><a href="./index.html">홈으로</a> · <a href="./contact.html">문의하기</a></div>
+            <div class="helper">Sign-up flow: send code → enter code → check required agreements → click sign-up.</div>
+            <div class="helper"><a href="./index.html">Back to Home</a> · <a href="./contact.html">Contact</a></div>
         </div>
     </div>
 
@@ -118,12 +118,12 @@
             const supabaseUrl = urlInput.value.trim();
             const supabaseAnonKey = keyInput.value.trim();
             if (!supabaseUrl || !supabaseAnonKey) {
-                configStatus.textContent = 'URL/Anon Key를 모두 입력하세요.';
+                configStatus.textContent = 'Please enter both URL and Anon Key.';
                 return;
             }
             localStorage.setItem('supabase_url', supabaseUrl);
             localStorage.setItem('supabase_anon_key', supabaseAnonKey);
-            configStatus.textContent = '저장 완료';
+            configStatus.textContent = 'Saved.';
         });
 
         document.getElementById('sendCodeBtn').addEventListener('click', async () => {
@@ -131,17 +131,17 @@
             const email = document.getElementById('email').value.trim();
 
             if (!email) {
-                authStatus.textContent = '이메일을 입력하세요.';
+                authStatus.textContent = 'Please enter your email.';
                 return;
             }
 
             if (!client) {
-                authStatus.textContent = '코드 인증 회원가입은 Supabase 설정이 필요합니다.';
+                authStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
                 return;
             }
 
             const { error } = await sendSignupCode(client, email);
-            authStatus.textContent = error ? ('코드 발송 실패: ' + error.message) : '인증 코드 발송 완료: 이메일에서 코드를 확인하세요.';
+            authStatus.textContent = error ? ('Code send failed: ' + error.message) : 'Verification code sent. Please check your email.';
         });
 
         document.getElementById('signUpBtn').addEventListener('click', async () => {
@@ -154,32 +154,32 @@
             const agreeCommunity = document.getElementById('agreeCommunity').checked;
 
             if (!email || !password || !verifyCode) {
-                authStatus.textContent = '이메일/비밀번호/인증코드(8자리)를 모두 입력하세요.';
+                authStatus.textContent = 'Please enter email, password, and 8-digit verification code.';
                 return;
             }
 
             if (!nickname || nickname.length < 2 || nickname.length > 20) {
-                authStatus.textContent = '닉네임은 2~20자로 입력하세요.';
+                authStatus.textContent = 'Nickname must be 2-20 characters.';
                 return;
             }
 
             if (!/^\d{8}$/.test(verifyCode)) {
-                authStatus.textContent = '인증코드는 숫자 8자리로 입력하세요.';
+                authStatus.textContent = 'Verification code must be 8 digits.';
                 return;
             }
 
             if (!agreeRequired) {
-                authStatus.textContent = '회원가입을 위해 개인정보처리방침/이용약관 동의가 필요합니다.';
+                authStatus.textContent = 'You must agree to Privacy Policy and Terms to sign up.';
                 return;
             }
 
             if (!agreeCommunity) {
-                authStatus.textContent = '회원가입을 위해 커뮤니티 운영정책 동의가 필요합니다.';
+                authStatus.textContent = 'You must agree to Community Rules to sign up.';
                 return;
             }
 
             if (!client) {
-                authStatus.textContent = '코드 인증 회원가입은 Supabase 설정이 필요합니다.';
+                authStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
                 return;
             }
 
@@ -190,7 +190,7 @@
             });
 
             if (verifyError) {
-                authStatus.textContent = '코드 확인 실패: ' + verifyError.message;
+                authStatus.textContent = 'Code verification failed: ' + verifyError.message;
                 return;
             }
 
@@ -205,12 +205,12 @@
                 }
             });
             if (updateError) {
-                authStatus.textContent = '회원가입 마무리 실패: ' + updateError.message;
+                authStatus.textContent = 'Sign-up finalization failed: ' + updateError.message;
                 return;
             }
 
             localStorage.setItem('profile_nickname', nickname);
-            authStatus.textContent = '회원가입 완료: 홈으로 이동합니다.';
+            authStatus.textContent = 'Sign-up complete. Redirecting to home...';
             setTimeout(() => {
                 location.href = './index.html';
             }, 800);
@@ -222,7 +222,7 @@
             const password = document.getElementById('password').value;
 
             if (!email || !password) {
-                authStatus.textContent = '이메일/비밀번호를 입력하세요.';
+                authStatus.textContent = 'Please enter email and password.';
                 return;
             }
 
@@ -230,17 +230,17 @@
                 const users = getLocalUsers();
                 const matched = users.find(u => u.email === email && u.password === password);
                 if (!matched) {
-                    authStatus.textContent = '로컬 로그인 실패: 이메일/비밀번호 확인';
+                    authStatus.textContent = 'Local login failed: check email/password.';
                     return;
                 }
                 localStorage.setItem(LOCAL_SESSION_KEY, email);
-                authStatus.textContent = '로컬 로그인 성공 (Supabase 없이 사용 중)';
+                authStatus.textContent = 'Local login successful (using without Supabase).';
                 return;
             }
 
             const { data, error } = await client.auth.signInWithPassword({ email, password });
             if (error) {
-                authStatus.textContent = '로그인 실패: ' + error.message;
+                authStatus.textContent = 'Login failed: ' + error.message;
                 return;
             }
 
@@ -251,35 +251,35 @@
 
             if (!data?.user?.email_confirmed_at) {
                 await client.auth.signOut();
-                authStatus.textContent = '이메일 인증 후 로그인 가능합니다. 받은편지함을 확인하세요.';
+                authStatus.textContent = 'Please verify your email before logging in.';
                 return;
             }
 
-            authStatus.textContent = '로그인 성공';
+            authStatus.textContent = 'Login successful.';
         });
 
         document.getElementById('resendBtn').addEventListener('click', async () => {
             const client = getClient();
             if (!client) {
-                authStatus.textContent = '코드 인증 회원가입은 Supabase 설정이 필요합니다.';
+                authStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
                 return;
             }
             const email = document.getElementById('email').value.trim();
-            if (!email) { authStatus.textContent = '이메일을 입력하세요.'; return; }
+            if (!email) { authStatus.textContent = 'Please enter your email.'; return; }
 
             const { error } = await sendSignupCode(client, email);
-            authStatus.textContent = error ? ('코드 재발송 실패: ' + error.message) : '인증 코드 재발송 완료';
+            authStatus.textContent = error ? ('Code resend failed: ' + error.message) : 'Verification code resent.';
         });
 
         document.getElementById('signOutBtn')?.addEventListener('click', async () => {
             const client = getClient();
             if (!client) {
                 localStorage.removeItem(LOCAL_SESSION_KEY);
-                authStatus.textContent = '로컬 로그아웃 완료';
+                authStatus.textContent = 'Local logout complete.';
                 return;
             }
             await client.auth.signOut();
-            authStatus.textContent = '로그아웃 완료';
+            authStatus.textContent = 'Logout complete.';
         });
 
         (async () => {
@@ -287,9 +287,9 @@
             if (!client) {
                 const email = localStorage.getItem(LOCAL_SESSION_KEY);
                 if (email) {
-                    authStatus.textContent = '현재 로컬 로그인: ' + email;
+                    authStatus.textContent = 'Current local session: ' + email;
                 } else {
-                    authStatus.textContent = '로컬 모드 사용 가능: Supabase URL 없이 가입/로그인 가능';
+                    authStatus.textContent = 'Local mode available: sign-up/login possible without Supabase URL.';
                 }
                 return;
             }
@@ -297,13 +297,14 @@
             const { data } = await client.auth.getSession();
             if (data?.session?.user?.email) {
                 if (!data.session.user.email_confirmed_at) {
-                    authStatus.textContent = '현재 세션은 미인증 상태입니다. 이메일 인증 후 다시 로그인하세요.';
+                    authStatus.textContent = 'Current session is unverified. Please verify email and log in again.';
                 } else {
-                    authStatus.textContent = '현재 로그인: ' + data.session.user.email;
+                    authStatus.textContent = 'Currently logged in: ' + data.session.user.email;
                 }
             }
         })();
     </script>
+    <script src="./analytics.js"></script>
     <script src="./legal-consent.js"></script>
     <script src="./assistant-widget.js"></script>
 </body>
