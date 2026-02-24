@@ -128,9 +128,9 @@
                     name: 'AI Assistant Widget',
                     email: payload.email || receiverEmail,
                     message: [
-                        `문의유형: ${payload.type}`,
-                        `회신이메일: ${payload.email || '(미입력)'}`,
-                        `소스: ${payload.source}`,
+                        `Inquiry type: ${payload.type}`,
+                        `Reply email: ${payload.email || '(not provided)'}`,
+                        `Source: ${payload.source}`,
                         '',
                         payload.message
                     ].join('\n'),
@@ -148,29 +148,29 @@
         const fab = document.createElement('button');
         fab.className = 'assist-fab';
         fab.type = 'button';
-        fab.textContent = '도움이 필요하신가요?';
+        fab.textContent = 'Need help?';
 
         const panel = document.createElement('div');
         panel.className = 'assist-panel';
         panel.innerHTML = `
-            <div class="assist-title">AI 비서 문의 접수</div>
-            <div class="assist-sub">문제사항 또는 광고/협업 문의를 빠르게 남겨주세요.</div>
+            <div class="assist-title">AI Assistant Quick Support</div>
+            <div class="assist-sub">Send a quick support request or advertising collaboration inquiry.</div>
 
-            <label for="assistType">문의 유형</label>
+            <label for="assistType">Inquiry Type</label>
             <select id="assistType">
-                <option value="문제사항">문제사항</option>
-                <option value="광고/협업 문의">광고/협업 문의</option>
+                <option value="Issue Report">Issue Report</option>
+                <option value="Advertising / Partnership">Advertising / Partnership</option>
             </select>
 
-            <label for="assistEmail">회신 이메일 (선택)</label>
+            <label for="assistEmail">Reply Email (Optional)</label>
             <input id="assistEmail" type="email" placeholder="you@example.com" />
 
-            <label for="assistMessage">내용</label>
-            <textarea id="assistMessage" placeholder="예: 로그인 버튼이 동작하지 않아요."></textarea>
+            <label for="assistMessage">Message</label>
+            <textarea id="assistMessage" placeholder="e.g. The login button is not working."></textarea>
 
             <div class="assist-row">
-                <button class="assist-submit" id="assistSubmit" type="button">접수하기</button>
-                <button class="assist-link" id="assistContact" type="button">Contact 열기</button>
+                <button class="assist-submit" id="assistSubmit" type="button">Submit</button>
+                <button class="assist-link" id="assistContact" type="button">Open Contact</button>
             </div>
         `;
 
@@ -191,7 +191,7 @@
             const message = panel.querySelector('#assistMessage').value.trim();
 
             if (!message) {
-                alert('문의 내용을 입력해주세요.');
+                alert('Please enter your message.');
                 return;
             }
 
@@ -210,8 +210,8 @@
             panel.querySelector('#assistMessage').value = '';
             panel.classList.remove('open');
             alert(delivered
-                ? '문의가 접수되어 관리자 이메일로 전송되었습니다.'
-                : '문의가 접수되었습니다. Contact 페이지에서도 확인할 수 있습니다.');
+                ? 'Your inquiry has been sent to the admin email.'
+                : 'Your inquiry has been saved. You can also use the Contact page.');
         });
     }
 
