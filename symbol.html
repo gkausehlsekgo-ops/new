@@ -407,7 +407,7 @@
             <div class="chart-wrap">
                 <div id="lightweightChart"></div>
             </div>
-            <div class="chart-meta" id="lightweightSource">출처: Lightweight Charts™ by TradingView (표시 데이터: 데모 생성값, 실시간 시세 아님)</div>
+            <div class="chart-meta" id="lightweightSource">출처: Lightweight Charts™ by TradingView (표시 데이터: 지연 시세 우선, 실패 시 데모값)</div>
 
             <div class="indicator-toolbar">
                 <div class="helper" style="margin-top:0;">인기 지표 10종 (자체 계산): MA5 · MA20 · MA60 · EMA12 · EMA26 · VWAP · Bollinger Bands · RSI · MACD · Stochastic</div>
@@ -1181,7 +1181,7 @@
             if (lwSeries) applyMainSeriesData(symbol);
             const source = document.getElementById('lightweightSource');
             if (source) {
-                source.textContent = '출처: Lightweight Charts™ by TradingView (전 종목 캔들 모드, 지연/데모 혼합값)';
+                source.textContent = '출처: Lightweight Charts™ by TradingView (전 종목 캔들 모드, 지연 시세 우선 · 실패 시 데모)';
             }
             renderEntryPriceLine();
             renderTradeMarkers();
