@@ -67,10 +67,14 @@
                     <input id="agreeRequired" type="checkbox" />
                     <span>[필수] <a href="./privacy.html" target="_blank" rel="noopener">개인정보처리방침</a> 및 <a href="./terms.html" target="_blank" rel="noopener">이용약관</a>에 동의합니다.</span>
                 </label>
+                <label class="agree-row" for="agreeCommunity" style="margin:8px 0 0 0;">
+                    <input id="agreeCommunity" type="checkbox" />
+                    <span>[필수] <a href="./community-rules.html" target="_blank" rel="noopener">커뮤니티 운영정책</a>(개인 광고/성적 발언 금지, 위반 시 밴 가능)에 동의합니다.</span>
+                </label>
             </div>
             <button id="resendBtn" class="ghost">인증 메일 다시 보내기</button>
             <div id="authStatus" class="status"></div>
-            <div class="helper">회원가입 순서: 인증 코드 발송 → 코드 입력 → 필수 동의 체크 → 회원가입 버튼</div>
+            <div class="helper">회원가입 순서: 인증 코드 발송 → 코드 입력 → 필수 동의(정책/커뮤니티) 체크 → 회원가입 버튼</div>
             <div class="helper"><a href="./index.html">홈으로</a> · <a href="./contact.html">문의하기</a></div>
         </div>
     </div>
@@ -147,6 +151,7 @@
             const password = document.getElementById('password').value;
             const verifyCode = document.getElementById('verifyCode').value.trim();
             const agreeRequired = document.getElementById('agreeRequired').checked;
+            const agreeCommunity = document.getElementById('agreeCommunity').checked;
 
             if (!email || !password || !verifyCode) {
                 authStatus.textContent = '이메일/비밀번호/인증코드(8자리)를 모두 입력하세요.';
@@ -165,6 +170,11 @@
 
             if (!agreeRequired) {
                 authStatus.textContent = '회원가입을 위해 개인정보처리방침/이용약관 동의가 필요합니다.';
+                return;
+            }
+
+            if (!agreeCommunity) {
+                authStatus.textContent = '회원가입을 위해 커뮤니티 운영정책 동의가 필요합니다.';
                 return;
             }
 
@@ -189,7 +199,9 @@
                 data: {
                     nickname,
                     terms_agreed_at: new Date().toISOString(),
-                    terms_version: '2026-02-24'
+                    terms_version: '2026-02-24',
+                    community_rules_agreed_at: new Date().toISOString(),
+                    community_rules_version: '2026-02-24'
                 }
             });
             if (updateError) {
