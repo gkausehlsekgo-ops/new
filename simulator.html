@@ -295,6 +295,7 @@
             const symbol = (params.get('symbol') || '').trim().toUpperCase();
             const side = (params.get('side') || '').trim().toLowerCase();
             const qty = parseInt(params.get('qty') || '', 10);
+            const autotrade = params.get('autotrade') === '1';
 
             if (symbol) {
                 document.getElementById('symbolInput').value = symbol;
@@ -310,7 +311,31 @@
             if (symbol || side || qty) {
                 const hint = document.getElementById('quickTradeHint');
                 hint.style.display = 'block';
-                hint.textContent = `차트 퀵매매 전달값 적용됨: ${symbol || '-'} / ${(side || '-').toUpperCase()} / 수량 ${qty || '-'}. 실행하려면 Execute Trade를 누르세요.`;
+                hint.textContent = autotrade
+                    ? `차트 퀵매매 자동실행 대기: ${symbol || '-'} / ${(side || '-').toUpperCase()} / 수량 ${qty || '-'}`
+                    : `차트 퀵매매 전달값 적용됨: ${symbol || '-'} / ${(side || '-').toUpperCase()} / 수량 ${qty || '-'}. 실행하려면 Execute Trade를 누르세요.`;
+            }
+
+            return { symbol, side, qty, autotrade };
+        }
+
+        async function maybeAutoExecuteTrade(prefill) {
+            if (!prefill?.autotrade) return;
+            if (!prefill.symbol || !prefill.qty || prefill.qty <= 0) return;
+
+            const url = new URL(window.location.href);
+            url.searchParams.delete('autotrade');
+            history.replaceState({}, '', url.toString());
+
+            try {
+                await executeTrade();
+                const hint = document.getElementById('quickTradeHint');
+                hint.style.display = 'block';
+                hint.textContent = `자동 가상매매 실행 완료: ${prefill.symbol} / ${prefill.side.toUpperCase()} / 수량 ${prefill.qty}`;
+            } catch (err) {
+                const hint = document.getElementById('quickTradeHint');
+                hint.style.display = 'block';
+                hint.textContent = '자동 가상매매 실행 실패: 수량/보유수량/현금 조건을 확인하세요.';
             }
         }
 
@@ -428,7 +453,8 @@
                     await loadRemoteState();
                     render();
                     renderPerf();
-                    applyPrefillFromQuery();
+                    const prefill = applyPrefillFromQuery();
+                    await maybeAutoExecuteTrade(prefill);
                     return;
                 }
             }
@@ -447,7 +473,8 @@
             loadLocalState();
             render();
             renderPerf();
-            applyPrefillFromQuery();
+            const prefill = applyPrefillFromQuery();
+            await maybeAutoExecuteTrade(prefill);
         }
 
         // initial load
