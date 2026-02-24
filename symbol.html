@@ -346,8 +346,8 @@
                             <input id="quickQty" type="number" min="1" value="1" />
                         </div>
                     </div>
-                    <button type="submit" class="primary" style="margin-top:8px;">시뮬레이터로 주문 전달</button>
-                    <div class="helper">TradingView 위젯 내부 직접 주문은 불가해요. 시뮬레이터로 전달됩니다.</div>
+                    <button type="submit" class="primary" style="margin-top:8px;">바로 가상매매 실행</button>
+                    <div class="helper">TradingView 내부 주문은 불가하여, 시뮬레이터에서 자동 실행됩니다.</div>
                 </form>
             </div>
             <div class="chart-meta" id="tvSource">출처: TradingView Advanced Chart · RSI/MACD/MA 포함</div>
@@ -682,7 +682,7 @@
                 alert('수량을 올바르게 입력하세요.');
                 return;
             }
-            const to = `./simulator.html?symbol=${encodeURIComponent(currentSymbol)}&side=${encodeURIComponent(side)}&qty=${encodeURIComponent(qty)}`;
+            const to = `./simulator.html?symbol=${encodeURIComponent(currentSymbol)}&side=${encodeURIComponent(side)}&qty=${encodeURIComponent(qty)}&autotrade=1`;
             window.location.href = to;
         });
 
