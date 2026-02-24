@@ -352,6 +352,16 @@
             BTCUSD: 'BINANCE:BTCUSDT'
         };
 
+        const DEMO_BASE_PRICE = {
+            KOSPI: 2580.12,
+            KOSDAQ: 865.34,
+            NASDAQ: 16520.22,
+            SP500: 5150.44,
+            DOW: 38800.10,
+            AAPL: 187.22,
+            BTCUSD: 96000.00
+        };
+
         function resolveTvSymbol(symbol) {
             if (TV_SYMBOL_OVERRIDES[symbol]) return TV_SYMBOL_OVERRIDES[symbol];
             if (/^[0-9]{6}$/.test(symbol)) return `KRX:${symbol}`;
@@ -369,7 +379,7 @@
 
         function generateLightweightData(symbol) {
             const seed = symbolSeed(symbol);
-            let current = 20 + (seed % 500);
+            let current = DEMO_BASE_PRICE[symbol] || (20 + (seed % 500));
             const points = [];
             const now = new Date();
             for (let i = 59; i >= 0; i--) {
@@ -440,11 +450,8 @@
                 timezone: 'Asia/Seoul',
                 fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans, sans-serif',
                 withdateranges: true,
-                hide_side_toolbar: false,
+                hide_side_toolbar: true,
                 allow_symbol_change: true,
-                details: true,
-                hotlist: false,
-                calendar: false,
                 studies: [
                     'RSI@tv-basicstudies',
                     'MACD@tv-basicstudies',
