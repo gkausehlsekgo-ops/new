@@ -221,6 +221,60 @@
             margin-top: 8px;
         }
 
+        .indicator-toolbar {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #f8fafc;
+            display: grid;
+            gap: 8px;
+        }
+
+        .indicator-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 6px;
+        }
+
+        .indicator-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--ink);
+        }
+
+        .indicator-item input {
+            width: auto;
+            margin: 0;
+            padding: 0;
+        }
+
+        .indicator-values {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .indicator-value-card {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px;
+            background: #fff;
+        }
+
+        .indicator-value-card .name {
+            font-size: 11px;
+            color: var(--muted);
+        }
+
+        .indicator-value-card .val {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
         .tv-wrap {
             position: relative;
             min-height: 420px;
@@ -276,6 +330,9 @@
             padding: 8px;
             border-bottom: 1px solid var(--line);
         }
+
+        .positive { color: #16a34a; }
+        .negative { color: #dc2626; }
 
         @media (max-width: 720px) {
             nav .container { padding: 1rem; }
@@ -335,6 +392,12 @@
             </div>
             <div class="chart-meta" id="lightweightSource">출처: Lightweight Charts™ by TradingView (표시 데이터: 데모 생성값, 실시간 시세 아님)</div>
 
+            <div class="indicator-toolbar">
+                <div class="helper" style="margin-top:0;">인기 지표 10종 (자체 계산): MA5 · MA20 · MA60 · EMA12 · EMA26 · VWAP · Bollinger Bands · RSI · MACD · Stochastic</div>
+                <div class="indicator-list" id="indicatorToggleList"></div>
+            </div>
+            <div class="indicator-values" id="indicatorValueBoard"></div>
+
             <h3 style="margin-top:16px; font-size:16px;">TradingView Advanced Chart (보조지표 포함)</h3>
             <div class="chart-wrap tv-wrap">
                 <div id="tradingviewWidgetContainer" class="tv-widget-inner"></div>
@@ -355,6 +418,14 @@
                 <div class="sim-box">
                     <div class="helper">총 평가금액</div>
                     <div class="sim-value" id="simPortfolioDisplay">$100,000.00</div>
+                </div>
+                <div class="sim-box">
+                    <div class="helper">현재가 (선택 종목)</div>
+                    <div class="sim-value" id="simCurrentPriceDisplay">$0.00</div>
+                </div>
+                <div class="sim-box">
+                    <div class="helper">포지션 손익 (+/-)</div>
+                    <div class="sim-value" id="simPositionPnLDisplay">$0.00 (0.00%)</div>
                 </div>
             </div>
 
@@ -449,6 +520,8 @@
         let lwSeries;
         let lwEntryLine = null;
         let lwTradeMarkers = [];
+        let lwMainData = [];
+        let indicatorSeriesMap = {};
         let realtimeQuoteTimer = null;
         let simCash = SIM_INITIAL_CASH;
         let simPortfolio = {};
@@ -485,6 +558,28 @@
         };
 
         let delayedQuotes = {};
+
+        const INDICATOR_DEFINITIONS = [
+            { key: 'ma5', label: 'MA 5', type: 'overlay', defaultOn: true, color: '#f59e0b' },
+            { key: 'ma20', label: 'MA 20', type: 'overlay', defaultOn: true, color: '#8b5cf6' },
+            { key: 'ma60', label: 'MA 60', type: 'overlay', defaultOn: false, color: '#06b6d4' },
+            { key: 'ema12', label: 'EMA 12', type: 'overlay', defaultOn: true, color: '#10b981' },
+            { key: 'ema26', label: 'EMA 26', type: 'overlay', defaultOn: true, color: '#ef4444' },
+            { key: 'vwap', label: 'VWAP', type: 'overlay', defaultOn: false, color: '#0ea5e9' },
+            { key: 'bbands', label: 'Bollinger', type: 'overlay-multi', defaultOn: false, color: '#6366f1' },
+            { key: 'rsi', label: 'RSI 14', type: 'value', defaultOn: true, color: '#334155' },
+            { key: 'macd', label: 'MACD', type: 'value', defaultOn: true, color: '#334155' },
+            { key: 'stoch', label: 'Stochastic', type: 'value', defaultOn: true, color: '#334155' }
+        ];
+
+        let indicatorEnabled = INDICATOR_DEFINITIONS.reduce((acc, item) => {
+            acc[item.key] = !!item.defaultOn;
+            return acc;
+        }, {});
+
+        function format(value) {
+            return Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
         function resolveTvSymbol(symbol) {
             if (TV_SYMBOL_OVERRIDES[symbol]) return TV_SYMBOL_OVERRIDES[symbol];
@@ -534,10 +629,10 @@
             const points = [];
             const now = new Date();
             const factors = [];
+            const seed = symbolSeed(symbol);
             for (let i = 59; i >= 0; i--) {
                 const d = new Date(now);
                 d.setDate(now.getDate() - i);
-                const seed = symbolSeed(symbol);
                 const step = getDayIndex(d);
                 const noise = (seededUnit(seed, step) - 0.5) * 0.02;
                 const cycle = Math.sin((step + (seed % 29)) / 6) * 0.007;
@@ -545,12 +640,218 @@
             }
 
             const latestFactor = factors[factors.length - 1].factor || 1;
-            factors.forEach(item => {
+            factors.forEach((item, idx) => {
                 const normalized = Math.max(1, anchorPrice * (item.factor / latestFactor));
-                points.push({ time: item.time, value: Number(normalized.toFixed(2)) });
+                const prev = idx > 0 ? points[idx - 1].value : normalized;
+                const spread = Math.max(0.2, normalized * (0.002 + seededUnit(seed, idx + 13) * 0.004));
+                const high = Math.max(normalized, prev) + spread;
+                const low = Math.max(0.01, Math.min(normalized, prev) - spread);
+                const volume = Math.round(800 + seededUnit(seed, idx + 31) * 4200);
+                points.push({
+                    time: item.time,
+                    value: Number(normalized.toFixed(2)),
+                    high: Number(high.toFixed(2)),
+                    low: Number(low.toFixed(2)),
+                    volume
+                });
             });
 
             return points;
+        }
+
+        function toLineData(values) {
+            return lwMainData.map((point, idx) => (values[idx] == null ? null : { time: point.time, value: Number(values[idx].toFixed(2)) })).filter(Boolean);
+        }
+
+        function calcSma(period, source) {
+            const out = Array(source.length).fill(null);
+            let sum = 0;
+            for (let i = 0; i < source.length; i++) {
+                sum += source[i];
+                if (i >= period) sum -= source[i - period];
+                if (i >= period - 1) out[i] = sum / period;
+            }
+            return out;
+        }
+
+        function calcEma(period, source) {
+            const out = Array(source.length).fill(null);
+            const alpha = 2 / (period + 1);
+            let ema = source[0];
+            out[0] = ema;
+            for (let i = 1; i < source.length; i++) {
+                ema = (source[i] * alpha) + (ema * (1 - alpha));
+                out[i] = ema;
+            }
+            return out;
+        }
+
+        function calcStd(source, period) {
+            const out = Array(source.length).fill(null);
+            for (let i = period - 1; i < source.length; i++) {
+                const window = source.slice(i - period + 1, i + 1);
+                const mean = window.reduce((a, b) => a + b, 0) / period;
+                const variance = window.reduce((a, b) => a + ((b - mean) ** 2), 0) / period;
+                out[i] = Math.sqrt(variance);
+            }
+            return out;
+        }
+
+        function calcVwap(source) {
+            const out = Array(source.length).fill(null);
+            let pv = 0;
+            let vv = 0;
+            source.forEach((row, idx) => {
+                pv += row.value * row.volume;
+                vv += row.volume;
+                out[idx] = vv === 0 ? row.value : pv / vv;
+            });
+            return out;
+        }
+
+        function calcRsi(period, source) {
+            if (source.length < period + 1) return null;
+            let gain = 0;
+            let loss = 0;
+            for (let i = source.length - period; i < source.length; i++) {
+                const diff = source[i] - source[i - 1];
+                if (diff >= 0) gain += diff;
+                else loss -= diff;
+            }
+            const avgGain = gain / period;
+            const avgLoss = loss / period;
+            if (avgLoss === 0) return 100;
+            const rs = avgGain / avgLoss;
+            return 100 - (100 / (1 + rs));
+        }
+
+        function calcMacd(source) {
+            const ema12 = calcEma(12, source);
+            const ema26 = calcEma(26, source);
+            const macdLine = source.map((_, idx) => (ema12[idx] == null || ema26[idx] == null) ? null : (ema12[idx] - ema26[idx]));
+            const valid = macdLine.map(v => v == null ? 0 : v);
+            const signal = calcEma(9, valid);
+            const last = source.length - 1;
+            return {
+                macd: macdLine[last] ?? 0,
+                signal: signal[last] ?? 0,
+                hist: (macdLine[last] ?? 0) - (signal[last] ?? 0)
+            };
+        }
+
+        function calcStochastic(period, data) {
+            if (data.length < period) return null;
+            const window = data.slice(data.length - period);
+            const high = Math.max(...window.map(x => x.high));
+            const low = Math.min(...window.map(x => x.low));
+            if (high === low) return 50;
+            const close = data[data.length - 1].value;
+            return ((close - low) / (high - low)) * 100;
+        }
+
+        function addLineSeriesCompat(options) {
+            if (typeof lwChart.addLineSeries === 'function') return lwChart.addLineSeries(options);
+            if (typeof lwChart.addSeries === 'function' && window.LightweightCharts.LineSeries) {
+                return lwChart.addSeries(window.LightweightCharts.LineSeries, options);
+            }
+            return null;
+        }
+
+        function ensureIndicatorSeries() {
+            if (!lwChart || !lwSeries) return;
+            if (indicatorSeriesMap.ma5) return;
+
+            indicatorSeriesMap.ma5 = addLineSeriesCompat({ color: '#f59e0b', lineWidth: 1 });
+            indicatorSeriesMap.ma20 = addLineSeriesCompat({ color: '#8b5cf6', lineWidth: 1 });
+            indicatorSeriesMap.ma60 = addLineSeriesCompat({ color: '#06b6d4', lineWidth: 1 });
+            indicatorSeriesMap.ema12 = addLineSeriesCompat({ color: '#10b981', lineWidth: 1 });
+            indicatorSeriesMap.ema26 = addLineSeriesCompat({ color: '#ef4444', lineWidth: 1 });
+            indicatorSeriesMap.vwap = addLineSeriesCompat({ color: '#0ea5e9', lineWidth: 1 });
+            indicatorSeriesMap.bbUpper = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1, lineStyle: 2 });
+            indicatorSeriesMap.bbMid = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1 });
+            indicatorSeriesMap.bbLower = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1, lineStyle: 2 });
+        }
+
+        function renderIndicatorBoard(values) {
+            const board = document.getElementById('indicatorValueBoard');
+            if (!board) return;
+
+            const rows = [];
+            const push = (name, value) => {
+                rows.push(`<div class="indicator-value-card"><div class="name">${name}</div><div class="val">${value}</div></div>`);
+            };
+
+            if (indicatorEnabled.ma5) push('MA5', `$${format(values.ma5)}`);
+            if (indicatorEnabled.ma20) push('MA20', `$${format(values.ma20)}`);
+            if (indicatorEnabled.ma60) push('MA60', `$${format(values.ma60)}`);
+            if (indicatorEnabled.ema12) push('EMA12', `$${format(values.ema12)}`);
+            if (indicatorEnabled.ema26) push('EMA26', `$${format(values.ema26)}`);
+            if (indicatorEnabled.vwap) push('VWAP', `$${format(values.vwap)}`);
+            if (indicatorEnabled.bbands) push('Bollinger', `$${format(values.bbLower)} / $${format(values.bbMid)} / $${format(values.bbUpper)}`);
+            if (indicatorEnabled.rsi) push('RSI(14)', `${format(values.rsi)}`);
+            if (indicatorEnabled.macd) push('MACD', `${format(values.macd)} / ${format(values.macdSignal)} / ${format(values.macdHist)}`);
+            if (indicatorEnabled.stoch) push('Stochastic', `${format(values.stoch)}`);
+
+            board.innerHTML = rows.join('');
+        }
+
+        function renderIndicators() {
+            ensureIndicatorSeries();
+            if (!lwMainData.length) return;
+
+            const closes = lwMainData.map(x => x.value);
+            const ma5 = calcSma(5, closes);
+            const ma20 = calcSma(20, closes);
+            const ma60 = calcSma(60, closes);
+            const ema12 = calcEma(12, closes);
+            const ema26 = calcEma(26, closes);
+            const vwap = calcVwap(lwMainData);
+            const std20 = calcStd(closes, 20);
+            const bbMid = ma20;
+            const bbUpper = bbMid.map((v, idx) => (v == null || std20[idx] == null) ? null : (v + (2 * std20[idx])));
+            const bbLower = bbMid.map((v, idx) => (v == null || std20[idx] == null) ? null : (v - (2 * std20[idx])));
+
+            const bindSeries = (key, values) => {
+                const series = indicatorSeriesMap[key];
+                if (!series) return;
+                series.setData(indicatorEnabled[key] ? toLineData(values) : []);
+            };
+
+            bindSeries('ma5', ma5);
+            bindSeries('ma20', ma20);
+            bindSeries('ma60', ma60);
+            bindSeries('ema12', ema12);
+            bindSeries('ema26', ema26);
+            bindSeries('vwap', vwap);
+            indicatorSeriesMap.bbUpper?.setData(indicatorEnabled.bbands ? toLineData(bbUpper) : []);
+            indicatorSeriesMap.bbMid?.setData(indicatorEnabled.bbands ? toLineData(bbMid) : []);
+            indicatorSeriesMap.bbLower?.setData(indicatorEnabled.bbands ? toLineData(bbLower) : []);
+
+            const macd = calcMacd(closes);
+            renderIndicatorBoard({
+                ma5: ma5[ma5.length - 1],
+                ma20: ma20[ma20.length - 1],
+                ma60: ma60[ma60.length - 1],
+                ema12: ema12[ema12.length - 1],
+                ema26: ema26[ema26.length - 1],
+                vwap: vwap[vwap.length - 1],
+                bbUpper: bbUpper[bbUpper.length - 1],
+                bbMid: bbMid[bbMid.length - 1],
+                bbLower: bbLower[bbLower.length - 1],
+                rsi: calcRsi(14, closes),
+                macd: macd.macd,
+                macdSignal: macd.signal,
+                macdHist: macd.hist,
+                stoch: calcStochastic(14, lwMainData)
+            });
+        }
+
+        function applyMainSeriesData(symbol) {
+            lwMainData = generateLightweightData(symbol);
+            if (lwSeries) {
+                lwSeries.setData(lwMainData.map(x => ({ time: x.time, value: x.value })));
+            }
+            renderIndicators();
         }
 
         function getDemoPrice(symbol) {
@@ -590,13 +891,32 @@
         async function refreshRealtimeValuation() {
             const portfolioSymbols = Object.keys(simPortfolio);
             await refreshQuotesForSymbols([currentSymbol, ...portfolioSymbols]);
-            if (lwSeries) {
-                lwSeries.setData(generateLightweightData(currentSymbol));
-            }
+            if (lwSeries) applyMainSeriesData(currentSymbol);
             renderEntryPriceLine();
             renderTradeMarkers();
             renderTradingViewEntryHint();
             renderSimState();
+        }
+
+        function renderIndicatorToggles() {
+            const root = document.getElementById('indicatorToggleList');
+            if (!root) return;
+            root.innerHTML = '';
+
+            INDICATOR_DEFINITIONS.forEach(ind => {
+                const label = document.createElement('label');
+                label.className = 'indicator-item';
+                label.innerHTML = `<input type="checkbox" data-indicator="${ind.key}" ${indicatorEnabled[ind.key] ? 'checked' : ''} /><span>${ind.label}</span>`;
+                root.appendChild(label);
+            });
+
+            root.querySelectorAll('input[data-indicator]').forEach(input => {
+                input.addEventListener('change', (event) => {
+                    const key = event.target.dataset.indicator;
+                    indicatorEnabled[key] = !!event.target.checked;
+                    renderIndicators();
+                });
+            });
         }
 
         function renderEntryPriceLine() {
@@ -687,7 +1007,8 @@
                 return;
             }
 
-            lwSeries.setData(generateLightweightData(currentSymbol));
+            applyMainSeriesData(currentSymbol);
+            renderIndicatorToggles();
             window.addEventListener('resize', () => {
                 lwChart.applyOptions({ width: root.clientWidth });
             });
@@ -728,9 +1049,7 @@
 
         function updateChartsForSymbol(symbol) {
             document.getElementById('chartTitle').textContent = `${symbol} 차트`;
-            if (lwSeries) {
-                lwSeries.setData(generateLightweightData(symbol));
-            }
+            if (lwSeries) applyMainSeriesData(symbol);
             renderEntryPriceLine();
             renderTradeMarkers();
             renderTradingViewEntryHint();
@@ -769,6 +1088,8 @@
         function renderSimState() {
             const cashEl = document.getElementById('simCashDisplay');
             const totalEl = document.getElementById('simPortfolioDisplay');
+            const currentPriceEl = document.getElementById('simCurrentPriceDisplay');
+            const positionPnLEl = document.getElementById('simPositionPnLDisplay');
             const holdingsBody = document.getElementById('simHoldingsBody');
             const txBody = document.getElementById('simTxBody');
             const hint = document.getElementById('simTradeHint');
@@ -778,6 +1099,7 @@
             if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol} · 현재가: $${format(getCurrentDemoPrice(currentSymbol))} · ${sourceText}`;
             renderTradingViewEntryHint();
             cashEl.textContent = '$' + format(simCash);
+            if (currentPriceEl) currentPriceEl.textContent = '$' + format(getCurrentDemoPrice(currentSymbol));
 
             let total = simCash;
             holdingsBody.innerHTML = '';
@@ -797,6 +1119,20 @@
             });
 
             totalEl.textContent = '$' + format(total);
+
+            const curHolding = simPortfolio[currentSymbol];
+            if (positionPnLEl) {
+                if (!curHolding || !curHolding.qty) {
+                    positionPnLEl.className = 'sim-value';
+                    positionPnLEl.textContent = '$0.00 (0.00%)';
+                } else {
+                    const curPrice = getCurrentDemoPrice(currentSymbol);
+                    const pnl = (curPrice - curHolding.avgPrice) * curHolding.qty;
+                    const pnlPct = curHolding.avgPrice === 0 ? 0 : ((curPrice - curHolding.avgPrice) / curHolding.avgPrice) * 100;
+                    positionPnLEl.className = `sim-value ${pnl >= 0 ? 'positive' : 'negative'}`;
+                    positionPnLEl.textContent = `$${format(pnl)} (${format(pnlPct)}%)`;
+                }
+            }
 
             txBody.innerHTML = '';
             if (simTxs.length === 0) {
@@ -1018,7 +1354,7 @@
         renderCategories();
         initFromQuery();
         if (realtimeQuoteTimer) clearInterval(realtimeQuoteTimer);
-        realtimeQuoteTimer = setInterval(refreshRealtimeValuation, 60000);
+        realtimeQuoteTimer = setInterval(refreshRealtimeValuation, 10000);
     </script>
 </body>
 </html>
