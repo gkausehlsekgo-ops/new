@@ -1853,25 +1853,67 @@
             return (text || '').toLowerCase().replace(/\s+/g, ' ').trim();
         }
 
+        function normalizeCompactText(text) {
+            return (text || '')
+                .toLowerCase()
+                .replace(/[^a-z0-9가-힣]/g, '')
+                .trim();
+        }
+
         function checkCommunityViolation(text) {
             const lowered = normalizeModerationText(text);
+            const compact = normalizeCompactText(text);
             if (!lowered) return null;
 
             const adPatterns = [
                 /리딩\s*방|유료\s*방|회원\s*모집|투자\s*권유|홍보|광고|원금\s*보장|수익\s*보장|수익률\s*보장/,
-                /텔레그램|오픈채팅|카톡|카카오톡|line\s*id|디엠|dm\s*주세요|문의\s*주세요/
+                /텔레그램|오픈채팅|카톡|카카오톡|line\s*id|디엠|dm\s*주세요|문의\s*주세요/,
+                /채널\s*문의|vip\s*방|픽\s*공유|고수익\s*인증|재테크\s*비법|재테크\s*상담/
             ];
 
             const contactPatterns = [
                 /\b\d{2,3}[-\s]?\d{3,4}[-\s]?\d{4}\b/,
                 /@[a-z0-9_.-]+\.[a-z]{2,}/,
                 /t\.me\//,
-                /open\.kakao\.com\//
+                /open\.kakao\.com\//,
+                /kakao\.com\//,
+                /discord\.gg\//,
+                /instagram\.com\//
             ];
 
             const sexualPatterns = [
-                /야\s*동|성\s*인\s*방\s*송|벗\s*방|몸\s*캠|조건\s*만남|성\s*매\s*매|19\s*금/
+                /야\s*동|성\s*인\s*방\s*송|벗\s*방|몸\s*캠|조건\s*만남|성\s*매\s*매|19\s*금|노\s*출|자\s*위/,
+                /원나잇|ㅅㅅ|섹\s*스|성\s*관\s*계/
             ];
+
+            const abusePatterns = [
+                /병\s*신|미\s*친|개\s*새\s*끼|좆|씨\s*발|시\s*발|꺼\s*져|죽\s*어|죽\s*여/,
+                /장애\s*비하|인종\s*비하|여성\s*비하|남성\s*비하|혐오/
+            ];
+
+            const illegalPatterns = [
+                /마\s*약|대\s*마|필\s*로\s*폰|코\s*카\s*인|불\s*법\s*도\s*박|토\s*토|사\s*설\s*토\s*토/,
+                /불\s*법\s*복\s*제|해\s*킹|계\s*정\s*거\s*래|대\s*포\s*통\s*장/
+            ];
+
+            const scamPatterns = [
+                /원금\s*보장|무\s*조\s*건\s*수\s*익|수익\s*확\s*정|100\s*%\s*수익|고\s*수\s*익\s*보\s*장/,
+                /선\s*입\s*금|입\s*금\s*유\s*도|환\s*불\s*불\s*가|대\s*리\s*투\s*자/
+            ];
+
+            const compactBlockedWords = [
+                '리딩방', '유료방', '오픈채팅', '텔레그램', '카카오톡', '원금보장', '수익보장',
+                '조건만남', '몸캠', '성매매', '야동', '병신', '개새끼', '마약', '불법도박'
+            ];
+
+            const urlCount = (lowered.match(/https?:\/\//g) || []).length;
+            if (urlCount >= 2) {
+                return '외부 링크 과다 포함(스팸성)';
+            }
+
+            if (/(.)\1{9,}/.test(lowered)) {
+                return '도배성 반복 문자';
+            }
 
             if (adPatterns.some(regex => regex.test(lowered))) {
                 return '개인 광고/홍보 또는 외부 유도성 문구';
@@ -1881,6 +1923,18 @@
             }
             if (sexualPatterns.some(regex => regex.test(lowered))) {
                 return '성적·음란성 문구';
+            }
+            if (abusePatterns.some(regex => regex.test(lowered))) {
+                return '욕설·혐오·폭력성 문구';
+            }
+            if (illegalPatterns.some(regex => regex.test(lowered))) {
+                return '불법 행위 관련 문구';
+            }
+            if (scamPatterns.some(regex => regex.test(lowered))) {
+                return '사기성/과장 수익 유도 문구';
+            }
+            if (compactBlockedWords.some(word => compact.includes(word))) {
+                return '금지된 우회 표현';
             }
             return null;
         }
@@ -1922,7 +1976,7 @@
             const title = document.getElementById('postTitle').value.trim();
             const author = document.getElementById('postAuthor').value.trim();
             const body = document.getElementById('postBody').value.trim();
-            const moderationTarget = `${title}\n${body}`;
+            const moderationTarget = `${title}\n${author}\n${body}`;
 
             if (currentCategory === '자유게시판') {
                 const violation = checkCommunityViolation(moderationTarget);
