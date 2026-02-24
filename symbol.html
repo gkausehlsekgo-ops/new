@@ -397,12 +397,21 @@
                 }
             });
 
-            lwSeries = lwChart.addAreaSeries({
+            const seriesOptions = {
                 lineColor: '#2563eb',
                 topColor: 'rgba(37, 99, 235, 0.35)',
                 bottomColor: 'rgba(37, 99, 235, 0.06)',
                 lineWidth: 2
-            });
+            };
+
+            if (typeof lwChart.addAreaSeries === 'function') {
+                lwSeries = lwChart.addAreaSeries(seriesOptions);
+            } else if (typeof lwChart.addSeries === 'function' && window.LightweightCharts.AreaSeries) {
+                lwSeries = lwChart.addSeries(window.LightweightCharts.AreaSeries, seriesOptions);
+            } else {
+                document.getElementById('lightweightSource').textContent = '차트 로딩 실패: Lightweight Charts 버전 호환 문제';
+                return;
+            }
 
             lwSeries.setData(generateLightweightData(currentSymbol));
             window.addEventListener('resize', () => {
