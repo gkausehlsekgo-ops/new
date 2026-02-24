@@ -90,37 +90,12 @@
         }
 
         async function sendSignupCode(client, email) {
-            const redirectUrl = window.location.origin + window.location.pathname;
             return await client.auth.signInWithOtp({
                 email,
                 options: {
-                    shouldCreateUser: true,
-                    emailRedirectTo: redirectUrl
+                    shouldCreateUser: true
                 }
             });
-        }
-
-        async function handleMagicLinkCallback(client) {
-            const hashParams = new URLSearchParams((window.location.hash || '').replace(/^#/, ''));
-            const queryParams = new URLSearchParams(window.location.search || '');
-
-            const tokenHash = hashParams.get('token_hash') || queryParams.get('token_hash');
-            const callbackType = hashParams.get('type') || queryParams.get('type');
-
-            if (!tokenHash || !callbackType) return;
-
-            const { error } = await client.auth.verifyOtp({
-                token_hash: tokenHash,
-                type: callbackType
-            });
-
-            if (error) {
-                authStatus.textContent = '링크 인증 실패: ' + error.message;
-                return;
-            }
-
-            history.replaceState({}, '', window.location.pathname);
-            authStatus.textContent = '이메일 링크 인증 완료: 비밀번호 입력 후 회원가입 버튼을 눌러 마무리하세요.';
         }
 
         document.getElementById('saveConfigBtn').addEventListener('click', () => {
@@ -159,8 +134,8 @@
             const password = document.getElementById('password').value;
             const verifyCode = document.getElementById('verifyCode').value.trim();
 
-            if (!email || !password) {
-                authStatus.textContent = '이메일/비밀번호를 모두 입력하세요.';
+            if (!email || !password || !verifyCode) {
+                authStatus.textContent = '이메일/비밀번호/인증코드를 모두 입력하세요.';
                 return;
             }
 
@@ -169,24 +144,15 @@
                 return;
             }
 
-            if (verifyCode) {
-                const { error: verifyError } = await client.auth.verifyOtp({
-                    email,
-                    token: verifyCode,
-                    type: 'email'
-                });
+            const { error: verifyError } = await client.auth.verifyOtp({
+                email,
+                token: verifyCode,
+                type: 'email'
+            });
 
-                if (verifyError) {
-                    authStatus.textContent = '코드 확인 실패: ' + verifyError.message;
-                    return;
-                }
-            } else {
-                const { data: sessionData } = await client.auth.getSession();
-                const sessionUser = sessionData?.session?.user;
-                if (!sessionUser || !sessionUser.email_confirmed_at || sessionUser.email !== email) {
-                    authStatus.textContent = '코드를 입력하거나, 인증 링크를 먼저 눌러주세요.';
-                    return;
-                }
+            if (verifyError) {
+                authStatus.textContent = '코드 확인 실패: ' + verifyError.message;
+                return;
             }
 
             const { error: updateError } = await client.auth.updateUser({ password });
@@ -270,8 +236,6 @@
                 }
                 return;
             }
-
-            await handleMagicLinkCallback(client);
 
             const { data } = await client.auth.getSession();
             if (data?.session?.user?.email) {
