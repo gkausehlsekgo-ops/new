@@ -716,6 +716,7 @@
         }
 
         function calcEma(period, source) {
+            if (!source.length) return [];
             const out = Array(source.length).fill(null);
             const alpha = 2 / (period + 1);
             let ema = source[0];
@@ -1108,6 +1109,35 @@
             delayedHistoryBySymbol[symbol] = history;
         }
 
+        function buildQuoteBasedHistory(symbol) {
+            const quote = delayedQuotes[symbol];
+            if (!quote || typeof quote.price !== 'number') return [];
+
+            const now = quote.time instanceof Date ? quote.time : new Date();
+            const todayTs = Math.floor(now.getTime() / 1000);
+            const prevTs = todayTs - 86400;
+            const prevClose = typeof quote.prevClose === 'number' ? quote.prevClose : quote.price;
+            const high = Math.max(quote.price, prevClose);
+            const low = Math.min(quote.price, prevClose);
+
+            return [
+                {
+                    time: prevTs,
+                    value: Number(prevClose),
+                    high: Number(high),
+                    low: Number(low),
+                    volume: 0
+                },
+                {
+                    time: todayTs,
+                    value: Number(quote.price),
+                    high: Number(high),
+                    low: Number(low),
+                    volume: 0
+                }
+            ];
+        }
+
         async function refreshQuotesForSymbols(symbols) {
             const uniqueSymbols = Array.from(new Set(symbols.filter(Boolean)));
             if (uniqueSymbols.length === 0) return;
@@ -1138,7 +1168,18 @@
             const portfolioSymbols = Object.keys(simPortfolio);
             await refreshQuotesForSymbols([currentSymbol, ...portfolioSymbols]);
             await refreshHistoryForSymbols([currentSymbol]);
+
+            if (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0) {
+                delayedHistoryBySymbol[currentSymbol] = buildQuoteBasedHistory(currentSymbol);
+            }
+
             if (lwSeries) applyMainSeriesData(currentSymbol);
+
+            const source = document.getElementById('lightweightSource');
+            if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
+                source.textContent = '출처: Lightweight Charts™ by TradingView (지연 히스토리 수신 실패 · 현재 지연시세만 표시 가능)';
+            }
+
             renderEntryPriceLine();
             renderTradeMarkers();
             renderSimState();
