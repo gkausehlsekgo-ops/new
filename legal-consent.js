@@ -2,6 +2,16 @@
     const CONSENT_KEY = 'site_consent_v1';
     const CONSENT_VERSION = '2026-02-24';
 
+    window.resetSiteConsent = function resetSiteConsent() {
+        try {
+            localStorage.removeItem(CONSENT_KEY);
+        } catch {
+        }
+        window.__SITE_CONSENT__ = null;
+        window.dispatchEvent(new CustomEvent('site-consent-updated', { detail: null }));
+        window.location.reload();
+    };
+
     function readConsent() {
         try {
             const raw = localStorage.getItem(CONSENT_KEY);
