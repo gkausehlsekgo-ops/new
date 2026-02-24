@@ -447,6 +447,7 @@
         let lwChart;
         let lwSeries;
         let lwEntryLine = null;
+        let lwTradeMarkers = [];
         let simCash = SIM_INITIAL_CASH;
         let simPortfolio = {};
         let simTxs = [];
@@ -527,13 +528,26 @@
         }
 
         function generateLightweightData(symbol) {
+            const anchorPrice = getCurrentDemoPrice(symbol);
             const points = [];
             const now = new Date();
+            const factors = [];
             for (let i = 59; i >= 0; i--) {
                 const d = new Date(now);
                 d.setDate(now.getDate() - i);
-                points.push({ time: d.toISOString().slice(0, 10), value: getDemoPoint(symbol, d) });
+                const seed = symbolSeed(symbol);
+                const step = getDayIndex(d);
+                const noise = (seededUnit(seed, step) - 0.5) * 0.02;
+                const cycle = Math.sin((step + (seed % 29)) / 6) * 0.007;
+                factors.push({ time: d.toISOString().slice(0, 10), factor: 1 + noise + cycle });
             }
+
+            const latestFactor = factors[factors.length - 1].factor || 1;
+            factors.forEach(item => {
+                const normalized = Math.max(1, anchorPrice * (item.factor / latestFactor));
+                points.push({ time: item.time, value: Number(normalized.toFixed(2)) });
+            });
+
             return points;
         }
 
@@ -564,6 +578,11 @@
             } catch (err) {
                 // fallback keeps deterministic demo price
             }
+            if (lwSeries) {
+                lwSeries.setData(generateLightweightData(currentSymbol));
+            }
+            renderEntryPriceLine();
+            renderTradeMarkers();
             renderSimState();
         }
 
@@ -586,6 +605,26 @@
                 axisLabelVisible: true,
                 title: '평균 진입가'
             });
+        }
+
+        function renderTradeMarkers() {
+            if (!lwSeries || typeof lwSeries.setMarkers !== 'function') return;
+            lwSeries.setMarkers(lwTradeMarkers);
+        }
+
+        function appendTradeMarker(side, price) {
+            const today = new Date().toISOString().slice(0, 10);
+            lwTradeMarkers.push({
+                time: today,
+                position: side === 'buy' ? 'belowBar' : 'aboveBar',
+                color: side === 'buy' ? '#16a34a' : '#dc2626',
+                shape: side === 'buy' ? 'arrowUp' : 'arrowDown',
+                text: `${side.toUpperCase()} $${format(price)}`
+            });
+            if (lwTradeMarkers.length > 200) {
+                lwTradeMarkers = lwTradeMarkers.slice(lwTradeMarkers.length - 200);
+            }
+            renderTradeMarkers();
         }
 
         function initLightweightChart() {
@@ -665,6 +704,7 @@
                 lwSeries.setData(generateLightweightData(symbol));
             }
             renderEntryPriceLine();
+            renderTradeMarkers();
             renderTradingViewWidget(symbol);
             renderSimState();
             refreshCurrentSymbolQuote();
@@ -796,6 +836,7 @@
             saveSimState();
             renderSimState();
             renderEntryPriceLine();
+            appendTradeMarker(side, execPrice);
         }
 
         function setSymbol(symbol) {
