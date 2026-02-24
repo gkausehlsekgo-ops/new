@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://investment-53o.pages.dev/sitemap.xml
