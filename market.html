@@ -382,7 +382,7 @@
             </div>
             
             <div class="info-box">
-                <strong>📌 Note:</strong> This dashboard currently shows demo data only (no external APIs).
+                <strong>📌 Note:</strong> This dashboard uses delayed quotes first, and falls back to demo values if quote fetch fails.
                 For trading decisions, always verify current prices on your broker's platform.
             </div>
             
@@ -394,7 +394,7 @@
                     <div class="market-change change-positive" id="kospi-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="kospi-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=KOSPI">종목 게시판 →</a>
-                    <div class="market-source">출처: Demo Feed · 참고심볼: TVC:KOSPI</div>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: TVC:KOSPI</div>
                 </div>
                 
                 <div class="market-card">
@@ -404,7 +404,7 @@
                     <div class="market-change change-positive" id="kosdaq-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="kosdaq-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=KOSDAQ">종목 게시판 →</a>
-                    <div class="market-source">출처: Demo Feed · 참고심볼: KRX:KQ11</div>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: KRX:KQ11</div>
                 </div>
                 
                 <div class="market-card">
@@ -414,7 +414,7 @@
                     <div class="market-change change-positive" id="nasdaq-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="nasdaq-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=NASDAQ">종목 게시판 →</a>
-                    <div class="market-source">출처: Demo Feed · 참고심볼: NASDAQ:IXIC</div>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: NASDAQ:IXIC</div>
                 </div>
                 
                 <div class="market-card">
@@ -424,7 +424,7 @@
                     <div class="market-change change-positive" id="sp500-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="sp500-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=SP500">종목 게시판 →</a>
-                    <div class="market-source">출처: Demo Feed · 참고심볼: SP:SPX</div>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: SP:SPX</div>
                 </div>
                 
                 <div class="market-card">
@@ -434,7 +434,7 @@
                     <div class="market-change change-positive" id="dow-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="dow-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=DOW">종목 게시판 →</a>
-                    <div class="market-source">출처: Demo Feed · 참고심볼: DJ:DJI</div>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: DJ:DJI</div>
                 </div>
                 
                 <div class="market-card">
@@ -444,7 +444,7 @@
                     <div class="market-change change-positive" id="aapl-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="aapl-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=AAPL">종목 게시판 →</a>
-                    <div class="market-source">출처: Demo Feed · 참고심볼: NASDAQ:AAPL</div>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: NASDAQ:AAPL</div>
                 </div>
             </div>
             
@@ -465,12 +465,12 @@
                     <div style="font-size:12px; opacity:0.7;">출처: Lightweight Charts™ (데모 데이터, 실시간 시세 아님)</div>
                 </div>
                 <div class="chart-wrapper" id="lightweightChart"></div>
-                <div class="source-note">표시 데이터: 데모 생성값(학습용)으로 실제 NASDAQ/KOSPI 시세와 다를 수 있습니다.</div>
+                <div class="source-note">표시 데이터: 무료 지연 시세 우선(보통 약 15분), 실패 시 데모값으로 대체됩니다.</div>
             </div>
 
             <div class="setup-guide">
                 <h3>🔧 Live Data Setup</h3>
-                <p style="margin-bottom: 20px;">Live data is currently disabled to avoid external API usage. This page uses demo data only.</p>
+                <p style="margin-bottom: 20px;">Live tick data is not enabled. This page uses free delayed quotes first, with demo fallback.</p>
                 <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
                     If you later decide to enable a data provider, we can wire it back in safely.
                 </p>
