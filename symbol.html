@@ -82,6 +82,7 @@
             margin: 24px auto 80px;
             padding: 0 20px;
             display: grid;
+            grid-template-columns: 280px 1fr;
             gap: 20px;
         }
 
@@ -150,15 +151,23 @@
             margin-bottom: 12px;
         }
 
+        #categoryTabs {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
         .tab {
+            width: 100%;
             padding: 8px 14px;
-            border-radius: 999px;
+            border-radius: 10px;
             border: 1px solid var(--line);
             background: #fff;
             cursor: pointer;
             font-size: 13px;
             font-weight: 600;
             color: var(--muted);
+            text-align: left;
         }
 
         .tab.active {
@@ -375,9 +384,33 @@
         .positive { color: #16a34a; }
         .negative { color: #dc2626; }
 
+        #chartPanel,
+        #simulatorPanel,
+        #symbolPanel {
+            grid-column: 1 / -1;
+        }
+
+        #chartPanel { order: 1; }
+        #simulatorPanel { order: 2; }
+        #categoryPanel { order: 3; grid-column: 1; }
+        #writePanel { order: 4; grid-column: 2; }
+        #postsPanel { order: 5; grid-column: 2; }
+        #symbolPanel { order: 6; }
+
         @media (max-width: 720px) {
             nav .container { padding: 1rem; }
             .hero-card { padding: 22px; }
+            .content {
+                grid-template-columns: 1fr;
+            }
+            #chartPanel,
+            #simulatorPanel,
+            #categoryPanel,
+            #writePanel,
+            #postsPanel,
+            #symbolPanel {
+                grid-column: 1;
+            }
         }
     </style>
 </head>
@@ -397,12 +430,12 @@
     <section class="hero">
         <div class="hero-card">
             <h1 id="boardTitle">종목 게시판</h1>
-            <p>종목별로 매매일지, 자유게시판, 종목토론, 꿀팁공유를 작성할 수 있어요. 모든 글은 브라우저에 저장됩니다.</p>
+            <p>종목별로 매매일지와 자유게시판 글을 작성할 수 있어요. 모든 글은 브라우저에 저장됩니다.</p>
         </div>
     </section>
 
     <section class="content">
-        <div class="panel">
+        <div class="panel" id="symbolPanel">
             <h2>종목 선택</h2>
             <p class="desc">종목을 입력하면 해당 종목 게시판으로 이동합니다.</p>
             <div class="row">
@@ -418,14 +451,14 @@
             <div class="helper">예: AAPL, TSLA, 005930</div>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="categoryPanel">
             <h2>카테고리</h2>
             <p class="desc">원하는 카테고리를 눌러 글을 작성하거나 확인하세요.</p>
             <div class="tabs" id="categoryTabs"></div>
-            <div class="helper">카테고리: 매매일지 · 자유게시판 · 종목토론 · 꿀팁공유</div>
+            <div class="helper">카테고리: 매매일지 · 자유게시판</div>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="chartPanel">
             <h2 id="chartTitle">AAPL 차트</h2>
             <p class="desc">종목 변경 시 차트가 자동으로 바뀝니다. 매매일지 작성 전에 가격 흐름을 참고하세요.</p>
 
@@ -458,7 +491,7 @@
 
         </div>
 
-        <div class="panel">
+        <div class="panel" id="simulatorPanel">
             <h2>Virtual Trading Simulator</h2>
             <p class="desc">현재 차트 종목 기준으로 즉시 가상매매가 가능합니다. 별도 시뮬레이터 페이지 없이 여기서 실행됩니다.</p>
 
@@ -518,7 +551,7 @@
             </div>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="writePanel">
             <h2>새 글 작성</h2>
             <p class="desc">선택된 카테고리에 글이 저장됩니다.</p>
             <form id="postForm">
@@ -546,7 +579,7 @@
             </form>
         </div>
 
-        <div class="panel">
+        <div class="panel" id="postsPanel">
             <h2>게시글</h2>
             <p class="desc" id="postCount">0건</p>
             <div class="post-list" id="postList"></div>
@@ -554,7 +587,7 @@
     </section>
 
     <script>
-        const CATEGORIES = ['매매일지', '자유게시판', '종목토론', '꿀팁공유'];
+        const CATEGORIES = ['매매일지', '자유게시판'];
         const STORAGE_KEY = 'symbol_posts_v1';
 
         const boardTitle = document.getElementById('boardTitle');
