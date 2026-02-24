@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>매매일지 & 매매스타일 - Smart Investment Tips</title>
+    <style>
+        :root {
+            --ink: #1f2933;
+            --muted: #6b7280;
+            --panel: #ffffff;
+            --bg: #f6f7fb;
+            --accent: #2563eb;
+            --accent-2: #0ea5e9;
+            --line: #e5e7eb;
+            --shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
+            background: radial-gradient(circle at top, #eef2ff, #f6f7fb 65%);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        nav {
+            background: var(--panel);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--ink);
+            font-weight: 600;
+            margin-left: 16px;
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 32px auto 0;
+            padding: 0 20px;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+            color: #fff;
+            border-radius: 18px;
+            padding: 36px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card h1 {
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        .hero-card p {
+            opacity: 0.9;
+            max-width: 720px;
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 28px auto 80px;
+            padding: 0 20px;
+            display: grid;
+            gap: 24px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .panel h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .panel p.desc {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        form {
+            display: grid;
+            gap: 14px;
+        }
+
+        .grid-2 {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input, select, textarea, button {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea { min-height: 90px; resize: vertical; }
+
+        button.primary {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button.ghost {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--ink);
+            cursor: pointer;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .positive { color: #16a34a; font-weight: 600; }
+        .negative { color: #dc2626; font-weight: 600; }
+
+        .cards {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            margin-top: 12px;
+        }
+
+        .card {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            background: #fff;
+        }
+
+        .card h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .helper {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        @media (max-width: 720px) {
+            nav .container { padding: 1rem; }
+            .hero-card { padding: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">💰 Smart Investment Tips</div>
+            <div>
+                <a href="/">Home</a>
+                <a href="/market.html">Markets</a>
+                <a href="/simulator.html">Simulator</a>
+                <a href="/journal.html">Journal</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-card">
+            <span class="badge">Local Only</span>
+            <h1>매매일지와 매매스타일 공유 공간</h1>
+            <p>나의 매매기록을 남기고, 나만의 매매 스타일을 정리해 보세요. 모든 데이터는 브라우저에만 저장됩니다.</p>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="panel">
+            <h2>종목 게시판 바로가기</h2>
+            <p class="desc">종목별 게시판(매매일지, 자유게시판, 종목토론, 꿀팁공유)으로 이동합니다.</p>
+            <div class="grid-2">
+                <div>
+                    <label for="boardSymbolInput">종목/티커</label>
+                    <input id="boardSymbolInput" type="text" placeholder="AAPL, 005930" />
+                </div>
+                <div>
+                    <label>&nbsp;</label>
+                    <button class="primary" type="button" id="boardOpenBtn">게시판 열기</button>
+                </div>
+            </div>
+            <div class="actions" style="margin-top:12px;">
+                <button class="ghost" type="button" data-board-symbol="AAPL">AAPL</button>
+                <button class="ghost" type="button" data-board-symbol="TSLA">TSLA</button>
+                <button class="ghost" type="button" data-board-symbol="005930">005930</button>
+                <button class="ghost" type="button" data-board-symbol="035420">035420</button>
+            </div>
+            <div class="helper">입력한 종목으로 종목 게시판 페이지가 열립니다.</div>
+        </div>
+
+        <div class="panel">
+            <h2>매매일지</h2>
+            <p class="desc">매매 기록을 체계적으로 남기고 성과를 확인하세요.</p>
+            <form id="tradeForm">
+                <div class="grid-2">
+                    <div>
+                        <label for="tradeDate">날짜</label>
+                        <input id="tradeDate" type="date" required />
+                    </div>
+                    <div>
+                        <label for="tradeSymbol">종목/티커</label>
+                        <input id="tradeSymbol" type="text" placeholder="AAPL, 005930" required />
+                    </div>
+                    <div>
+                        <label for="tradeSide">방향</label>
+                        <select id="tradeSide" required>
+                            <option value="buy">매수</option>
+                            <option value="sell">매도</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tradeSize">수량</label>
+                        <input id="tradeSize" type="number" min="1" step="1" required />
+                    </div>
+                    <div>
+                        <label for="tradeEntry">진입가</label>
+                        <input id="tradeEntry" type="number" step="0.01" required />
+                    </div>
+                    <div>
+                        <label for="tradeExit">청산가</label>
+                        <input id="tradeExit" type="number" step="0.01" required />
+                    </div>
+                    <div>
+                        <label for="tradeFee">수수료/슬리피지</label>
+                        <input id="tradeFee" type="number" step="0.01" value="0" />
+                    </div>
+                    <div>
+                        <label for="tradeTag">태그</label>
+                        <input id="tradeTag" type="text" placeholder="돌파, 눌림, 스캘핑" />
+                    </div>
+                </div>
+                <div>
+                    <label for="tradeNote">메모</label>
+                    <textarea id="tradeNote" placeholder="진입 이유, 감정, 개선점"></textarea>
+                </div>
+                <div class="actions">
+                    <button class="primary" type="submit">기록 저장</button>
+                    <button class="ghost" type="button" id="exportTrades">내보내기</button>
+                    <button class="ghost" type="button" id="importTrades">가져오기</button>
+                    <input id="tradeImportFile" type="file" accept="application/json" style="display:none" />
+                    <button class="ghost" type="button" id="clearTrades">전체 삭제</button>
+                </div>
+                <div class="helper">TIP: 기록은 브라우저에만 저장됩니다. 다른 기기와 공유되지 않습니다.</div>
+            </form>
+            <div style="margin-top:18px;">
+                <div class="grid-2">
+                    <div>
+                        <label for="filterSymbol">심볼 필터</label>
+                        <input id="filterSymbol" type="text" placeholder="예: AAPL" />
+                    </div>
+                    <div>
+                        <label for="filterTag">태그 필터</label>
+                        <input id="filterTag" type="text" placeholder="예: 돌파" />
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>날짜</th>
+                            <th>종목</th>
+                            <th>방향</th>
+                            <th>진입</th>
+                            <th>청산</th>
+                            <th>수량</th>
+                            <th>손익</th>
+                            <th>메모</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="tradeTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>매매스타일 공유</h2>
+            <p class="desc">자기 스타일을 정리하고 공유용 카드로 저장하세요. (로컬 저장)</p>
+            <form id="styleForm">
+                <div class="grid-2">
+                    <div>
+                        <label for="styleName">닉네임</label>
+                        <input id="styleName" type="text" placeholder="예: TraderKim" required />
+                    </div>
+                    <div>
+                        <label for="styleType">스타일</label>
+                        <select id="styleType" required>
+                            <option value="스윙">스윙</option>
+                            <option value="데이">데이</option>
+                            <option value="스캘핑">스캘핑</option>
+                            <option value="포지션">포지션</option>
+                            <option value="퀀트">퀀트</option>
+                            <option value="기타">기타</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="styleMarket">주력 시장</label>
+                        <input id="styleMarket" type="text" placeholder="KOSPI, US Stocks" required />
+                    </div>
+                    <div>
+                        <label for="styleTimeframe">타임프레임</label>
+                        <input id="styleTimeframe" type="text" placeholder="5m / 1h / Day" required />
+                    </div>
+                    <div>
+                        <label for="styleRisk">1회 리스크(%)</label>
+                        <input id="styleRisk" type="number" step="0.1" placeholder="1.0" required />
+                    </div>
+                    <div>
+                        <label for="styleSetup">주요 셋업</label>
+                        <input id="styleSetup" type="text" placeholder="돌파, 눌림목" required />
+                    </div>
+                </div>
+                <div>
+                    <label for="styleRules">핵심 룰</label>
+                    <textarea id="styleRules" placeholder="진입/손절/익절 기준"></textarea>
+                </div>
+                <div>
+                    <label for="styleLesson">최근 배운 점</label>
+                    <textarea id="styleLesson" placeholder="실수/개선/루틴"></textarea>
+                </div>
+                <div class="actions">
+                    <button class="primary" type="submit">스타일 카드 저장</button>
+                    <button class="ghost" type="button" id="exportStyles">내보내기</button>
+                    <button class="ghost" type="button" id="importStyles">가져오기</button>
+                    <input id="styleImportFile" type="file" accept="application/json" style="display:none" />
+                    <button class="ghost" type="button" id="clearStyles">전체 삭제</button>
+                </div>
+            </form>
+            <div class="cards" id="styleCards"></div>
+        </div>
+    </section>
+
+    <script>
+        const TRADE_KEY = 'journal_trades_v1';
+        const STYLE_KEY = 'journal_styles_v1';
+
+        const tradeTable = document.getElementById('tradeTable');
+        const filterSymbol = document.getElementById('filterSymbol');
+        const filterTag = document.getElementById('filterTag');
+        const styleCards = document.getElementById('styleCards');
+        const boardSymbolInput = document.getElementById('boardSymbolInput');
+        const boardOpenBtn = document.getElementById('boardOpenBtn');
+
+        let trades = JSON.parse(localStorage.getItem(TRADE_KEY) || '[]');
+        let styles = JSON.parse(localStorage.getItem(STYLE_KEY) || '[]');
+
+        function saveTrades() {
+            localStorage.setItem(TRADE_KEY, JSON.stringify(trades));
+        }
+
+        function saveStyles() {
+            localStorage.setItem(STYLE_KEY, JSON.stringify(styles));
+        }
+
+        function calcPnl(side, entry, exit, size, fee) {
+            const diff = side === 'buy' ? (exit - entry) : (entry - exit);
+            return (diff * size) - fee;
+        }
+
+        function renderTrades() {
+            const symbolFilter = filterSymbol.value.trim().toLowerCase();
+            const tagFilter = filterTag.value.trim().toLowerCase();
+            tradeTable.innerHTML = '';
+
+            const filtered = trades.filter(t => {
+                const matchSymbol = !symbolFilter || t.symbol.toLowerCase().includes(symbolFilter);
+                const matchTag = !tagFilter || (t.tag && t.tag.toLowerCase().includes(tagFilter));
+                return matchSymbol && matchTag;
+            });
+
+            if (filtered.length === 0) {
+                tradeTable.innerHTML = '<tr><td colspan="9" style="color: #6b7280;">기록이 없습니다.</td></tr>';
+                return;
+            }
+
+            filtered.forEach((trade, index) => {
+                const pnlClass = trade.pnl >= 0 ? 'positive' : 'negative';
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${trade.date}</td>
+                    <td>${trade.symbol}</td>
+                    <td>${trade.side === 'buy' ? '매수' : '매도'}</td>
+                    <td>${trade.entry.toFixed(2)}</td>
+                    <td>${trade.exit.toFixed(2)}</td>
+                    <td>${trade.size}</td>
+                    <td class="${pnlClass}">${trade.pnl.toFixed(2)}</td>
+                    <td>${trade.note || '-'}</td>
+                    <td><button class="ghost" data-index="${index}">삭제</button></td>
+                `;
+                tradeTable.appendChild(row);
+            });
+        }
+
+        function renderStyles() {
+            styleCards.innerHTML = '';
+            if (styles.length === 0) {
+                styleCards.innerHTML = '<div class="card"><p>아직 저장된 스타일이 없습니다.</p></div>';
+                return;
+            }
+
+            styles.forEach((style, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <h3>${style.name} · ${style.type}</h3>
+                    <p>시장: ${style.market}</p>
+                    <p>타임프레임: ${style.timeframe}</p>
+                    <p>리스크: ${style.risk}%</p>
+                    <p>셋업: ${style.setup}</p>
+                    <p>룰: ${style.rules || '-'}</p>
+                    <p>배운 점: ${style.lesson || '-'}</p>
+                    <button class="ghost" data-style-index="${index}">삭제</button>
+                `;
+                styleCards.appendChild(card);
+            });
+        }
+
+        document.getElementById('tradeForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const entry = parseFloat(document.getElementById('tradeEntry').value);
+            const exit = parseFloat(document.getElementById('tradeExit').value);
+            const size = parseFloat(document.getElementById('tradeSize').value);
+            const fee = parseFloat(document.getElementById('tradeFee').value || 0);
+            const side = document.getElementById('tradeSide').value;
+
+            const trade = {
+                date: document.getElementById('tradeDate').value,
+                symbol: document.getElementById('tradeSymbol').value.trim().toUpperCase(),
+                side,
+                size,
+                entry,
+                exit,
+                fee,
+                tag: document.getElementById('tradeTag').value.trim(),
+                note: document.getElementById('tradeNote').value.trim(),
+                pnl: calcPnl(side, entry, exit, size, fee)
+            };
+
+            trades.unshift(trade);
+            saveTrades();
+            renderTrades();
+            event.target.reset();
+        });
+
+        document.getElementById('styleForm').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const style = {
+                name: document.getElementById('styleName').value.trim(),
+                type: document.getElementById('styleType').value,
+                market: document.getElementById('styleMarket').value.trim(),
+                timeframe: document.getElementById('styleTimeframe').value.trim(),
+                risk: document.getElementById('styleRisk').value,
+                setup: document.getElementById('styleSetup').value.trim(),
+                rules: document.getElementById('styleRules').value.trim(),
+                lesson: document.getElementById('styleLesson').value.trim()
+            };
+
+            styles.unshift(style);
+            saveStyles();
+            renderStyles();
+            event.target.reset();
+        });
+
+        tradeTable.addEventListener('click', (event) => {
+            if (event.target.matches('button[data-index]')) {
+                const index = parseInt(event.target.dataset.index, 10);
+                trades.splice(index, 1);
+                saveTrades();
+                renderTrades();
+            }
+        });
+
+        styleCards.addEventListener('click', (event) => {
+            if (event.target.matches('button[data-style-index]')) {
+                const index = parseInt(event.target.dataset.styleIndex, 10);
+                styles.splice(index, 1);
+                saveStyles();
+                renderStyles();
+            }
+        });
+
+        filterSymbol.addEventListener('input', renderTrades);
+        filterTag.addEventListener('input', renderTrades);
+
+        boardOpenBtn.addEventListener('click', () => {
+            const symbol = boardSymbolInput.value.trim();
+            if (!symbol) return;
+            window.location.href = `/symbol.html?symbol=${encodeURIComponent(symbol)}`;
+        });
+
+        document.querySelectorAll('[data-board-symbol]').forEach(button => {
+            button.addEventListener('click', () => {
+                const symbol = button.dataset.boardSymbol;
+                window.location.href = `/symbol.html?symbol=${encodeURIComponent(symbol)}`;
+            });
+        });
+
+        document.getElementById('exportTrades').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(trades, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'trades.json';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('importTrades').addEventListener('click', () => {
+            document.getElementById('tradeImportFile').click();
+        });
+
+        document.getElementById('tradeImportFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const imported = JSON.parse(reader.result);
+                    if (Array.isArray(imported)) {
+                        trades = imported;
+                        saveTrades();
+                        renderTrades();
+                    }
+                } catch (err) {
+                    alert('불러오기 실패: JSON 형식을 확인하세요.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('clearTrades').addEventListener('click', () => {
+            if (!confirm('모든 매매일지를 삭제할까요?')) return;
+            trades = [];
+            saveTrades();
+            renderTrades();
+        });
+
+        document.getElementById('exportStyles').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(styles, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'styles.json';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('importStyles').addEventListener('click', () => {
+            document.getElementById('styleImportFile').click();
+        });
+
+        document.getElementById('styleImportFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const imported = JSON.parse(reader.result);
+                    if (Array.isArray(imported)) {
+                        styles = imported;
+                        saveStyles();
+                        renderStyles();
+                    }
+                } catch (err) {
+                    alert('불러오기 실패: JSON 형식을 확인하세요.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('clearStyles').addEventListener('click', () => {
+            if (!confirm('모든 스타일 카드를 삭제할까요?')) return;
+            styles = [];
+            saveStyles();
+            renderStyles();
+        });
+
+        renderTrades();
+        renderStyles();
+    </script>
+</body>
+</html>
