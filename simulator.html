@@ -113,10 +113,13 @@
         const authStatus = document.getElementById('authStatus');
         const supabaseUrl = localStorage.getItem('supabase_url');
         const supabaseAnonKey = localStorage.getItem('supabase_anon_key');
+        const LOCAL_SESSION_KEY = 'local_auth_session_v1';
         const supabaseClient = (supabaseUrl && supabaseAnonKey)
             ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
             : null;
         let currentUser = null;
+        let currentUserId = null;
+        let useLocalMode = false;
 
         // State
         let cash = initialCash;
@@ -130,7 +133,26 @@
         const txTbody = document.querySelector('#txTable tbody');
         const qBox = document.getElementById('quoteBox');
 
+        function getLocalStorageKey(base) {
+            return `${base}_${currentUserId || 'guest'}`;
+        }
+
+        function loadLocalState() {
+            cash = parseFloat(localStorage.getItem(getLocalStorageKey('sim_cash_v1'))) || initialCash;
+            portfolio = JSON.parse(localStorage.getItem(getLocalStorageKey('sim_portfolio_v1')) || '{}');
+            txs = JSON.parse(localStorage.getItem(getLocalStorageKey('sim_tx_v1')) || '[]');
+            perf = JSON.parse(localStorage.getItem(getLocalStorageKey('sim_perf_v1')) || '[]');
+        }
+
         async function saveState(){
+            if (useLocalMode) {
+                localStorage.setItem(getLocalStorageKey('sim_cash_v1'), cash);
+                localStorage.setItem(getLocalStorageKey('sim_portfolio_v1'), JSON.stringify(portfolio));
+                localStorage.setItem(getLocalStorageKey('sim_tx_v1'), JSON.stringify(txs));
+                localStorage.setItem(getLocalStorageKey('sim_perf_v1'), JSON.stringify(perf));
+                return;
+            }
+
             if (!supabaseClient || !currentUser) return;
             await supabaseClient.from('virtual_accounts').upsert({
                 user_id: currentUser.id,
@@ -142,6 +164,7 @@
         }
 
         async function addTradeRecord(side, sym, qty, price){
+            if (useLocalMode) return;
             if (!supabaseClient || !currentUser) return;
             await supabaseClient.from('virtual_trades').insert({
                 user_id: currentUser.id,
@@ -395,22 +418,33 @@
         document.getElementById('importFile').addEventListener('change', e=>{ if(e.target.files.length) importStateFile(e.target.files[0]); });
 
         async function initAuthAndData() {
-            if (!supabaseClient) {
-                authStatus.innerHTML = 'Supabase 설정이 없습니다. <a href="./auth.html">auth.html</a>에서 URL/Key를 저장하세요.';
-                document.getElementById('tradeBtn').disabled = true;
-                return;
+            if (supabaseClient) {
+                const { data } = await supabaseClient.auth.getSession();
+                if (data?.session?.user) {
+                    currentUser = data.session.user;
+                    currentUserId = currentUser.id;
+                    useLocalMode = false;
+                    authStatus.textContent = `Logged in (Supabase): ${currentUser.email}`;
+                    await loadRemoteState();
+                    render();
+                    renderPerf();
+                    applyPrefillFromQuery();
+                    return;
+                }
             }
 
-            const { data } = await supabaseClient.auth.getSession();
-            if (!data?.session?.user) {
+            const localEmail = localStorage.getItem(LOCAL_SESSION_KEY);
+            if (!localEmail) {
                 authStatus.innerHTML = '로그인이 필요합니다. <a href="./auth.html">로그인/회원가입</a>';
                 document.getElementById('tradeBtn').disabled = true;
                 return;
             }
 
-            currentUser = data.session.user;
-            authStatus.textContent = `Logged in: ${currentUser.email}`;
-            await loadRemoteState();
+            useLocalMode = true;
+            currentUser = { id: `local:${localEmail}`, email: localEmail };
+            currentUserId = currentUser.id;
+            authStatus.textContent = `Logged in (Local): ${localEmail}`;
+            loadLocalState();
             render();
             renderPerf();
             applyPrefillFromQuery();
