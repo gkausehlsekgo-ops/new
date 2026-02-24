@@ -649,13 +649,24 @@
         }
 
         async function fetchJsonWithFallback(url) {
-            const direct = await fetch(url);
-            if (direct.ok) return direct.json();
+            const targets = [
+                url,
+                `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+            ];
 
-            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-            const proxied = await fetch(proxyUrl);
-            if (!proxied.ok) throw new Error('Delayed data fetch failed');
-            return proxied.json();
+            let lastError = null;
+            for (const target of targets) {
+                try {
+                    const res = await fetch(target, { cache: 'no-store' });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return await res.json();
+                } catch (err) {
+                    lastError = err;
+                }
+            }
+
+            throw lastError || new Error('Delayed data fetch failed');
         }
 
         function renderFrameButtons() {
@@ -1087,34 +1098,52 @@
             if (!yahooSymbol) return;
 
             const frame = getCurrentFrameConfig();
-            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${frame.range}&interval=${frame.interval}`;
-            const data = await fetchJsonWithFallback(url);
-            const result = data?.chart?.result?.[0];
-            const timestamps = result?.timestamp || [];
-            const quote = result?.indicators?.quote?.[0] || {};
-            const opens = quote.open || [];
-            const highs = quote.high || [];
-            const lows = quote.low || [];
-            const closes = quote.close || [];
-            const volumes = quote.volume || [];
+            const candidates = [
+                { range: frame.range, interval: frame.interval },
+                { range: '1mo', interval: '1h' },
+                { range: '3mo', interval: '1d' },
+                { range: '6mo', interval: '1d' }
+            ];
 
-            const history = [];
-            for (let i = 0; i < timestamps.length; i++) {
-                const close = closes[i];
-                if (close == null) continue;
-                const open = opens[i] == null ? close : opens[i];
-                const high = highs[i] == null ? Math.max(open, close) : highs[i];
-                const low = lows[i] == null ? Math.min(open, close) : lows[i];
-                history.push({
-                    time: Number(timestamps[i]),
-                    value: Number(close),
-                    high: Number(high),
-                    low: Number(low),
-                    volume: Math.max(0, Number(volumes[i] || 0))
-                });
+            for (const candidate of candidates) {
+                try {
+                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${candidate.range}&interval=${candidate.interval}`;
+                    const data = await fetchJsonWithFallback(url);
+                    const result = data?.chart?.result?.[0];
+                    const timestamps = result?.timestamp || [];
+                    const quote = result?.indicators?.quote?.[0] || {};
+                    const opens = quote.open || [];
+                    const highs = quote.high || [];
+                    const lows = quote.low || [];
+                    const closes = quote.close || [];
+                    const volumes = quote.volume || [];
+
+                    const history = [];
+                    for (let i = 0; i < timestamps.length; i++) {
+                        const close = closes[i];
+                        if (close == null) continue;
+                        const open = opens[i] == null ? close : opens[i];
+                        const high = highs[i] == null ? Math.max(open, close) : highs[i];
+                        const low = lows[i] == null ? Math.min(open, close) : lows[i];
+                        history.push({
+                            time: Number(timestamps[i]),
+                            value: Number(close),
+                            high: Number(high),
+                            low: Number(low),
+                            volume: Math.max(0, Number(volumes[i] || 0))
+                        });
+                    }
+
+                    if (history.length > 0) {
+                        delayedHistoryBySymbol[symbol] = history;
+                        return;
+                    }
+                } catch (err) {
+                    // try next candidate
+                }
             }
 
-            delayedHistoryBySymbol[symbol] = history;
+            delayedHistoryBySymbol[symbol] = [];
         }
 
         function buildQuoteBasedHistory(symbol) {
