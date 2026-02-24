@@ -258,6 +258,32 @@
             margin-top: 10px;
         }
 
+        .indicator-subcharts {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .subchart-box {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .subchart-title {
+            font-size: 12px;
+            color: var(--muted);
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--line);
+            background: #f8fafc;
+        }
+
+        .subchart-canvas {
+            width: 100%;
+            height: 130px;
+        }
+
         .indicator-value-card {
             border: 1px solid var(--line);
             border-radius: 10px;
@@ -388,6 +414,20 @@
                 <div class="indicator-list" id="indicatorToggleList"></div>
             </div>
             <div class="indicator-values" id="indicatorValueBoard"></div>
+            <div class="indicator-subcharts" id="indicatorSubcharts">
+                <div class="subchart-box">
+                    <div class="subchart-title">RSI (14)</div>
+                    <div id="rsiChart" class="subchart-canvas"></div>
+                </div>
+                <div class="subchart-box">
+                    <div class="subchart-title">MACD (12, 26, 9)</div>
+                    <div id="macdChart" class="subchart-canvas"></div>
+                </div>
+                <div class="subchart-box">
+                    <div class="subchart-title">Stochastic (14, 3)</div>
+                    <div id="stochChart" class="subchart-canvas"></div>
+                </div>
+            </div>
 
         </div>
 
@@ -508,6 +548,17 @@
         let lwTradeMarkers = [];
         let lwMainData = [];
         let indicatorSeriesMap = {};
+        let rsiChart;
+        let macdChart;
+        let stochChart;
+        let rsiSeries;
+        let rsiMidSeries;
+        let macdLineSeries;
+        let macdSignalSeries;
+        let macdHistSeries;
+        let stochKSeries;
+        let stochDSeries;
+        let stochMidSeries;
         let realtimeQuoteTimer = null;
         let simCash = SIM_INITIAL_CASH;
         let simPortfolio = {};
@@ -536,11 +587,11 @@
         let delayedQuotes = {};
 
         const INDICATOR_DEFINITIONS = [
-            { key: 'ma5', label: 'MA 5', type: 'overlay', defaultOn: true, color: '#f59e0b' },
-            { key: 'ma20', label: 'MA 20', type: 'overlay', defaultOn: true, color: '#8b5cf6' },
+            { key: 'ma5', label: 'MA 5', type: 'overlay', defaultOn: false, color: '#f59e0b' },
+            { key: 'ma20', label: 'MA 20', type: 'overlay', defaultOn: false, color: '#8b5cf6' },
             { key: 'ma60', label: 'MA 60', type: 'overlay', defaultOn: false, color: '#06b6d4' },
-            { key: 'ema12', label: 'EMA 12', type: 'overlay', defaultOn: true, color: '#10b981' },
-            { key: 'ema26', label: 'EMA 26', type: 'overlay', defaultOn: true, color: '#ef4444' },
+            { key: 'ema12', label: 'EMA 12', type: 'overlay', defaultOn: false, color: '#10b981' },
+            { key: 'ema26', label: 'EMA 26', type: 'overlay', defaultOn: false, color: '#ef4444' },
             { key: 'vwap', label: 'VWAP', type: 'overlay', defaultOn: false, color: '#0ea5e9' },
             { key: 'bbands', label: 'Bollinger', type: 'overlay-multi', defaultOn: false, color: '#6366f1' },
             { key: 'rsi', label: 'RSI 14', type: 'value', defaultOn: true, color: '#334155' },
@@ -679,44 +730,139 @@
             return out;
         }
 
-        function calcRsi(period, source) {
-            if (source.length < period + 1) return null;
+        function calcRsiSeries(period, source) {
+            const out = Array(source.length).fill(null);
+            if (source.length <= period) return out;
+
             let gain = 0;
             let loss = 0;
-            for (let i = source.length - period; i < source.length; i++) {
+            for (let i = 1; i <= period; i++) {
                 const diff = source[i] - source[i - 1];
                 if (diff >= 0) gain += diff;
                 else loss -= diff;
             }
-            const avgGain = gain / period;
-            const avgLoss = loss / period;
-            if (avgLoss === 0) return 100;
-            const rs = avgGain / avgLoss;
-            return 100 - (100 / (1 + rs));
+
+            let avgGain = gain / period;
+            let avgLoss = loss / period;
+            out[period] = avgLoss === 0 ? 100 : (100 - (100 / (1 + (avgGain / avgLoss))));
+
+            for (let i = period + 1; i < source.length; i++) {
+                const diff = source[i] - source[i - 1];
+                const g = diff > 0 ? diff : 0;
+                const l = diff < 0 ? -diff : 0;
+                avgGain = ((avgGain * (period - 1)) + g) / period;
+                avgLoss = ((avgLoss * (period - 1)) + l) / period;
+                out[i] = avgLoss === 0 ? 100 : (100 - (100 / (1 + (avgGain / avgLoss))));
+            }
+
+            return out;
         }
 
-        function calcMacd(source) {
+        function calcMacdSeries(source) {
             const ema12 = calcEma(12, source);
             const ema26 = calcEma(26, source);
-            const macdLine = source.map((_, idx) => (ema12[idx] == null || ema26[idx] == null) ? null : (ema12[idx] - ema26[idx]));
-            const valid = macdLine.map(v => v == null ? 0 : v);
+            const macd = source.map((_, idx) => (ema12[idx] == null || ema26[idx] == null) ? null : (ema12[idx] - ema26[idx]));
+            const valid = macd.map(v => v == null ? 0 : v);
             const signal = calcEma(9, valid);
-            const last = source.length - 1;
+            const hist = macd.map((v, idx) => (v == null || signal[idx] == null) ? null : (v - signal[idx]));
             return {
-                macd: macdLine[last] ?? 0,
-                signal: signal[last] ?? 0,
-                hist: (macdLine[last] ?? 0) - (signal[last] ?? 0)
+                macd,
+                signal,
+                hist
             };
         }
 
-        function calcStochastic(period, data) {
-            if (data.length < period) return null;
-            const window = data.slice(data.length - period);
-            const high = Math.max(...window.map(x => x.high));
-            const low = Math.min(...window.map(x => x.low));
-            if (high === low) return 50;
-            const close = data[data.length - 1].value;
-            return ((close - low) / (high - low)) * 100;
+        function calcStochasticSeries(period, smooth, data) {
+            const k = Array(data.length).fill(null);
+            for (let i = period - 1; i < data.length; i++) {
+                const window = data.slice(i - period + 1, i + 1);
+                const high = Math.max(...window.map(x => x.high));
+                const low = Math.min(...window.map(x => x.low));
+                k[i] = high === low ? 50 : (((data[i].value - low) / (high - low)) * 100);
+            }
+
+            const kSafe = k.map(v => v == null ? 50 : v);
+            const d = calcSma(smooth, kSafe);
+            return { k, d };
+        }
+
+        function addHistogramSeriesCompat(chart, options) {
+            if (typeof chart.addHistogramSeries === 'function') return chart.addHistogramSeries(options);
+            if (typeof chart.addSeries === 'function' && window.LightweightCharts.HistogramSeries) {
+                return chart.addSeries(window.LightweightCharts.HistogramSeries, options);
+            }
+            return null;
+        }
+
+        function addLineSeriesForChart(chart, options) {
+            if (typeof chart.addLineSeries === 'function') return chart.addLineSeries(options);
+            if (typeof chart.addSeries === 'function' && window.LightweightCharts.LineSeries) {
+                return chart.addSeries(window.LightweightCharts.LineSeries, options);
+            }
+            return null;
+        }
+
+        function initIndicatorSubcharts() {
+            if (!window.LightweightCharts) return;
+
+            const baseOptions = {
+                layout: { background: { color: '#ffffff' }, textColor: '#64748b' },
+                grid: { vertLines: { color: '#f1f5f9' }, horzLines: { color: '#f1f5f9' } },
+                width: document.getElementById('lightweightChart').clientWidth,
+                height: 130,
+                rightPriceScale: { borderColor: '#e2e8f0' },
+                timeScale: { borderColor: '#e2e8f0' }
+            };
+
+            const rsiRoot = document.getElementById('rsiChart');
+            const macdRoot = document.getElementById('macdChart');
+            const stochRoot = document.getElementById('stochChart');
+            if (!rsiRoot || !macdRoot || !stochRoot) return;
+
+            rsiChart = LightweightCharts.createChart(rsiRoot, baseOptions);
+            macdChart = LightweightCharts.createChart(macdRoot, baseOptions);
+            stochChart = LightweightCharts.createChart(stochRoot, baseOptions);
+
+            rsiSeries = addLineSeriesForChart(rsiChart, { color: '#7c3aed', lineWidth: 2 });
+            rsiMidSeries = addLineSeriesForChart(rsiChart, { color: '#94a3b8', lineWidth: 1, lineStyle: 2 });
+
+            macdLineSeries = addLineSeriesForChart(macdChart, { color: '#2563eb', lineWidth: 2 });
+            macdSignalSeries = addLineSeriesForChart(macdChart, { color: '#f97316', lineWidth: 2 });
+            macdHistSeries = addHistogramSeriesCompat(macdChart, { color: '#94a3b8' });
+
+            stochKSeries = addLineSeriesForChart(stochChart, { color: '#16a34a', lineWidth: 2 });
+            stochDSeries = addLineSeriesForChart(stochChart, { color: '#dc2626', lineWidth: 2 });
+            stochMidSeries = addLineSeriesForChart(stochChart, { color: '#94a3b8', lineWidth: 1, lineStyle: 2 });
+        }
+
+        function renderIndicatorSubcharts(rsiSeriesData, macdSeriesData, stochSeriesData) {
+            if (!rsiChart || !macdChart || !stochChart) return;
+
+            const midline = lwMainData.map(p => ({ time: p.time, value: 50 }));
+            const zeroLine = lwMainData.map(p => ({ time: p.time, value: 0 }));
+
+            if (rsiSeries) rsiSeries.setData(indicatorEnabled.rsi ? toLineData(rsiSeriesData) : []);
+            if (rsiMidSeries) rsiMidSeries.setData(indicatorEnabled.rsi ? midline : []);
+
+            if (macdLineSeries) macdLineSeries.setData(indicatorEnabled.macd ? toLineData(macdSeriesData.macd) : []);
+            if (macdSignalSeries) macdSignalSeries.setData(indicatorEnabled.macd ? toLineData(macdSeriesData.signal) : []);
+            if (macdHistSeries) {
+                macdHistSeries.setData(indicatorEnabled.macd
+                    ? lwMainData.map((p, idx) => ({
+                        time: p.time,
+                        value: macdSeriesData.hist[idx] == null ? 0 : Number(macdSeriesData.hist[idx].toFixed(4)),
+                        color: (macdSeriesData.hist[idx] || 0) >= 0 ? '#16a34a' : '#dc2626'
+                    }))
+                    : []);
+            }
+
+            if (stochKSeries) stochKSeries.setData(indicatorEnabled.stoch ? toLineData(stochSeriesData.k) : []);
+            if (stochDSeries) stochDSeries.setData(indicatorEnabled.stoch ? toLineData(stochSeriesData.d) : []);
+            if (stochMidSeries) stochMidSeries.setData(indicatorEnabled.stoch ? midline : []);
+
+            rsiChart.timeScale().fitContent();
+            macdChart.timeScale().fitContent();
+            stochChart.timeScale().fitContent();
         }
 
         function addLineSeriesCompat(options) {
@@ -728,7 +874,7 @@
         }
 
         function createPrimarySeries(symbol) {
-            const useCandle = symbol === 'KOSPI';
+            const useCandle = true;
             if (useCandle) {
                 if (typeof lwChart.addCandlestickSeries === 'function') {
                     lwSeriesType = 'candlestick';
@@ -812,7 +958,6 @@
         function renderIndicators() {
             ensureIndicatorSeries();
             if (!lwMainData.length) return;
-            const hideOverlayForKOSPI = currentSymbol === 'KOSPI';
 
             const closes = lwMainData.map(x => x.value);
             const ma5 = calcSma(5, closes);
@@ -829,7 +974,7 @@
             const bindSeries = (key, values) => {
                 const series = indicatorSeriesMap[key];
                 if (!series) return;
-                series.setData(indicatorEnabled[key] && !hideOverlayForKOSPI ? toLineData(values) : []);
+                series.setData(indicatorEnabled[key] ? toLineData(values) : []);
             };
 
             bindSeries('ma5', ma5);
@@ -838,11 +983,15 @@
             bindSeries('ema12', ema12);
             bindSeries('ema26', ema26);
             bindSeries('vwap', vwap);
-            indicatorSeriesMap.bbUpper?.setData(indicatorEnabled.bbands && !hideOverlayForKOSPI ? toLineData(bbUpper) : []);
-            indicatorSeriesMap.bbMid?.setData(indicatorEnabled.bbands && !hideOverlayForKOSPI ? toLineData(bbMid) : []);
-            indicatorSeriesMap.bbLower?.setData(indicatorEnabled.bbands && !hideOverlayForKOSPI ? toLineData(bbLower) : []);
+            indicatorSeriesMap.bbUpper?.setData(indicatorEnabled.bbands ? toLineData(bbUpper) : []);
+            indicatorSeriesMap.bbMid?.setData(indicatorEnabled.bbands ? toLineData(bbMid) : []);
+            indicatorSeriesMap.bbLower?.setData(indicatorEnabled.bbands ? toLineData(bbLower) : []);
 
-            const macd = calcMacd(closes);
+            const rsiSeriesData = calcRsiSeries(14, closes);
+            const macdSeriesData = calcMacdSeries(closes);
+            const stochSeriesData = calcStochasticSeries(14, 3, lwMainData);
+            renderIndicatorSubcharts(rsiSeriesData, macdSeriesData, stochSeriesData);
+            const last = closes.length - 1;
             renderIndicatorBoard({
                 ma5: ma5[ma5.length - 1],
                 ma20: ma20[ma20.length - 1],
@@ -853,11 +1002,11 @@
                 bbUpper: bbUpper[bbUpper.length - 1],
                 bbMid: bbMid[bbMid.length - 1],
                 bbLower: bbLower[bbLower.length - 1],
-                rsi: calcRsi(14, closes),
-                macd: macd.macd,
-                macdSignal: macd.signal,
-                macdHist: macd.hist,
-                stoch: calcStochastic(14, lwMainData)
+                rsi: rsiSeriesData[last],
+                macd: macdSeriesData.macd[last],
+                macdSignal: macdSeriesData.signal[last],
+                macdHist: macdSeriesData.hist[last],
+                stoch: stochSeriesData.k[last]
             });
         }
 
@@ -1011,14 +1160,20 @@
 
             applyMainSeriesData(currentSymbol);
             renderIndicatorToggles();
+            initIndicatorSubcharts();
+            renderIndicators();
             window.addEventListener('resize', () => {
                 lwChart.applyOptions({ width: root.clientWidth });
+                const width = root.clientWidth;
+                if (rsiChart) rsiChart.applyOptions({ width });
+                if (macdChart) macdChart.applyOptions({ width });
+                if (stochChart) stochChart.applyOptions({ width });
             });
         }
 
         function updateChartsForSymbol(symbol) {
             document.getElementById('chartTitle').textContent = `${symbol} 차트`;
-            const targetSeriesType = symbol === 'KOSPI' ? 'candlestick' : 'area';
+            const targetSeriesType = 'candlestick';
             if (lwSeries && lwSeriesType !== targetSeriesType && lwChart.removeSeries) {
                 lwChart.removeSeries(lwSeries);
                 lwSeries = createPrimarySeries(symbol);
@@ -1026,9 +1181,7 @@
             if (lwSeries) applyMainSeriesData(symbol);
             const source = document.getElementById('lightweightSource');
             if (source) {
-                source.textContent = symbol === 'KOSPI'
-                    ? '출처: Lightweight Charts™ by TradingView (KOSPI는 캔들 모드, 지연/데모 혼합값)'
-                    : '출처: Lightweight Charts™ by TradingView (표시 데이터: 데모 생성값/지연시세 혼합, 실시간 체결값 아님)';
+                source.textContent = '출처: Lightweight Charts™ by TradingView (전 종목 캔들 모드, 지연/데모 혼합값)';
             }
             renderEntryPriceLine();
             renderTradeMarkers();
