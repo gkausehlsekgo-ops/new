@@ -267,6 +267,53 @@
             border-radius: 8px;
         }
 
+        .sim-grid-mini {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .sim-box {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            background: #fff;
+        }
+
+        .sim-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sim-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .sim-table-wrap {
+            overflow: auto;
+            max-height: 220px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .sim-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .sim-table th,
+        .sim-table td {
+            text-align: left;
+            padding: 8px;
+            border-bottom: 1px solid var(--line);
+        }
+
         @media (max-width: 720px) {
             nav .container { padding: 1rem; }
             .hero-card { padding: 22px; }
@@ -281,7 +328,6 @@
                 <a href="./index.html">Home</a>
                 <a href="./journal.html">Journal</a>
                 <a href="./market.html">Markets</a>
-                <a href="./simulator.html">Simulator</a>
             </div>
         </div>
     </nav>
@@ -354,6 +400,57 @@
         </div>
 
         <div class="panel">
+            <h2>Virtual Trading Simulator</h2>
+            <p class="desc">현재 차트 종목 기준으로 즉시 가상매매가 가능합니다. 별도 시뮬레이터 페이지 없이 여기서 실행됩니다.</p>
+
+            <div class="sim-grid-mini">
+                <div class="sim-box">
+                    <div class="helper">현금 잔고</div>
+                    <div class="sim-value" id="simCashDisplay">$100,000.00</div>
+                </div>
+                <div class="sim-box">
+                    <div class="helper">총 평가금액</div>
+                    <div class="sim-value" id="simPortfolioDisplay">$100,000.00</div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label for="simQtyInput">수량</label>
+                    <input id="simQtyInput" type="number" min="1" placeholder="Qty" />
+                </div>
+                <div>
+                    <label for="simLimitInput">지정가</label>
+                    <input id="simLimitInput" type="number" min="0.01" step="0.01" placeholder="Limit Price" />
+                </div>
+            </div>
+
+            <div class="sim-controls">
+                <button id="simMarketBuyBtn" class="primary" type="button">시장가 매수</button>
+                <button id="simMarketSellBtn" class="ghost" type="button">시장가 매도</button>
+                <button id="simLimitBuyBtn" class="primary" type="button">지정가 매수</button>
+                <button id="simLimitSellBtn" class="ghost" type="button">지정가 매도</button>
+            </div>
+            <div class="helper" id="simTradeHint">주문은 현재 선택 종목에 대해 실행됩니다.</div>
+
+            <h3 style="margin-top:14px; font-size:16px;">보유 종목</h3>
+            <div class="sim-table-wrap">
+                <table class="sim-table">
+                    <thead><tr><th>Symbol</th><th>Qty</th><th>Avg</th><th>Current</th><th>P/L</th></tr></thead>
+                    <tbody id="simHoldingsBody"></tbody>
+                </table>
+            </div>
+
+            <h3 style="margin-top:14px; font-size:16px;">체결 내역</h3>
+            <div class="sim-table-wrap">
+                <table class="sim-table">
+                    <thead><tr><th>Date</th><th>Symbol</th><th>Side</th><th>Qty</th><th>Price</th></tr></thead>
+                    <tbody id="simTxBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel">
             <h2>새 글 작성</h2>
             <p class="desc">선택된 카테고리에 글이 저장됩니다.</p>
             <form id="postForm">
@@ -399,12 +496,16 @@
         const postForm = document.getElementById('postForm');
         const postList = document.getElementById('postList');
         const postCount = document.getElementById('postCount');
+        const SIM_INITIAL_CASH = 100000;
 
         let currentSymbol = 'AAPL';
         let currentCategory = CATEGORIES[0];
         let posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         let lwChart;
         let lwSeries;
+        let simCash = SIM_INITIAL_CASH;
+        let simPortfolio = {};
+        let simTxs = [];
 
         const TV_SYMBOL_OVERRIDES = {
             KOSPI: 'TVC:KOSPI',
@@ -534,6 +635,129 @@
                 lwSeries.setData(generateLightweightData(symbol));
             }
             renderTradingViewWidget(symbol);
+            renderSimState();
+        }
+
+        function getSimSessionKey() {
+            return localStorage.getItem('local_auth_session_v1') || 'guest';
+        }
+
+        function getSimStorageKey(suffix) {
+            return `merged_sim_v1_${getSimSessionKey()}_${suffix}`;
+        }
+
+        function loadSimState() {
+            simCash = parseFloat(localStorage.getItem(getSimStorageKey('cash'))) || SIM_INITIAL_CASH;
+            simPortfolio = JSON.parse(localStorage.getItem(getSimStorageKey('portfolio')) || '{}');
+            simTxs = JSON.parse(localStorage.getItem(getSimStorageKey('tx')) || '[]');
+        }
+
+        function saveSimState() {
+            localStorage.setItem(getSimStorageKey('cash'), String(simCash));
+            localStorage.setItem(getSimStorageKey('portfolio'), JSON.stringify(simPortfolio));
+            localStorage.setItem(getSimStorageKey('tx'), JSON.stringify(simTxs));
+        }
+
+        function getCurrentDemoPrice(symbol) {
+            return getDemoPrice(symbol);
+        }
+
+        function renderSimState() {
+            const cashEl = document.getElementById('simCashDisplay');
+            const totalEl = document.getElementById('simPortfolioDisplay');
+            const holdingsBody = document.getElementById('simHoldingsBody');
+            const txBody = document.getElementById('simTxBody');
+            const hint = document.getElementById('simTradeHint');
+
+            if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol}`;
+            cashEl.textContent = '$' + format(simCash);
+
+            let total = simCash;
+            holdingsBody.innerHTML = '';
+            const syms = Object.keys(simPortfolio);
+            if (syms.length === 0) {
+                holdingsBody.innerHTML = '<tr><td colspan="5" class="helper">No holdings</td></tr>';
+            }
+
+            syms.forEach(sym => {
+                const item = simPortfolio[sym];
+                const cur = getCurrentDemoPrice(sym);
+                const pl = (cur - item.avgPrice) * item.qty;
+                total += cur * item.qty;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${sym}</td><td>${item.qty}</td><td>$${format(item.avgPrice)}</td><td>$${format(cur)}</td><td class="${pl >= 0 ? 'positive' : 'negative'}">$${format(pl)}</td>`;
+                holdingsBody.appendChild(tr);
+            });
+
+            totalEl.textContent = '$' + format(total);
+
+            txBody.innerHTML = '';
+            if (simTxs.length === 0) {
+                txBody.innerHTML = '<tr><td colspan="5" class="helper">No transactions</td></tr>';
+            } else {
+                simTxs.forEach(t => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${t.date}</td><td>${t.symbol}</td><td>${t.side}</td><td>${t.qty}</td><td>$${format(t.price)}</td>`;
+                    txBody.appendChild(tr);
+                });
+            }
+        }
+
+        function executeSimTrade(orderType, side) {
+            const qty = parseInt(document.getElementById('simQtyInput').value, 10);
+            const limit = parseFloat(document.getElementById('simLimitInput').value);
+            const sym = currentSymbol;
+            if (!qty || qty <= 0) {
+                alert('수량을 올바르게 입력하세요.');
+                return;
+            }
+
+            const currentPrice = getCurrentDemoPrice(sym);
+            let execPrice = currentPrice;
+
+            if (orderType === 'limit') {
+                if (!limit || limit <= 0) {
+                    alert('지정가를 입력하세요.');
+                    return;
+                }
+                if (side === 'buy' && currentPrice > limit) {
+                    alert(`미체결: 현재가($${format(currentPrice)}) > 지정가($${format(limit)})`);
+                    return;
+                }
+                if (side === 'sell' && currentPrice < limit) {
+                    alert(`미체결: 현재가($${format(currentPrice)}) < 지정가($${format(limit)})`);
+                    return;
+                }
+                execPrice = limit;
+            }
+
+            if (side === 'buy') {
+                const cost = execPrice * qty;
+                if (cost > simCash) {
+                    alert('현금이 부족합니다.');
+                    return;
+                }
+                simCash -= cost;
+                if (!simPortfolio[sym]) simPortfolio[sym] = { qty: 0, avgPrice: 0 };
+                const oldQty = simPortfolio[sym].qty;
+                const newQty = oldQty + qty;
+                simPortfolio[sym].avgPrice = ((simPortfolio[sym].avgPrice * oldQty) + (execPrice * qty)) / newQty;
+                simPortfolio[sym].qty = newQty;
+                simTxs.unshift({ date: new Date().toLocaleString(), symbol: sym, side: `BUY-${orderType.toUpperCase()}`, qty, price: execPrice });
+            } else {
+                if (!simPortfolio[sym] || simPortfolio[sym].qty < qty) {
+                    alert('보유 수량이 부족합니다.');
+                    return;
+                }
+                simCash += execPrice * qty;
+                simPortfolio[sym].qty -= qty;
+                if (simPortfolio[sym].qty === 0) delete simPortfolio[sym];
+                simTxs.unshift({ date: new Date().toLocaleString(), symbol: sym, side: `SELL-${orderType.toUpperCase()}`, qty, price: execPrice });
+            }
+
+            if (simTxs.length > 300) simTxs = simTxs.slice(0, 300);
+            saveSimState();
+            renderSimState();
         }
 
         function setSymbol(symbol) {
@@ -682,10 +906,16 @@
                 alert('수량을 올바르게 입력하세요.');
                 return;
             }
-            const to = `./simulator.html?symbol=${encodeURIComponent(currentSymbol)}&side=${encodeURIComponent(side)}&qty=${encodeURIComponent(qty)}&autotrade=1`;
-            window.location.href = to;
+            document.getElementById('simQtyInput').value = qty;
+            executeSimTrade('market', side);
         });
 
+        document.getElementById('simMarketBuyBtn').addEventListener('click', () => executeSimTrade('market', 'buy'));
+        document.getElementById('simMarketSellBtn').addEventListener('click', () => executeSimTrade('market', 'sell'));
+        document.getElementById('simLimitBuyBtn').addEventListener('click', () => executeSimTrade('limit', 'buy'));
+        document.getElementById('simLimitSellBtn').addEventListener('click', () => executeSimTrade('limit', 'sell'));
+
+        loadSimState();
         initLightweightChart();
         renderCategories();
         initFromQuery();
