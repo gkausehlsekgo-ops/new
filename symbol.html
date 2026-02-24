@@ -471,6 +471,18 @@
             BTCUSD: 96000.00
         };
 
+        const DELAYED_QUOTE_SYMBOLS = {
+            KOSPI: '^KS11',
+            KOSDAQ: '^KQ11',
+            NASDAQ: '^IXIC',
+            SP500: '^GSPC',
+            DOW: '^DJI',
+            AAPL: 'AAPL',
+            BTCUSD: 'BTC-USD'
+        };
+
+        let delayedQuotes = {};
+
         function resolveTvSymbol(symbol) {
             if (TV_SYMBOL_OVERRIDES[symbol]) return TV_SYMBOL_OVERRIDES[symbol];
             if (/^[0-9]{6}$/.test(symbol)) return `KRX:${symbol}`;
@@ -527,6 +539,32 @@
 
         function getDemoPrice(symbol) {
             return getDemoPoint(symbol, new Date());
+        }
+
+        async function fetchDelayedQuote(symbol) {
+            const yahooSymbol = DELAYED_QUOTE_SYMBOLS[symbol];
+            if (!yahooSymbol) return;
+
+            const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(yahooSymbol)}`);
+            if (!response.ok) throw new Error('Delayed quote HTTP error');
+            const data = await response.json();
+            const item = data?.quoteResponse?.result?.[0];
+            if (!item || typeof item.regularMarketPrice !== 'number') throw new Error('Delayed quote payload error');
+
+            delayedQuotes[symbol] = {
+                price: Number(item.regularMarketPrice),
+                prevClose: typeof item.regularMarketPreviousClose === 'number' ? Number(item.regularMarketPreviousClose) : null,
+                time: typeof item.regularMarketTime === 'number' ? new Date(item.regularMarketTime * 1000) : new Date()
+            };
+        }
+
+        async function refreshCurrentSymbolQuote() {
+            try {
+                await fetchDelayedQuote(currentSymbol);
+            } catch (err) {
+                // fallback keeps deterministic demo price
+            }
+            renderSimState();
         }
 
         function renderEntryPriceLine() {
@@ -629,6 +667,7 @@
             renderEntryPriceLine();
             renderTradingViewWidget(symbol);
             renderSimState();
+            refreshCurrentSymbolQuote();
         }
 
         function getSimSessionKey() {
@@ -652,6 +691,9 @@
         }
 
         function getCurrentDemoPrice(symbol) {
+            if (delayedQuotes[symbol] && typeof delayedQuotes[symbol].price === 'number') {
+                return delayedQuotes[symbol].price;
+            }
             return getDemoPrice(symbol);
         }
 
@@ -662,7 +704,9 @@
             const txBody = document.getElementById('simTxBody');
             const hint = document.getElementById('simTradeHint');
 
-            if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol} · 현재가: $${format(getCurrentDemoPrice(currentSymbol))}`;
+            const delayed = delayedQuotes[currentSymbol];
+            const sourceText = delayed ? `지연시세 ${delayed.time.toLocaleTimeString()}` : '데모시세';
+            if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol} · 현재가: $${format(getCurrentDemoPrice(currentSymbol))} · ${sourceText}`;
             cashEl.textContent = '$' + format(simCash);
 
             let total = simCash;
