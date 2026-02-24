@@ -432,6 +432,7 @@
                 <div id="lightweightChart"></div>
             </div>
             <div class="chart-meta" id="lightweightSource">출처: Lightweight Charts™ by TradingView (표시 데이터: 지연 시세 우선, 실패 시 데모값)</div>
+            <div class="chart-meta" id="chartStatusMessage"></div>
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
@@ -1054,6 +1055,16 @@
 
         function applyMainSeriesData(symbol) {
             lwMainData = generateLightweightData(symbol);
+            const statusEl = document.getElementById('chartStatusMessage');
+
+            if (!lwMainData.length) {
+                if (lwSeries) lwSeries.setData([]);
+                if (statusEl) statusEl.textContent = '차트 데이터 수신 실패: 지연 시세 응답이 없습니다. 네트워크/CORS 제한 또는 공급사 응답 지연일 수 있습니다.';
+                renderIndicators();
+                return;
+            }
+
+            if (statusEl) statusEl.textContent = '';
             if (lwSeries) {
                 if (lwSeriesType === 'candlestick') {
                     lwSeries.setData(lwMainData.map((x, idx) => {
