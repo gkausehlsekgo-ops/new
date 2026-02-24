@@ -700,6 +700,22 @@
             return normalized || 'AAPL';
         }
 
+        function resolveYahooSymbols(symbol) {
+            const normalized = normalizeSymbol(symbol);
+            if (DELAYED_QUOTE_SYMBOLS[normalized]) return [DELAYED_QUOTE_SYMBOLS[normalized]];
+
+            if (/^[0-9]{6}$/.test(normalized)) {
+                return [`${normalized}.KS`, `${normalized}.KQ`, normalized];
+            }
+
+            if (normalized.includes(':')) {
+                const parts = normalized.split(':');
+                if (parts[1]) return [parts[1]];
+            }
+
+            return [normalized];
+        }
+
         function symbolSeed(symbol) {
             let hash = 0;
             for (let i = 0; i < symbol.length; i++) {
@@ -1089,12 +1105,13 @@
         }
 
         async function fetchDelayedQuote(symbol) {
-            const yahooSymbol = DELAYED_QUOTE_SYMBOLS[symbol];
-            if (!yahooSymbol) return;
+            const candidates = resolveYahooSymbols(symbol);
+            if (!candidates.length) return;
 
-            const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(yahooSymbol)}`;
+            const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(candidates.join(','))}`;
             const data = await fetchJsonWithFallback(url);
-            const item = data?.quoteResponse?.result?.[0];
+            const results = data?.quoteResponse?.result || [];
+            const item = results.find(r => typeof r?.regularMarketPrice === 'number');
             if (!item || typeof item.regularMarketPrice !== 'number') throw new Error('Delayed quote payload error');
 
             delayedQuotes[symbol] = {
@@ -1105,8 +1122,8 @@
         }
 
         async function fetchDelayedHistory(symbol) {
-            const yahooSymbol = DELAYED_QUOTE_SYMBOLS[symbol];
-            if (!yahooSymbol) return;
+            const symbolCandidates = resolveYahooSymbols(symbol);
+            if (!symbolCandidates.length) return;
 
             const frame = getCurrentFrameConfig();
             const candidates = [
@@ -1116,41 +1133,43 @@
                 { range: '6mo', interval: '1d' }
             ];
 
-            for (const candidate of candidates) {
-                try {
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${candidate.range}&interval=${candidate.interval}`;
-                    const data = await fetchJsonWithFallback(url);
-                    const result = data?.chart?.result?.[0];
-                    const timestamps = result?.timestamp || [];
-                    const quote = result?.indicators?.quote?.[0] || {};
-                    const opens = quote.open || [];
-                    const highs = quote.high || [];
-                    const lows = quote.low || [];
-                    const closes = quote.close || [];
-                    const volumes = quote.volume || [];
+            for (const yahooSymbol of symbolCandidates) {
+                for (const candidate of candidates) {
+                    try {
+                        const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${candidate.range}&interval=${candidate.interval}`;
+                        const data = await fetchJsonWithFallback(url);
+                        const result = data?.chart?.result?.[0];
+                        const timestamps = result?.timestamp || [];
+                        const quote = result?.indicators?.quote?.[0] || {};
+                        const opens = quote.open || [];
+                        const highs = quote.high || [];
+                        const lows = quote.low || [];
+                        const closes = quote.close || [];
+                        const volumes = quote.volume || [];
 
-                    const history = [];
-                    for (let i = 0; i < timestamps.length; i++) {
-                        const close = closes[i];
-                        if (close == null) continue;
-                        const open = opens[i] == null ? close : opens[i];
-                        const high = highs[i] == null ? Math.max(open, close) : highs[i];
-                        const low = lows[i] == null ? Math.min(open, close) : lows[i];
-                        history.push({
-                            time: Number(timestamps[i]),
-                            value: Number(close),
-                            high: Number(high),
-                            low: Number(low),
-                            volume: Math.max(0, Number(volumes[i] || 0))
-                        });
-                    }
+                        const history = [];
+                        for (let i = 0; i < timestamps.length; i++) {
+                            const close = closes[i];
+                            if (close == null) continue;
+                            const open = opens[i] == null ? close : opens[i];
+                            const high = highs[i] == null ? Math.max(open, close) : highs[i];
+                            const low = lows[i] == null ? Math.min(open, close) : lows[i];
+                            history.push({
+                                time: Number(timestamps[i]),
+                                value: Number(close),
+                                high: Number(high),
+                                low: Number(low),
+                                volume: Math.max(0, Number(volumes[i] || 0))
+                            });
+                        }
 
-                    if (history.length > 0) {
-                        delayedHistoryBySymbol[symbol] = history;
-                        return;
+                        if (history.length > 0) {
+                            delayedHistoryBySymbol[symbol] = history;
+                            return;
+                        }
+                    } catch (err) {
+                        // try next candidate
                     }
-                } catch (err) {
-                    // try next candidate
                 }
             }
 
