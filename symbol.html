@@ -577,6 +577,7 @@
                     <button class="ghost" type="button" id="importPosts">가져오기</button>
                     <input id="postImportFile" type="file" accept="application/json" style="display:none" />
                 </div>
+                <div class="helper">자유게시판 운영정책: 개인 광고/연락처 유도/성적 발언 금지 · 반복 위반 시 게시 제한(밴)될 수 있습니다. <a href="./community-rules.html" target="_blank" rel="noopener">정책 보기</a></div>
                 <div class="helper">브라우저에만 저장됩니다. 다른 기기와 공유되지 않습니다.</div>
             </form>
         </div>
@@ -600,6 +601,9 @@
         const postList = document.getElementById('postList');
         const postCount = document.getElementById('postCount');
         const SIM_INITIAL_CASH = 100000;
+        const MODERATION_STATE_KEY = 'community_moderation_state_v1';
+        const MODERATION_MAX_STRIKES = 3;
+        const MODERATION_BAN_MS = 24 * 60 * 60 * 1000;
 
         let currentSymbol = 'AAPL';
         let currentCategory = CATEGORIES[0];
@@ -1833,14 +1837,113 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
         }
 
+        function getModerationState() {
+            try {
+                return JSON.parse(localStorage.getItem(MODERATION_STATE_KEY) || '{}');
+            } catch {
+                return {};
+            }
+        }
+
+        function saveModerationState(state) {
+            localStorage.setItem(MODERATION_STATE_KEY, JSON.stringify(state || {}));
+        }
+
+        function normalizeModerationText(text) {
+            return (text || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        }
+
+        function checkCommunityViolation(text) {
+            const lowered = normalizeModerationText(text);
+            if (!lowered) return null;
+
+            const adPatterns = [
+                /리딩\s*방|유료\s*방|회원\s*모집|투자\s*권유|홍보|광고|원금\s*보장|수익\s*보장|수익률\s*보장/,
+                /텔레그램|오픈채팅|카톡|카카오톡|line\s*id|디엠|dm\s*주세요|문의\s*주세요/
+            ];
+
+            const contactPatterns = [
+                /\b\d{2,3}[-\s]?\d{3,4}[-\s]?\d{4}\b/,
+                /@[a-z0-9_.-]+\.[a-z]{2,}/,
+                /t\.me\//,
+                /open\.kakao\.com\//
+            ];
+
+            const sexualPatterns = [
+                /야\s*동|성\s*인\s*방\s*송|벗\s*방|몸\s*캠|조건\s*만남|성\s*매\s*매|19\s*금/
+            ];
+
+            if (adPatterns.some(regex => regex.test(lowered))) {
+                return '개인 광고/홍보 또는 외부 유도성 문구';
+            }
+            if (contactPatterns.some(regex => regex.test(lowered))) {
+                return '연락처/외부 채널 유도 문구';
+            }
+            if (sexualPatterns.some(regex => regex.test(lowered))) {
+                return '성적·음란성 문구';
+            }
+            return null;
+        }
+
+        function checkPostingBan() {
+            const state = getModerationState();
+            const until = Number(state.bannedUntil || 0);
+            if (!until || Date.now() >= until) return null;
+            return new Date(until);
+        }
+
+        function registerViolation(reason) {
+            const state = getModerationState();
+            const strikes = Number(state.strikes || 0) + 1;
+            const next = {
+                strikes,
+                lastReason: reason,
+                lastAt: new Date().toISOString(),
+                bannedUntil: state.bannedUntil || 0
+            };
+
+            if (strikes >= MODERATION_MAX_STRIKES) {
+                next.bannedUntil = Date.now() + MODERATION_BAN_MS;
+                next.strikes = 0;
+            }
+
+            saveModerationState(next);
+            return next;
+        }
+
         postForm.addEventListener('submit', (event) => {
             event.preventDefault();
+            const blockedUntil = checkPostingBan();
+            if (blockedUntil) {
+                alert(`운영정책 위반 누적으로 게시가 제한되었습니다. 해제 시각: ${blockedUntil.toLocaleString()}`);
+                return;
+            }
+
+            const title = document.getElementById('postTitle').value.trim();
+            const author = document.getElementById('postAuthor').value.trim();
+            const body = document.getElementById('postBody').value.trim();
+            const moderationTarget = `${title}\n${body}`;
+
+            if (currentCategory === '자유게시판') {
+                const violation = checkCommunityViolation(moderationTarget);
+                if (violation) {
+                    const state = registerViolation(violation);
+                    if (state.bannedUntil && Date.now() < Number(state.bannedUntil)) {
+                        alert(`금지된 내용(${violation})이 감지되어 게시가 차단되었습니다. 반복 위반으로 24시간 게시 제한이 적용됩니다.`);
+                        return;
+                    }
+                    const remain = MODERATION_MAX_STRIKES - Number(state.strikes || 0);
+                    alert(`금지된 내용(${violation})이 감지되어 게시가 차단되었습니다. 반복 시 게시 제한(밴)될 수 있습니다. 남은 경고: ${remain}`);
+                    return;
+                }
+            }
+
             const post = {
                 symbol: currentSymbol,
                 category: currentCategory,
-                title: document.getElementById('postTitle').value.trim(),
-                author: document.getElementById('postAuthor').value.trim(),
-                body: document.getElementById('postBody').value.trim(),
+                title,
+                author,
+                body,
                 date: new Date().toLocaleString()
             };
             posts.unshift(post);
@@ -1924,6 +2027,7 @@
         if (realtimeQuoteTimer) clearInterval(realtimeQuoteTimer);
         realtimeQuoteTimer = setInterval(refreshRealtimeValuation, 10000);
     </script>
+    <script src="./legal-consent.js"></script>
     <script src="./assistant-widget.js"></script>
 </body>
 </html>
