@@ -518,6 +518,7 @@
         let posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         let lwChart;
         let lwSeries;
+        let lwSeriesType = 'area';
         let lwEntryLine = null;
         let lwTradeMarkers = [];
         let lwMainData = [];
@@ -757,6 +758,50 @@
             return null;
         }
 
+        function createPrimarySeries(symbol) {
+            const useCandle = symbol === 'KOSPI';
+            if (useCandle) {
+                if (typeof lwChart.addCandlestickSeries === 'function') {
+                    lwSeriesType = 'candlestick';
+                    return lwChart.addCandlestickSeries({
+                        upColor: '#16a34a',
+                        downColor: '#dc2626',
+                        borderVisible: false,
+                        wickUpColor: '#16a34a',
+                        wickDownColor: '#dc2626'
+                    });
+                }
+                if (typeof lwChart.addSeries === 'function' && window.LightweightCharts.CandlestickSeries) {
+                    lwSeriesType = 'candlestick';
+                    return lwChart.addSeries(window.LightweightCharts.CandlestickSeries, {
+                        upColor: '#16a34a',
+                        downColor: '#dc2626',
+                        borderVisible: false,
+                        wickUpColor: '#16a34a',
+                        wickDownColor: '#dc2626'
+                    });
+                }
+            }
+
+            const areaOptions = {
+                lineColor: '#2563eb',
+                topColor: 'rgba(37, 99, 235, 0.35)',
+                bottomColor: 'rgba(37, 99, 235, 0.06)',
+                lineWidth: 2
+            };
+
+            if (typeof lwChart.addAreaSeries === 'function') {
+                lwSeriesType = 'area';
+                return lwChart.addAreaSeries(areaOptions);
+            }
+            if (typeof lwChart.addSeries === 'function' && window.LightweightCharts.AreaSeries) {
+                lwSeriesType = 'area';
+                return lwChart.addSeries(window.LightweightCharts.AreaSeries, areaOptions);
+            }
+
+            return null;
+        }
+
         function ensureIndicatorSeries() {
             if (!lwChart || !lwSeries) return;
             if (indicatorSeriesMap.ma5) return;
@@ -798,6 +843,7 @@
         function renderIndicators() {
             ensureIndicatorSeries();
             if (!lwMainData.length) return;
+            const hideOverlayForKOSPI = currentSymbol === 'KOSPI';
 
             const closes = lwMainData.map(x => x.value);
             const ma5 = calcSma(5, closes);
@@ -814,7 +860,7 @@
             const bindSeries = (key, values) => {
                 const series = indicatorSeriesMap[key];
                 if (!series) return;
-                series.setData(indicatorEnabled[key] ? toLineData(values) : []);
+                series.setData(indicatorEnabled[key] && !hideOverlayForKOSPI ? toLineData(values) : []);
             };
 
             bindSeries('ma5', ma5);
@@ -823,9 +869,9 @@
             bindSeries('ema12', ema12);
             bindSeries('ema26', ema26);
             bindSeries('vwap', vwap);
-            indicatorSeriesMap.bbUpper?.setData(indicatorEnabled.bbands ? toLineData(bbUpper) : []);
-            indicatorSeriesMap.bbMid?.setData(indicatorEnabled.bbands ? toLineData(bbMid) : []);
-            indicatorSeriesMap.bbLower?.setData(indicatorEnabled.bbands ? toLineData(bbLower) : []);
+            indicatorSeriesMap.bbUpper?.setData(indicatorEnabled.bbands && !hideOverlayForKOSPI ? toLineData(bbUpper) : []);
+            indicatorSeriesMap.bbMid?.setData(indicatorEnabled.bbands && !hideOverlayForKOSPI ? toLineData(bbMid) : []);
+            indicatorSeriesMap.bbLower?.setData(indicatorEnabled.bbands && !hideOverlayForKOSPI ? toLineData(bbLower) : []);
 
             const macd = calcMacd(closes);
             renderIndicatorBoard({
@@ -849,7 +895,20 @@
         function applyMainSeriesData(symbol) {
             lwMainData = generateLightweightData(symbol);
             if (lwSeries) {
-                lwSeries.setData(lwMainData.map(x => ({ time: x.time, value: x.value })));
+                if (lwSeriesType === 'candlestick') {
+                    lwSeries.setData(lwMainData.map((x, idx) => {
+                        const open = idx === 0 ? x.value : lwMainData[idx - 1].value;
+                        return {
+                            time: x.time,
+                            open: Number(open.toFixed(2)),
+                            high: x.high,
+                            low: x.low,
+                            close: x.value
+                        };
+                    }));
+                } else {
+                    lwSeries.setData(lwMainData.map(x => ({ time: x.time, value: x.value })));
+                }
             }
             renderIndicators();
         }
@@ -991,18 +1050,8 @@
                 }
             });
 
-            const seriesOptions = {
-                lineColor: '#2563eb',
-                topColor: 'rgba(37, 99, 235, 0.35)',
-                bottomColor: 'rgba(37, 99, 235, 0.06)',
-                lineWidth: 2
-            };
-
-            if (typeof lwChart.addAreaSeries === 'function') {
-                lwSeries = lwChart.addAreaSeries(seriesOptions);
-            } else if (typeof lwChart.addSeries === 'function' && window.LightweightCharts.AreaSeries) {
-                lwSeries = lwChart.addSeries(window.LightweightCharts.AreaSeries, seriesOptions);
-            } else {
+            lwSeries = createPrimarySeries(currentSymbol);
+            if (!lwSeries) {
                 document.getElementById('lightweightSource').textContent = '차트 로딩 실패: Lightweight Charts 버전 호환 문제';
                 return;
             }
@@ -1049,7 +1098,18 @@
 
         function updateChartsForSymbol(symbol) {
             document.getElementById('chartTitle').textContent = `${symbol} 차트`;
+            const targetSeriesType = symbol === 'KOSPI' ? 'candlestick' : 'area';
+            if (lwSeries && lwSeriesType !== targetSeriesType && lwChart.removeSeries) {
+                lwChart.removeSeries(lwSeries);
+                lwSeries = createPrimarySeries(symbol);
+            }
             if (lwSeries) applyMainSeriesData(symbol);
+            const source = document.getElementById('lightweightSource');
+            if (source) {
+                source.textContent = symbol === 'KOSPI'
+                    ? '출처: Lightweight Charts™ by TradingView (KOSPI는 캔들 모드, 지연/데모 혼합값)'
+                    : '출처: Lightweight Charts™ by TradingView (표시 데이터: 데모 생성값/지연시세 혼합, 실시간 체결값 아님)';
+            }
             renderEntryPriceLine();
             renderTradeMarkers();
             renderTradingViewEntryHint();
