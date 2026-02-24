@@ -37,6 +37,7 @@
         <h1>Virtual Trading Simulator</h1>
         <p class="small">Practice trading with demo prices only. No real money involved. Portfolio and history are stored per logged-in account.</p>
         <p class="small" id="authStatus">Checking login status...</p>
+        <p class="small" id="quickTradeHint" style="display:none;"></p>
 
         <div class="sim-grid">
             <div>
@@ -266,6 +267,30 @@
             return getDemoPrice(symbol);
         }
 
+        function applyPrefillFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            const symbol = (params.get('symbol') || '').trim().toUpperCase();
+            const side = (params.get('side') || '').trim().toLowerCase();
+            const qty = parseInt(params.get('qty') || '', 10);
+
+            if (symbol) {
+                document.getElementById('symbolInput').value = symbol;
+                lookup(symbol);
+            }
+            if (side === 'buy' || side === 'sell') {
+                document.getElementById('actionSelect').value = side;
+            }
+            if (qty && qty > 0) {
+                document.getElementById('qtyInput').value = qty;
+            }
+
+            if (symbol || side || qty) {
+                const hint = document.getElementById('quickTradeHint');
+                hint.style.display = 'block';
+                hint.textContent = `차트 퀵매매 전달값 적용됨: ${symbol || '-'} / ${(side || '-').toUpperCase()} / 수량 ${qty || '-'}. 실행하려면 Execute Trade를 누르세요.`;
+            }
+        }
+
         async function executeTrade(){
             if (!currentUser) {
                 alert('로그인이 필요합니다. auth.html에서 로그인하세요.');
@@ -388,6 +413,7 @@
             await loadRemoteState();
             render();
             renderPerf();
+            applyPrefillFromQuery();
         }
 
         // initial load
