@@ -503,8 +503,27 @@
             DOW: 38800.10
         };
 
+        const DELAYED_QUOTE_SYMBOLS = {
+            KOSPI: '^KS11',
+            KOSDAQ: '^KQ11',
+            NASDAQ: '^IXIC',
+            SP500: '^GSPC',
+            DOW: '^DJI',
+            AAPL: 'AAPL'
+        };
+
+        const MARKET_ID_TO_SYMBOL = {
+            kospi: 'KOSPI',
+            kosdaq: 'KOSDAQ',
+            nasdaq: 'NASDAQ',
+            sp500: 'SP500',
+            dow: 'DOW',
+            aapl: 'AAPL'
+        };
+
         let lwChart;
         let lwSeries;
+        let delayedQuotes = {};
 
         function symbolSeed(symbol) {
             let hash = 0;
@@ -610,8 +629,37 @@
         function getInitialSymbol() {
             const params = new URLSearchParams(window.location.search);
             const s = (params.get('symbol') || '').toUpperCase();
-            if (tvSymbolMap[s]) return s;
+            if (symbolBasePrice[s]) return s;
             return 'KOSPI';
+        }
+
+        async function fetchDelayedQuotes() {
+            const pairs = Object.entries(DELAYED_QUOTE_SYMBOLS);
+            const yahooList = pairs.map(([, yahoo]) => yahoo).join(',');
+            const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(yahooList)}`);
+            if (!response.ok) throw new Error('Delayed quote HTTP error');
+            const data = await response.json();
+            const results = data?.quoteResponse?.result;
+            if (!Array.isArray(results)) throw new Error('Delayed quote payload error');
+
+            const reverseMap = {};
+            pairs.forEach(([appSymbol, yahooSymbol]) => {
+                reverseMap[yahooSymbol] = appSymbol;
+            });
+
+            const next = {};
+            results.forEach(item => {
+                const appSymbol = reverseMap[item.symbol];
+                if (!appSymbol) return;
+                if (typeof item.regularMarketPrice !== 'number') return;
+                next[appSymbol] = {
+                    price: Number(item.regularMarketPrice),
+                    prevClose: typeof item.regularMarketPreviousClose === 'number' ? Number(item.regularMarketPreviousClose) : null,
+                    time: typeof item.regularMarketTime === 'number' ? new Date(item.regularMarketTime * 1000) : new Date()
+                };
+            });
+
+            delayedQuotes = next;
         }
 
         function formatChangePercent(deltaPercent) {
@@ -620,7 +668,7 @@
         }
         
         // Update market data
-        function updateMarketData() {
+        async function updateMarketData() {
             const markets = [
                 { id: 'kospi', base: 2580.12 },
                 { id: 'kosdaq', base: 865.34 },
@@ -630,26 +678,42 @@
                 { id: 'aapl', base: 187.22 }
             ];
 
+            let usedDelayed = false;
+            try {
+                await fetchDelayedQuotes();
+                usedDelayed = Object.keys(delayedQuotes).length > 0;
+            } catch (err) {
+                usedDelayed = false;
+            }
+
             markets.forEach(market => {
-                const symbol = market.id.toUpperCase();
+                const symbol = MARKET_ID_TO_SYMBOL[market.id] || market.id.toUpperCase();
                 const today = new Date();
                 const yesterday = new Date(today);
                 yesterday.setDate(today.getDate() - 1);
-                const price = getDemoPoint(symbol, today);
-                const prevPrice = getDemoPoint(symbol, yesterday);
+                const delayed = delayedQuotes[symbol];
+                const price = delayed ? delayed.price : getDemoPoint(symbol, today);
+                const prevPrice = delayed && delayed.prevClose ? delayed.prevClose : getDemoPoint(symbol, yesterday);
                 const deltaPercent = ((price - prevPrice) / prevPrice) * 100;
                 const isPositive = deltaPercent >= 0;
 
                 document.getElementById(`${market.id}-price`).textContent = `$${price.toFixed(2)}`;
                 document.getElementById(`${market.id}-change`).textContent = formatChangePercent(deltaPercent);
                 document.getElementById(`${market.id}-change`).className = `market-change ${isPositive ? 'change-positive' : 'change-negative'}`;
-                document.getElementById(`${market.id}-time`).textContent = new Date().toLocaleTimeString();
+                document.getElementById(`${market.id}-time`).textContent = (delayed ? delayed.time : new Date()).toLocaleTimeString();
             });
+
+            const note = document.querySelector('.source-note');
+            if (note) {
+                note.textContent = usedDelayed
+                    ? '표시 데이터: Yahoo Finance 지연 시세(무료) + 데모 보조값'
+                    : '표시 데이터: 데모 생성값(학습용, 지연 시세 불러오기 실패)';
+            }
         }
 
-        function refreshData() {
-            updateMarketData();
-            alert('✅ Demo data refreshed.');
+        async function refreshData() {
+            await updateMarketData();
+            alert('✅ 데이터 새로고침 완료');
         }
         
         // Dark mode
@@ -670,9 +734,10 @@
         });
         
         // Initialize on load
-        window.addEventListener('load', function() {
+        window.addEventListener('load', async function() {
             initLightweightChart();
-            updateMarketData();
+            await updateMarketData();
+            setInterval(updateMarketData, 60000);
 
             const lwSelect = document.getElementById('lwSymbolSelect');
             lwSelect.addEventListener('change', () => {
