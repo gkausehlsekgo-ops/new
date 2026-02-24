@@ -20,6 +20,9 @@
         .helper { font-size: 12px; color: #6b7280; margin-top: 8px; }
         .status { font-size: 13px; margin-top: 10px; color: #1d4ed8; }
         a { color: #2563eb; text-decoration: none; }
+        .agree-wrap { margin-top: 10px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f9fafb; }
+        .agree-row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: #374151; }
+        .agree-row input { width: auto; margin-top: 2px; }
         #supabaseConfigPanel { display: none; }
     </style>
 </head>
@@ -59,9 +62,15 @@
                 <button id="signUpBtn">코드 확인 후 회원가입</button>
                 <button id="signInBtn" class="ghost">로그인</button>
             </div>
+            <div class="agree-wrap">
+                <label class="agree-row" for="agreeRequired" style="margin:0;">
+                    <input id="agreeRequired" type="checkbox" />
+                    <span>[필수] <a href="./privacy.html" target="_blank" rel="noopener">개인정보처리방침</a> 및 <a href="./terms.html" target="_blank" rel="noopener">이용약관</a>에 동의합니다.</span>
+                </label>
+            </div>
             <button id="resendBtn" class="ghost">인증 메일 다시 보내기</button>
             <div id="authStatus" class="status"></div>
-            <div class="helper">회원가입 순서: 인증 코드 발송 → 코드 입력 → 회원가입 버튼</div>
+            <div class="helper">회원가입 순서: 인증 코드 발송 → 코드 입력 → 필수 동의 체크 → 회원가입 버튼</div>
             <div class="helper"><a href="./index.html">홈으로</a> · <a href="./contact.html">문의하기</a></div>
         </div>
     </div>
@@ -137,6 +146,7 @@
             const nickname = document.getElementById('nickname').value.trim();
             const password = document.getElementById('password').value;
             const verifyCode = document.getElementById('verifyCode').value.trim();
+            const agreeRequired = document.getElementById('agreeRequired').checked;
 
             if (!email || !password || !verifyCode) {
                 authStatus.textContent = '이메일/비밀번호/인증코드(8자리)를 모두 입력하세요.';
@@ -150,6 +160,11 @@
 
             if (!/^\d{8}$/.test(verifyCode)) {
                 authStatus.textContent = '인증코드는 숫자 8자리로 입력하세요.';
+                return;
+            }
+
+            if (!agreeRequired) {
+                authStatus.textContent = '회원가입을 위해 개인정보처리방침/이용약관 동의가 필요합니다.';
                 return;
             }
 
@@ -172,7 +187,9 @@
             const { error: updateError } = await client.auth.updateUser({
                 password,
                 data: {
-                    nickname
+                    nickname,
+                    terms_agreed_at: new Date().toISOString(),
+                    terms_version: '2026-02-24'
                 }
             });
             if (updateError) {
@@ -275,6 +292,7 @@
             }
         })();
     </script>
+    <script src="./legal-consent.js"></script>
     <script src="./assistant-widget.js"></script>
 </body>
 </html>
