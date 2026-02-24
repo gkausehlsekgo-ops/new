@@ -64,6 +64,8 @@
         const keyInput = document.getElementById('supabaseAnonKey');
         const configStatus = document.getElementById('configStatus');
         const authStatus = document.getElementById('authStatus');
+        const LOCAL_USERS_KEY = 'local_auth_users_v1';
+        const LOCAL_SESSION_KEY = 'local_auth_session_v1';
 
         urlInput.value = localStorage.getItem('supabase_url') || '';
         keyInput.value = localStorage.getItem('supabase_anon_key') || '';
@@ -73,6 +75,14 @@
             const supabaseAnonKey = localStorage.getItem('supabase_anon_key');
             if (!supabaseUrl || !supabaseAnonKey) return null;
             return window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        }
+
+        function getLocalUsers() {
+            return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
+        }
+
+        function setLocalUsers(users) {
+            localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
         }
 
         document.getElementById('saveConfigBtn').addEventListener('click', () => {
@@ -89,9 +99,27 @@
 
         document.getElementById('signUpBtn').addEventListener('click', async () => {
             const client = getClient();
-            if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                authStatus.textContent = '이메일/비밀번호를 입력하세요.';
+                return;
+            }
+
+            if (!client) {
+                const users = getLocalUsers();
+                if (users.find(u => u.email === email)) {
+                    authStatus.textContent = '이미 가입된 이메일입니다.';
+                    return;
+                }
+                users.push({ email, password, createdAt: new Date().toISOString() });
+                setLocalUsers(users);
+                localStorage.setItem(LOCAL_SESSION_KEY, email);
+                authStatus.textContent = '로컬 회원가입/로그인 완료 (Supabase 없이 사용 중)';
+                return;
+            }
+
             const { error } = await client.auth.signUp({
                 email,
                 password,
@@ -104,9 +132,26 @@
 
         document.getElementById('signInBtn').addEventListener('click', async () => {
             const client = getClient();
-            if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                authStatus.textContent = '이메일/비밀번호를 입력하세요.';
+                return;
+            }
+
+            if (!client) {
+                const users = getLocalUsers();
+                const matched = users.find(u => u.email === email && u.password === password);
+                if (!matched) {
+                    authStatus.textContent = '로컬 로그인 실패: 이메일/비밀번호 확인';
+                    return;
+                }
+                localStorage.setItem(LOCAL_SESSION_KEY, email);
+                authStatus.textContent = '로컬 로그인 성공 (Supabase 없이 사용 중)';
+                return;
+            }
+
             const { data, error } = await client.auth.signInWithPassword({ email, password });
             if (error) {
                 authStatus.textContent = '로그인 실패: ' + error.message;
@@ -124,7 +169,10 @@
 
         document.getElementById('resendBtn').addEventListener('click', async () => {
             const client = getClient();
-            if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
+            if (!client) {
+                authStatus.textContent = '로컬 모드는 이메일 인증이 없습니다. 즉시 로그인됩니다.';
+                return;
+            }
             const email = document.getElementById('email').value.trim();
             if (!email) { authStatus.textContent = '이메일을 입력하세요.'; return; }
 
@@ -138,7 +186,11 @@
 
         document.getElementById('signOutBtn').addEventListener('click', async () => {
             const client = getClient();
-            if (!client) { authStatus.textContent = '설정이 없습니다.'; return; }
+            if (!client) {
+                localStorage.removeItem(LOCAL_SESSION_KEY);
+                authStatus.textContent = '로컬 로그아웃 완료';
+                return;
+            }
             await client.auth.signOut();
             authStatus.textContent = '로그아웃 완료';
         });
@@ -149,7 +201,15 @@
 
         (async () => {
             const client = getClient();
-            if (!client) return;
+            if (!client) {
+                const email = localStorage.getItem(LOCAL_SESSION_KEY);
+                if (email) {
+                    authStatus.textContent = '현재 로컬 로그인: ' + email;
+                } else {
+                    authStatus.textContent = '로컬 모드 사용 가능: Supabase URL 없이 가입/로그인 가능';
+                }
+                return;
+            }
             const { data } = await client.auth.getSession();
             if (data?.session?.user?.email) {
                 if (!data.session.user.email_confirmed_at) {
