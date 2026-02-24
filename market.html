@@ -524,47 +524,10 @@
         let lwChart;
         let lwSeries;
         let delayedQuotes = {};
-
-        function symbolSeed(symbol) {
-            let hash = 0;
-            for (let i = 0; i < symbol.length; i++) {
-                hash = ((hash << 5) - hash) + symbol.charCodeAt(i);
-                hash |= 0;
-            }
-            return Math.abs(hash);
-        }
-
-        function getDayIndex(date) {
-            return Math.floor(date.getTime() / 86400000);
-        }
-
-        function seededUnit(seed, step) {
-            const x = Math.sin((seed * 0.0001) + (step * 12.9898)) * 43758.5453;
-            return x - Math.floor(x);
-        }
-
-        function getDemoPoint(symbol, date) {
-            const seed = symbolSeed(symbol);
-            const base = symbolBasePrice[symbol] || 100;
-            const step = getDayIndex(date);
-            const noise = (seededUnit(seed, step) - 0.5) * 0.02;
-            const cycle = Math.sin((step + (seed % 29)) / 6) * 0.007;
-            const value = Math.max(1, base * (1 + noise + cycle));
-            return Number(value.toFixed(2));
-        }
+        let delayedHistoryBySymbol = {};
 
         function generateLightweightData(symbol) {
-            const points = [];
-            const now = new Date();
-            for (let i = 45; i >= 0; i--) {
-                const d = new Date(now);
-                d.setDate(now.getDate() - i);
-                points.push({
-                    time: d.toISOString().slice(0, 10),
-                    value: getDemoPoint(symbol, d)
-                });
-            }
-            return points;
+            return (delayedHistoryBySymbol[symbol] || []).map(p => ({ time: p.time, value: p.value }));
         }
 
         function initLightweightChart() {
@@ -609,21 +572,22 @@
                 return;
             }
 
-            lwSeries.setData(generateLightweightData('AAPL'));
+            lwSeries.setData([]);
             window.addEventListener('resize', () => {
                 lwChart.applyOptions({ width: root.clientWidth });
             });
         }
 
-        function updateLightweightSymbol(symbol) {
+        async function updateLightweightSymbol(symbol) {
             if (!lwSeries) return;
+            await fetchDelayedHistory(symbol);
             lwSeries.setData(generateLightweightData(symbol));
         }
 
-        function applySelectedSymbol(lwSymbol) {
+        async function applySelectedSymbol(lwSymbol) {
             const lwSelect = document.getElementById('lwSymbolSelect');
             lwSelect.value = lwSymbol;
-            updateLightweightSymbol(lwSymbol);
+            await updateLightweightSymbol(lwSymbol);
         }
 
         function getInitialSymbol() {
@@ -662,6 +626,37 @@
             delayedQuotes = next;
         }
 
+        async function fetchDelayedHistory(symbol) {
+            const yahooSymbol = DELAYED_QUOTE_SYMBOLS[symbol];
+            if (!yahooSymbol) {
+                delayedHistoryBySymbol[symbol] = [];
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=3mo&interval=1d`);
+                if (!response.ok) throw new Error('history http error');
+                const data = await response.json();
+                const result = data?.chart?.result?.[0];
+                const timestamps = result?.timestamp || [];
+                const quote = result?.indicators?.quote?.[0] || {};
+                const closes = quote.close || [];
+
+                const history = [];
+                for (let i = 0; i < timestamps.length; i++) {
+                    const close = closes[i];
+                    if (close == null) continue;
+                    history.push({
+                        time: new Date(timestamps[i] * 1000).toISOString().slice(0, 10),
+                        value: Number(close)
+                    });
+                }
+                delayedHistoryBySymbol[symbol] = history;
+            } catch (err) {
+                delayedHistoryBySymbol[symbol] = [];
+            }
+        }
+
         function formatChangePercent(deltaPercent) {
             const sign = deltaPercent >= 0 ? '+' : '';
             return `${sign}${deltaPercent.toFixed(2)}%`;
@@ -688,26 +683,25 @@
 
             markets.forEach(market => {
                 const symbol = MARKET_ID_TO_SYMBOL[market.id] || market.id.toUpperCase();
-                const today = new Date();
-                const yesterday = new Date(today);
-                yesterday.setDate(today.getDate() - 1);
                 const delayed = delayedQuotes[symbol];
-                const price = delayed ? delayed.price : getDemoPoint(symbol, today);
-                const prevPrice = delayed && delayed.prevClose ? delayed.prevClose : getDemoPoint(symbol, yesterday);
-                const deltaPercent = ((price - prevPrice) / prevPrice) * 100;
+                const price = delayed ? delayed.price : null;
+                const prevPrice = delayed && delayed.prevClose ? delayed.prevClose : null;
+                const deltaPercent = price != null && prevPrice != null && prevPrice !== 0
+                    ? ((price - prevPrice) / prevPrice) * 100
+                    : null;
                 const isPositive = deltaPercent >= 0;
 
-                document.getElementById(`${market.id}-price`).textContent = `$${price.toFixed(2)}`;
-                document.getElementById(`${market.id}-change`).textContent = formatChangePercent(deltaPercent);
-                document.getElementById(`${market.id}-change`).className = `market-change ${isPositive ? 'change-positive' : 'change-negative'}`;
-                document.getElementById(`${market.id}-time`).textContent = (delayed ? delayed.time : new Date()).toLocaleTimeString();
+                document.getElementById(`${market.id}-price`).textContent = price == null ? 'N/A' : `$${price.toFixed(2)}`;
+                document.getElementById(`${market.id}-change`).textContent = deltaPercent == null ? 'N/A' : formatChangePercent(deltaPercent);
+                document.getElementById(`${market.id}-change`).className = `market-change ${deltaPercent == null ? '' : (isPositive ? 'change-positive' : 'change-negative')}`;
+                document.getElementById(`${market.id}-time`).textContent = delayed ? delayed.time.toLocaleTimeString() : 'N/A';
             });
 
             const note = document.querySelector('.source-note');
             if (note) {
                 note.textContent = usedDelayed
-                    ? '표시 데이터: Yahoo Finance 지연 시세(무료) + 데모 보조값'
-                    : '표시 데이터: 데모 생성값(학습용, 지연 시세 불러오기 실패)';
+                    ? '표시 데이터: Yahoo Finance 지연 시세(무료, 보통 약 15분 지연)'
+                    : '표시 데이터: 지연 시세 불러오기 실패 (데모 미사용)';
             }
         }
 
@@ -744,7 +738,7 @@
                 updateLightweightSymbol(lwSelect.value);
             });
 
-            applySelectedSymbol(getInitialSymbol());
+            await applySelectedSymbol(getInitialSymbol());
         });
     </script>
 </body>
