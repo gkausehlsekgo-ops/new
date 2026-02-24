@@ -47,7 +47,7 @@
             <input id="password" type="password" placeholder="8자 이상" />
 
             <label for="verifyCode">인증 코드</label>
-            <input id="verifyCode" type="text" placeholder="이메일로 받은 6자리 코드" />
+            <input id="verifyCode" type="text" placeholder="이메일로 받은 8자리 코드" />
 
             <button id="sendCodeBtn" class="ghost">인증 코드 발송</button>
 
@@ -135,7 +135,12 @@
             const verifyCode = document.getElementById('verifyCode').value.trim();
 
             if (!email || !password || !verifyCode) {
-                authStatus.textContent = '이메일/비밀번호/인증코드를 모두 입력하세요.';
+                authStatus.textContent = '이메일/비밀번호/인증코드(8자리)를 모두 입력하세요.';
+                return;
+            }
+
+            if (!/^\d{8}$/.test(verifyCode)) {
+                authStatus.textContent = '인증코드는 숫자 8자리로 입력하세요.';
                 return;
             }
 
