@@ -586,6 +586,7 @@
         let stochDSeries;
         let stochMidSeries;
         let realtimeQuoteTimer = null;
+        let realtimeRefreshInFlight = false;
         let simCash = SIM_INITIAL_CASH;
         let simPortfolio = {};
         let simTxs = [];
@@ -1202,17 +1203,42 @@
             const candidates = resolveYahooSymbols(symbol);
             if (!candidates.length) return;
 
-            const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(candidates.join(','))}`;
-            const data = await fetchJsonWithFallback(url);
-            const results = data?.quoteResponse?.result || [];
-            const item = results.find(r => typeof r?.regularMarketPrice === 'number');
-            if (!item || typeof item.regularMarketPrice !== 'number') throw new Error('Delayed quote payload error');
+            const quoteRequest = (async () => {
+                const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(candidates.join(','))}`;
+                const data = await fetchJsonWithFallback(url);
+                const results = data?.quoteResponse?.result || [];
+                const item = results.find(r => typeof r?.regularMarketPrice === 'number');
+                if (!item || typeof item.regularMarketPrice !== 'number') throw new Error('Delayed quote payload error');
+                return {
+                    price: Number(item.regularMarketPrice),
+                    prevClose: typeof item.regularMarketPreviousClose === 'number' ? Number(item.regularMarketPreviousClose) : null,
+                    time: typeof item.regularMarketTime === 'number' ? new Date(item.regularMarketTime * 1000) : new Date()
+                };
+            })();
 
-            delayedQuotes[symbol] = {
-                price: Number(item.regularMarketPrice),
-                prevClose: typeof item.regularMarketPreviousClose === 'number' ? Number(item.regularMarketPreviousClose) : null,
-                time: typeof item.regularMarketTime === 'number' ? new Date(item.regularMarketTime * 1000) : new Date()
-            };
+            const chartMetaRequests = candidates.map(yahooSymbol => (async () => {
+                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=5d&interval=1d`;
+                const data = await fetchJsonWithFallback(url);
+                const result = data?.chart?.result?.[0];
+                const meta = result?.meta || {};
+                const closes = result?.indicators?.quote?.[0]?.close || [];
+                const validCloses = closes.filter(v => typeof v === 'number');
+                const marketPrice = typeof meta.regularMarketPrice === 'number'
+                    ? Number(meta.regularMarketPrice)
+                    : Number(validCloses[validCloses.length - 1]);
+                if (!Number.isFinite(marketPrice)) throw new Error('No market price in chart meta');
+                const prevClose = typeof meta.chartPreviousClose === 'number'
+                    ? Number(meta.chartPreviousClose)
+                    : (validCloses.length > 1 ? Number(validCloses[validCloses.length - 2]) : marketPrice);
+                return {
+                    price: marketPrice,
+                    prevClose: Number.isFinite(prevClose) ? prevClose : null,
+                    time: new Date()
+                };
+            })());
+
+            const quote = await Promise.any([quoteRequest, ...chartMetaRequests]);
+            delayedQuotes[symbol] = quote;
             saveQuoteToCache(symbol, delayedQuotes[symbol]);
         }
 
@@ -1348,31 +1374,38 @@
         }
 
         async function refreshRealtimeValuation() {
+            if (realtimeRefreshInFlight) return;
+            realtimeRefreshInFlight = true;
+
             const portfolioSymbols = Object.keys(simPortfolio);
             warmStartSymbolData(currentSymbol);
-            const quotePromise = refreshQuotesForSymbols([currentSymbol, ...portfolioSymbols]);
-            const historyPromise = refreshHistoryForSymbols([currentSymbol]);
+            try {
+                const quotePromise = refreshQuotesForSymbols([currentSymbol, ...portfolioSymbols]);
+                const historyPromise = refreshHistoryForSymbols([currentSymbol]);
 
-            await Promise.race([historyPromise, sleep(FAST_RENDER_DEADLINE_MS)]);
+                await Promise.race([historyPromise, sleep(FAST_RENDER_DEADLINE_MS)]);
 
-            if (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0) {
-                await Promise.race([quotePromise, sleep(FAST_RENDER_DEADLINE_MS)]);
-                delayedHistoryBySymbol[currentSymbol] = buildQuoteBasedHistory(currentSymbol);
+                if (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0) {
+                    await Promise.race([quotePromise, sleep(FAST_RENDER_DEADLINE_MS)]);
+                    delayedHistoryBySymbol[currentSymbol] = buildQuoteBasedHistory(currentSymbol);
+                }
+
+                if (lwSeries) applyMainSeriesData(currentSymbol);
+
+                await Promise.allSettled([quotePromise, historyPromise]);
+                if (lwSeries) applyMainSeriesData(currentSymbol);
+
+                const source = document.getElementById('lightweightSource');
+                if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
+                    source.textContent = '출처: Lightweight Charts™ by TradingView (지연 히스토리 수신 실패 · 현재 지연시세만 표시 가능)';
+                }
+
+                renderEntryPriceLine();
+                renderTradeMarkers();
+                renderSimState();
+            } finally {
+                realtimeRefreshInFlight = false;
             }
-
-            if (lwSeries) applyMainSeriesData(currentSymbol);
-
-            await Promise.allSettled([quotePromise, historyPromise]);
-            if (lwSeries) applyMainSeriesData(currentSymbol);
-
-            const source = document.getElementById('lightweightSource');
-            if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
-                source.textContent = '출처: Lightweight Charts™ by TradingView (지연 히스토리 수신 실패 · 현재 지연시세만 표시 가능)';
-            }
-
-            renderEntryPriceLine();
-            renderTradeMarkers();
-            renderSimState();
         }
 
         function renderIndicatorToggles() {
