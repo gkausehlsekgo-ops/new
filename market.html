@@ -368,7 +368,8 @@
             <div class="logo">💰 Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a> ·
-                <a href="./journal.html">Journal</a>
+                <a href="./journal.html">Journal</a> ·
+                <a href="./news.html">News</a>
             </div>
         </div>
     </nav>
@@ -388,6 +389,36 @@
             
             <div class="markets-grid" id="marketsGrid">
                 <div class="market-card">
+                    <div class="market-symbol">.GSPC / ^GSPC</div>
+                    <div class="market-name">S&P 500 Index</div>
+                    <div class="market-price" id="sp500-price">-</div>
+                    <div class="market-change change-positive" id="sp500-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="sp500-time">-</span></div>
+                    <a class="board-link" href="./symbol.html?symbol=SP500">종목 게시판 →</a>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: SP:SPX</div>
+                </div>
+
+                <div class="market-card">
+                    <div class="market-symbol">NASDAQ</div>
+                    <div class="market-name">US Tech Stock Exchange</div>
+                    <div class="market-price" id="nasdaq-price">-</div>
+                    <div class="market-change change-positive" id="nasdaq-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="nasdaq-time">-</span></div>
+                    <a class="board-link" href="./symbol.html?symbol=NASDAQ">종목 게시판 →</a>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: NASDAQ:IXIC</div>
+                </div>
+
+                <div class="market-card">
+                    <div class="market-symbol">DJI / ^DJI</div>
+                    <div class="market-name">Dow Jones 30</div>
+                    <div class="market-price" id="dow-price">-</div>
+                    <div class="market-change change-positive" id="dow-change">+0.00%</div>
+                    <div class="market-time">Last updated: <span id="dow-time">-</span></div>
+                    <a class="board-link" href="./symbol.html?symbol=DOW">종목 게시판 →</a>
+                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: DJ:DJI</div>
+                </div>
+
+                <div class="market-card">
                     <div class="market-symbol">KOSPI</div>
                     <div class="market-name">Korea Stock Exchange</div>
                     <div class="market-price" id="kospi-price">-</div>
@@ -406,37 +437,7 @@
                     <a class="board-link" href="./symbol.html?symbol=KOSDAQ">종목 게시판 →</a>
                     <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: KRX:KQ11</div>
                 </div>
-                
-                <div class="market-card">
-                    <div class="market-symbol">NASDAQ</div>
-                    <div class="market-name">US Tech Stock Exchange</div>
-                    <div class="market-price" id="nasdaq-price">-</div>
-                    <div class="market-change change-positive" id="nasdaq-change">+0.00%</div>
-                    <div class="market-time">Last updated: <span id="nasdaq-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=NASDAQ">종목 게시판 →</a>
-                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: NASDAQ:IXIC</div>
-                </div>
-                
-                <div class="market-card">
-                    <div class="market-symbol">.GSPC / ^GSPC</div>
-                    <div class="market-name">S&P 500 Index</div>
-                    <div class="market-price" id="sp500-price">-</div>
-                    <div class="market-change change-positive" id="sp500-change">+0.00%</div>
-                    <div class="market-time">Last updated: <span id="sp500-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=SP500">종목 게시판 →</a>
-                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: SP:SPX</div>
-                </div>
-                
-                <div class="market-card">
-                    <div class="market-symbol">DJI / ^DJI</div>
-                    <div class="market-name">Dow Jones 30</div>
-                    <div class="market-price" id="dow-price">-</div>
-                    <div class="market-change change-positive" id="dow-change">+0.00%</div>
-                    <div class="market-time">Last updated: <span id="dow-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=DOW">종목 게시판 →</a>
-                    <div class="market-source">출처: Delayed Feed(우선) · 참고심볼: DJ:DJI</div>
-                </div>
-                
+
                 <div class="market-card">
                     <div class="market-symbol">AAPL</div>
                     <div class="market-name">Apple Inc.</div>
@@ -454,11 +455,11 @@
                     <div>
                         <label for="lwSymbolSelect" style="font-size:12px; opacity:0.7; margin-right:6px;">심볼</label>
                         <select id="lwSymbolSelect">
+                            <option value="SP500">SP500</option>
+                            <option value="NASDAQ">NASDAQ</option>
+                            <option value="DOW">DOW</option>
                             <option value="KOSPI">KOSPI</option>
                             <option value="KOSDAQ">KOSDAQ</option>
-                            <option value="NASDAQ">NASDAQ</option>
-                            <option value="SP500">SP500</option>
-                            <option value="DOW">DOW</option>
                             <option value="AAPL">AAPL</option>
                         </select>
                     </div>
@@ -665,11 +666,11 @@
         // Update market data
         async function updateMarketData() {
             const markets = [
+                { id: 'sp500', base: 5150.44 },
+                { id: 'nasdaq', base: 16520.22 },
+                { id: 'dow', base: 38800.10 },
                 { id: 'kospi', base: 2580.12 },
                 { id: 'kosdaq', base: 865.34 },
-                { id: 'nasdaq', base: 16520.22 },
-                { id: 'sp500', base: 5150.44 },
-                { id: 'dow', base: 38800.10 },
                 { id: 'aapl', base: 187.22 }
             ];
 
