@@ -25,21 +25,30 @@
         }
         
         .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
+            position: relative;
             background: white;
             border: none;
             padding: 10px 16px;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 14px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            z-index: 1000;
+            transition: all 0.3s;
+            z-index: auto;
         }
         
         body.dark-mode .theme-toggle {
             background: #1a2a4a;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        
+        body.dark-mode footer {
+            background: #1a1a2e;
+            border-top-color: #333;
+        }
+        
+        body.dark-mode footer p {
+            opacity: 0.7;
         }
         
         /* Navigation */
@@ -191,12 +200,13 @@
     </style>
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle">🌙</button>
-    
     <nav>
         <div class="container">
             <div class="logo">💰 Smart Investment Tips</div>
-            <a href="/">← Back to Home</a>
+            <div>
+                <a href="/">Home</a> ·
+                <a href="/journal.html">Journal</a>
+            </div>
         </div>
     </nav>
     
@@ -296,6 +306,15 @@
             </div>
         </div>
     </article>
+    
+    <footer style="background: white; padding: 30px 20px; text-align: center; border-top: 1px solid #eee;">
+        <div class="container">
+            <p style="opacity: 0.7; font-size: 14px;">&copy; 2026 Smart Investment Tips</p>
+            <p style="margin-top: 10px;">
+                <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
+            </p>
+        </div>
+    </footer>
     
     <script>
         const themeToggle = document.getElementById('themeToggle');
