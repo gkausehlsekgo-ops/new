@@ -230,43 +230,6 @@
             height: 420px;
         }
 
-        .trade-overlay {
-            position: absolute;
-            right: 12px;
-            top: 12px;
-            width: 220px;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 10px;
-            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
-            z-index: 5;
-        }
-
-        .trade-overlay h4 {
-            font-size: 13px;
-            margin-bottom: 8px;
-        }
-
-        .trade-overlay .helper {
-            margin-top: 6px;
-            font-size: 11px;
-        }
-
-        .trade-overlay .row-mini {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-        }
-
-        .trade-overlay input,
-        .trade-overlay select,
-        .trade-overlay button {
-            font-size: 12px;
-            padding: 8px;
-            border-radius: 8px;
-        }
-
         .sim-grid-mini {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -375,26 +338,6 @@
             <h3 style="margin-top:16px; font-size:16px;">TradingView Advanced Chart (보조지표 포함)</h3>
             <div class="chart-wrap tv-wrap">
                 <div id="tradingviewWidgetContainer" class="tv-widget-inner"></div>
-                <form id="quickTradeOverlay" class="trade-overlay">
-                    <h4>⚡ 차트 위 가상매매</h4>
-                    <label for="quickSymbol">심볼</label>
-                    <input id="quickSymbol" type="text" readonly />
-                    <div class="row-mini" style="margin-top:6px;">
-                        <div>
-                            <label for="quickSide">방향</label>
-                            <select id="quickSide">
-                                <option value="buy">BUY</option>
-                                <option value="sell">SELL</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="quickQty">수량</label>
-                            <input id="quickQty" type="number" min="1" value="1" />
-                        </div>
-                    </div>
-                    <button type="submit" class="primary" style="margin-top:8px;">바로 가상매매 실행</button>
-                    <div class="helper">TradingView 내부 주문은 불가하여, 시뮬레이터에서 자동 실행됩니다.</div>
-                </form>
             </div>
             <div class="chart-meta" id="tvSource">출처: TradingView Advanced Chart · RSI/MACD/MA 포함</div>
         </div>
@@ -503,6 +446,8 @@
         let posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         let lwChart;
         let lwSeries;
+        let lwEntryLine = null;
+        let demoPrices = {};
         let simCash = SIM_INITIAL_CASH;
         let simPortfolio = {};
         let simTxs = [];
@@ -553,7 +498,37 @@
                 current = Math.max(1, current * (1 + (Math.random() - 0.5) * 0.02));
                 points.push({ time: d.toISOString().slice(0, 10), value: Number(current.toFixed(2)) });
             }
+            demoPrices[symbol] = Number(current.toFixed(2));
             return points;
+        }
+
+        function getDemoPrice(symbol) {
+            if (demoPrices[symbol]) return demoPrices[symbol];
+            const seed = symbolSeed(symbol);
+            const base = DEMO_BASE_PRICE[symbol] || (20 + (seed % 500));
+            demoPrices[symbol] = Number(base.toFixed(2));
+            return demoPrices[symbol];
+        }
+
+        function renderEntryPriceLine() {
+            if (!lwSeries) return;
+
+            if (lwEntryLine) {
+                lwSeries.removePriceLine(lwEntryLine);
+                lwEntryLine = null;
+            }
+
+            const holding = simPortfolio[currentSymbol];
+            if (!holding || !holding.qty) return;
+
+            lwEntryLine = lwSeries.createPriceLine({
+                price: Number(holding.avgPrice.toFixed(2)),
+                color: '#dc2626',
+                lineWidth: 2,
+                lineStyle: 2,
+                axisLabelVisible: true,
+                title: '평균 진입가'
+            });
         }
 
         function initLightweightChart() {
@@ -629,11 +604,10 @@
 
         function updateChartsForSymbol(symbol) {
             document.getElementById('chartTitle').textContent = `${symbol} 차트`;
-            const quickSymbol = document.getElementById('quickSymbol');
-            if (quickSymbol) quickSymbol.value = symbol;
             if (lwSeries) {
                 lwSeries.setData(generateLightweightData(symbol));
             }
+            renderEntryPriceLine();
             renderTradingViewWidget(symbol);
             renderSimState();
         }
@@ -669,7 +643,7 @@
             const txBody = document.getElementById('simTxBody');
             const hint = document.getElementById('simTradeHint');
 
-            if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol}`;
+            if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol} · 현재가: $${format(getCurrentDemoPrice(currentSymbol))}`;
             cashEl.textContent = '$' + format(simCash);
 
             let total = simCash;
@@ -758,6 +732,7 @@
             if (simTxs.length > 300) simTxs = simTxs.slice(0, 300);
             saveSimState();
             renderSimState();
+            renderEntryPriceLine();
         }
 
         function setSymbol(symbol) {
@@ -897,18 +872,6 @@
                 setSymbol(currentSymbol);
             }
         }
-
-        document.getElementById('quickTradeOverlay').addEventListener('submit', (event) => {
-            event.preventDefault();
-            const qty = parseInt(document.getElementById('quickQty').value, 10);
-            const side = document.getElementById('quickSide').value;
-            if (!qty || qty <= 0) {
-                alert('수량을 올바르게 입력하세요.');
-                return;
-            }
-            document.getElementById('simQtyInput').value = qty;
-            executeSimTrade('market', side);
-        });
 
         document.getElementById('simMarketBuyBtn').addEventListener('click', () => executeSimTrade('market', 'buy'));
         document.getElementById('simMarketSellBtn').addEventListener('click', () => executeSimTrade('market', 'sell'));
