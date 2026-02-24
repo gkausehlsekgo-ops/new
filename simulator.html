@@ -4,7 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Simulator - Smart Investment Tips</title>
-    <link rel="stylesheet" href="/" />
+    <link rel="stylesheet" href="./index.html" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif; background:#f8f9fa; color:#222; }
@@ -28,13 +29,14 @@
     <nav>
         <div class="container">
             <div class="logo">💰 Smart Investment Tips</div>
-            <div><a href="/">Home</a> • <a href="/market.html">Markets</a> • <a href="/journal.html">Journal</a> • Simulator</div>
+            <div><a href="./index.html">Home</a> • <a href="./market.html">Markets</a> • <a href="./journal.html">Journal</a> • <a href="./auth.html">Login</a> • Simulator</div>
         </div>
     </nav>
 
     <div class="container">
         <h1>Virtual Trading Simulator</h1>
-        <p class="small">Practice trading with demo prices only. No real money involved. Portfolio and history are stored in your browser.</p>
+        <p class="small">Practice trading with demo prices only. No real money involved. Portfolio and history are stored per logged-in account.</p>
+        <p class="small" id="authStatus">Checking login status...</p>
 
         <div class="sim-grid">
             <div>
@@ -107,17 +109,19 @@
     <script>
         const initialCash = 100000;
 
-        // Storage keys
-        const CASH_KEY = 'sim_cash_v1';
-        const PORT_KEY = 'sim_portfolio_v1';
-        const TX_KEY = 'sim_tx_v1';
-        const PERF_KEY = 'sim_perf_v1';
+        const authStatus = document.getElementById('authStatus');
+        const supabaseUrl = localStorage.getItem('supabase_url');
+        const supabaseAnonKey = localStorage.getItem('supabase_anon_key');
+        const supabaseClient = (supabaseUrl && supabaseAnonKey)
+            ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
+            : null;
+        let currentUser = null;
 
         // State
-        let cash = parseFloat(localStorage.getItem(CASH_KEY)) || initialCash;
-        let portfolio = JSON.parse(localStorage.getItem(PORT_KEY) || '{}');
-        let txs = JSON.parse(localStorage.getItem(TX_KEY) || '[]');
-        let perf = JSON.parse(localStorage.getItem(PERF_KEY) || '[]');
+        let cash = initialCash;
+        let portfolio = {};
+        let txs = [];
+        let perf = [];
 
         const cashDisplay = document.getElementById('cashDisplay');
         const portfolioValueEl = document.getElementById('portfolioValue');
@@ -125,11 +129,67 @@
         const txTbody = document.querySelector('#txTable tbody');
         const qBox = document.getElementById('quoteBox');
 
-        function saveState(){
-            localStorage.setItem(CASH_KEY, cash);
-            localStorage.setItem(PORT_KEY, JSON.stringify(portfolio));
-            localStorage.setItem(TX_KEY, JSON.stringify(txs));
-            localStorage.setItem(PERF_KEY, JSON.stringify(perf));
+        async function saveState(){
+            if (!supabaseClient || !currentUser) return;
+            await supabaseClient.from('virtual_accounts').upsert({
+                user_id: currentUser.id,
+                cash,
+                portfolio,
+                perf,
+                updated_at: new Date().toISOString()
+            });
+        }
+
+        async function addTradeRecord(side, sym, qty, price){
+            if (!supabaseClient || !currentUser) return;
+            await supabaseClient.from('virtual_trades').insert({
+                user_id: currentUser.id,
+                symbol: sym,
+                side,
+                qty,
+                price
+            });
+        }
+
+        async function loadRemoteState(){
+            if (!supabaseClient || !currentUser) return;
+
+            const { data: account } = await supabaseClient
+                .from('virtual_accounts')
+                .select('*')
+                .eq('user_id', currentUser.id)
+                .maybeSingle();
+
+            if (!account) {
+                await supabaseClient.from('virtual_accounts').insert({
+                    user_id: currentUser.id,
+                    cash: initialCash,
+                    portfolio: {},
+                    perf: []
+                });
+                cash = initialCash;
+                portfolio = {};
+                perf = [];
+            } else {
+                cash = Number(account.cash ?? initialCash);
+                portfolio = account.portfolio || {};
+                perf = account.perf || [];
+            }
+
+            const { data: tradeRows } = await supabaseClient
+                .from('virtual_trades')
+                .select('symbol, side, qty, price, created_at')
+                .eq('user_id', currentUser.id)
+                .order('created_at', { ascending: false })
+                .limit(300);
+
+            txs = (tradeRows || []).map(row => ({
+                date: new Date(row.created_at).toLocaleString(),
+                symbol: row.symbol,
+                side: row.side,
+                qty: row.qty,
+                price: Number(row.price)
+            }));
         }
 
         function format(n){ return typeof n==='number' ? n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : n }
@@ -157,12 +217,11 @@
             // tx history
             txTbody.innerHTML = '';
             if(txs.length===0){ txTbody.innerHTML = '<tr><td colspan="5" class="small">No transactions</td></tr>' }
-            txs.slice().reverse().forEach(t=>{
+            txs.forEach(t=>{
                 const tr = document.createElement('tr');
                 tr.innerHTML = `<td>${t.date}</td><td>${t.symbol}</td><td>${t.side}</td><td>${t.qty}</td><td>$${format(t.price)}</td>`;
                 txTbody.appendChild(tr);
             });
-            saveState();
             updatePerf(total);
         }
 
@@ -208,6 +267,10 @@
         }
 
         async function executeTrade(){
+            if (!currentUser) {
+                alert('로그인이 필요합니다. auth.html에서 로그인하세요.');
+                return;
+            }
             const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
             const qty = parseInt(document.getElementById('qtyInput').value,10);
             const side = document.getElementById('actionSelect').value;
@@ -225,7 +288,9 @@
                 existing.avgPrice = ((existing.avgPrice * existing.qty) + (price * qty)) / newQty;
                 existing.qty = newQty;
                 existing.currentPrice = price;
-                txs.push({ date:new Date().toLocaleString(), symbol: sym, side:'BUY', qty, price });
+                const t = { date:new Date().toLocaleString(), symbol: sym, side:'BUY', qty, price };
+                txs.unshift(t);
+                await addTradeRecord('BUY', sym, qty, price);
             } else {
                 if(!portfolio[sym] || portfolio[sym].qty < qty){ alert('Not enough shares to sell'); return }
                 const proceeds = price * qty;
@@ -233,15 +298,22 @@
                 portfolio[sym].qty -= qty;
                 portfolio[sym].currentPrice = price;
                 if(portfolio[sym].qty===0) delete portfolio[sym];
-                txs.push({ date:new Date().toLocaleString(), symbol: sym, side:'SELL', qty, price });
+                const t = { date:new Date().toLocaleString(), symbol: sym, side:'SELL', qty, price };
+                txs.unshift(t);
+                await addTradeRecord('SELL', sym, qty, price);
             }
+            await saveState();
             render();
         }
 
-        function resetPortfolio(){
+        async function resetPortfolio(){
             if(!confirm('Reset portfolio and transactions?')) return;
             cash = initialCash; portfolio = {}; txs = []; perf = [];
-            saveState(); render();
+            if (supabaseClient && currentUser) {
+                await supabaseClient.from('virtual_trades').delete().eq('user_id', currentUser.id);
+                await saveState();
+            }
+            render();
         }
 
         function exportState(){
@@ -273,7 +345,6 @@
             const now = new Date().toLocaleString();
             perf.push({ t: now, v: currentTotal });
             if(perf.length>60) perf.shift();
-            localStorage.setItem(PERF_KEY, JSON.stringify(perf));
             renderPerf();
         }
 
@@ -298,8 +369,29 @@
         document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
         document.getElementById('importFile').addEventListener('change', e=>{ if(e.target.files.length) importStateFile(e.target.files[0]); });
 
+        async function initAuthAndData() {
+            if (!supabaseClient) {
+                authStatus.innerHTML = 'Supabase 설정이 없습니다. <a href="./auth.html">auth.html</a>에서 URL/Key를 저장하세요.';
+                document.getElementById('tradeBtn').disabled = true;
+                return;
+            }
+
+            const { data } = await supabaseClient.auth.getSession();
+            if (!data?.session?.user) {
+                authStatus.innerHTML = '로그인이 필요합니다. <a href="./auth.html">로그인/회원가입</a>';
+                document.getElementById('tradeBtn').disabled = true;
+                return;
+            }
+
+            currentUser = data.session.user;
+            authStatus.textContent = `Logged in: ${currentUser.email}`;
+            await loadRemoteState();
+            render();
+            renderPerf();
+        }
+
         // initial load
-        window.addEventListener('load', ()=>{ render(); renderPerf(); });
+        window.addEventListener('load', initAuthAndData);
     </script>
 </body>
 </html>
