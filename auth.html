@@ -50,6 +50,7 @@
                 <button id="signUpBtn">회원가입</button>
                 <button id="signInBtn" class="ghost">로그인</button>
             </div>
+            <button id="resendBtn" class="ghost">인증 메일 다시 보내기</button>
             <button id="signOutBtn" class="ghost">로그아웃</button>
             <button id="goSimulatorBtn">시뮬레이터로 이동</button>
             <div id="authStatus" class="status"></div>
@@ -91,7 +92,13 @@
             if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const { error } = await client.auth.signUp({ email, password });
+            const { error } = await client.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: window.location.origin + window.location.pathname
+                }
+            });
             authStatus.textContent = error ? ('회원가입 실패: ' + error.message) : '회원가입 요청 완료(인증 메일 확인)';
         });
 
@@ -100,8 +107,33 @@
             if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const { error } = await client.auth.signInWithPassword({ email, password });
-            authStatus.textContent = error ? ('로그인 실패: ' + error.message) : '로그인 성공';
+            const { data, error } = await client.auth.signInWithPassword({ email, password });
+            if (error) {
+                authStatus.textContent = '로그인 실패: ' + error.message;
+                return;
+            }
+
+            if (!data?.user?.email_confirmed_at) {
+                await client.auth.signOut();
+                authStatus.textContent = '이메일 인증 후 로그인 가능합니다. 받은편지함을 확인하세요.';
+                return;
+            }
+
+            authStatus.textContent = '로그인 성공';
+        });
+
+        document.getElementById('resendBtn').addEventListener('click', async () => {
+            const client = getClient();
+            if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
+            const email = document.getElementById('email').value.trim();
+            if (!email) { authStatus.textContent = '이메일을 입력하세요.'; return; }
+
+            const { error } = await client.auth.resend({
+                type: 'signup',
+                email,
+                options: { emailRedirectTo: window.location.origin + window.location.pathname }
+            });
+            authStatus.textContent = error ? ('재전송 실패: ' + error.message) : '인증 메일 재전송 완료';
         });
 
         document.getElementById('signOutBtn').addEventListener('click', async () => {
@@ -120,7 +152,11 @@
             if (!client) return;
             const { data } = await client.auth.getSession();
             if (data?.session?.user?.email) {
-                authStatus.textContent = '현재 로그인: ' + data.session.user.email;
+                if (!data.session.user.email_confirmed_at) {
+                    authStatus.textContent = '현재 세션은 미인증 상태입니다. 이메일 인증 후 다시 로그인하세요.';
+                } else {
+                    authStatus.textContent = '현재 로그인: ' + data.session.user.email;
+                }
             }
         })();
     </script>
