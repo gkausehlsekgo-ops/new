@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>로그인 / 회원가입 - Smart Investment Tips</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif; background: #f6f7fb; color: #111827; }
+        .wrap { max-width: 520px; margin: 48px auto; padding: 0 16px; }
+        .card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 10px 22px rgba(15, 23, 42, .08); margin-bottom: 14px; }
+        h1 { margin: 0 0 8px; font-size: 26px; }
+        p { margin: 0 0 14px; color: #6b7280; font-size: 14px; }
+        label { display: block; font-size: 13px; color: #6b7280; margin: 10px 0 6px; }
+        input, button { width: 100%; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+        button { background: #2563eb; color: #fff; border: none; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .ghost { background: #fff; color: #111827; border: 1px solid #d1d5db; }
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .helper { font-size: 12px; color: #6b7280; margin-top: 8px; }
+        .status { font-size: 13px; margin-top: 10px; color: #1d4ed8; }
+        a { color: #2563eb; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="card">
+            <h1>로그인 / 회원가입</h1>
+            <p>개인별 가상계좌와 거래내역을 저장하려면 먼저 계정이 필요합니다.</p>
+            <div class="helper">설정한 URL/키는 브라우저에 저장됩니다.</div>
+
+            <label for="supabaseUrl">Supabase URL</label>
+            <input id="supabaseUrl" placeholder="https://xxxx.supabase.co" />
+
+            <label for="supabaseAnonKey">Supabase Anon Key</label>
+            <input id="supabaseAnonKey" placeholder="eyJ..." />
+
+            <button id="saveConfigBtn" class="ghost">Supabase 설정 저장</button>
+            <div id="configStatus" class="status"></div>
+        </div>
+
+        <div class="card">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="you@example.com" />
+
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="8자 이상" />
+
+            <div class="row">
+                <button id="signUpBtn">회원가입</button>
+                <button id="signInBtn" class="ghost">로그인</button>
+            </div>
+            <button id="signOutBtn" class="ghost">로그아웃</button>
+            <button id="goSimulatorBtn">시뮬레이터로 이동</button>
+            <div id="authStatus" class="status"></div>
+            <div class="helper">회원가입 후 이메일 인증이 켜져 있으면 메일 인증 후 로그인하세요.</div>
+            <div class="helper"><a href="./index.html">홈으로</a></div>
+        </div>
+    </div>
+
+    <script>
+        const urlInput = document.getElementById('supabaseUrl');
+        const keyInput = document.getElementById('supabaseAnonKey');
+        const configStatus = document.getElementById('configStatus');
+        const authStatus = document.getElementById('authStatus');
+
+        urlInput.value = localStorage.getItem('supabase_url') || '';
+        keyInput.value = localStorage.getItem('supabase_anon_key') || '';
+
+        function getClient() {
+            const supabaseUrl = localStorage.getItem('supabase_url');
+            const supabaseAnonKey = localStorage.getItem('supabase_anon_key');
+            if (!supabaseUrl || !supabaseAnonKey) return null;
+            return window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+        }
+
+        document.getElementById('saveConfigBtn').addEventListener('click', () => {
+            const supabaseUrl = urlInput.value.trim();
+            const supabaseAnonKey = keyInput.value.trim();
+            if (!supabaseUrl || !supabaseAnonKey) {
+                configStatus.textContent = 'URL/Anon Key를 모두 입력하세요.';
+                return;
+            }
+            localStorage.setItem('supabase_url', supabaseUrl);
+            localStorage.setItem('supabase_anon_key', supabaseAnonKey);
+            configStatus.textContent = '저장 완료';
+        });
+
+        document.getElementById('signUpBtn').addEventListener('click', async () => {
+            const client = getClient();
+            if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const { error } = await client.auth.signUp({ email, password });
+            authStatus.textContent = error ? ('회원가입 실패: ' + error.message) : '회원가입 요청 완료(인증 메일 확인)';
+        });
+
+        document.getElementById('signInBtn').addEventListener('click', async () => {
+            const client = getClient();
+            if (!client) { authStatus.textContent = '먼저 Supabase 설정을 저장하세요.'; return; }
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const { error } = await client.auth.signInWithPassword({ email, password });
+            authStatus.textContent = error ? ('로그인 실패: ' + error.message) : '로그인 성공';
+        });
+
+        document.getElementById('signOutBtn').addEventListener('click', async () => {
+            const client = getClient();
+            if (!client) { authStatus.textContent = '설정이 없습니다.'; return; }
+            await client.auth.signOut();
+            authStatus.textContent = '로그아웃 완료';
+        });
+
+        document.getElementById('goSimulatorBtn').addEventListener('click', () => {
+            location.href = './simulator.html';
+        });
+
+        (async () => {
+            const client = getClient();
+            if (!client) return;
+            const { data } = await client.auth.getSession();
+            if (data?.session?.user?.email) {
+                authStatus.textContent = '현재 로그인: ' + data.session.user.email;
+            }
+        })();
+    </script>
+</body>
+</html>
