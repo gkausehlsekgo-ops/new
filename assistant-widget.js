@@ -1,5 +1,6 @@
 (function () {
     const STORAGE_KEY = 'site_help_requests_v1';
+    const EMAIL_RECEIVER_KEY = 'contact_receiver_email_v1';
 
     function injectStyles() {
         const style = document.createElement('style');
@@ -108,6 +109,41 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify(next.slice(0, 300)));
     }
 
+    function getReceiverEmail() {
+        return localStorage.getItem(EMAIL_RECEIVER_KEY) || '';
+    }
+
+    async function sendInquiryEmail(receiverEmail, payload) {
+        if (!receiverEmail) return false;
+
+        try {
+            const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(receiverEmail)}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    _subject: `[Smart Investment Tips] ${payload.type}`,
+                    name: 'AI Assistant Widget',
+                    email: payload.email || receiverEmail,
+                    message: [
+                        `문의유형: ${payload.type}`,
+                        `회신이메일: ${payload.email || '(미입력)'}`,
+                        `소스: ${payload.source}`,
+                        '',
+                        payload.message
+                    ].join('\n'),
+                    _captcha: 'false'
+                })
+            });
+
+            return response.ok;
+        } catch {
+            return false;
+        }
+    }
+
     function createWidget() {
         const fab = document.createElement('button');
         fab.className = 'assist-fab';
@@ -149,7 +185,7 @@
             location.href = './contact.html';
         });
 
-        panel.querySelector('#assistSubmit').addEventListener('click', () => {
+        panel.querySelector('#assistSubmit').addEventListener('click', async () => {
             const type = panel.querySelector('#assistType').value;
             const email = panel.querySelector('#assistEmail').value.trim();
             const message = panel.querySelector('#assistMessage').value.trim();
@@ -159,17 +195,23 @@
                 return;
             }
 
-            saveRequest({
+            const payload = {
                 type,
                 email,
                 message,
                 source: location.pathname.split('/').pop() || 'unknown',
                 createdAt: new Date().toISOString()
-            });
+            };
+
+            saveRequest(payload);
+
+            const delivered = await sendInquiryEmail(getReceiverEmail(), payload);
 
             panel.querySelector('#assistMessage').value = '';
             panel.classList.remove('open');
-            alert('문의가 접수되었습니다. Contact 페이지에서도 확인할 수 있습니다.');
+            alert(delivered
+                ? '문의가 접수되어 관리자 이메일로 전송되었습니다.'
+                : '문의가 접수되었습니다. Contact 페이지에서도 확인할 수 있습니다.');
         });
     }
 
