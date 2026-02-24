@@ -648,6 +648,16 @@
             return FRAME_OPTIONS.find(opt => opt.key === currentFrame) || FRAME_OPTIONS[3];
         }
 
+        async function fetchJsonWithFallback(url) {
+            const direct = await fetch(url);
+            if (direct.ok) return direct.json();
+
+            const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+            const proxied = await fetch(proxyUrl);
+            if (!proxied.ok) throw new Error('Delayed data fetch failed');
+            return proxied.json();
+        }
+
         function renderFrameButtons() {
             const root = document.getElementById('frameToolbar');
             if (!root) return;
@@ -1060,9 +1070,8 @@
             const yahooSymbol = DELAYED_QUOTE_SYMBOLS[symbol];
             if (!yahooSymbol) return;
 
-            const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(yahooSymbol)}`);
-            if (!response.ok) throw new Error('Delayed quote HTTP error');
-            const data = await response.json();
+            const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(yahooSymbol)}`;
+            const data = await fetchJsonWithFallback(url);
             const item = data?.quoteResponse?.result?.[0];
             if (!item || typeof item.regularMarketPrice !== 'number') throw new Error('Delayed quote payload error');
 
@@ -1078,9 +1087,8 @@
             if (!yahooSymbol) return;
 
             const frame = getCurrentFrameConfig();
-            const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${frame.range}&interval=${frame.interval}`);
-            if (!response.ok) throw new Error('Delayed history HTTP error');
-            const data = await response.json();
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${frame.range}&interval=${frame.interval}`;
+            const data = await fetchJsonWithFallback(url);
             const result = data?.chart?.result?.[0];
             const timestamps = result?.timestamp || [];
             const quote = result?.indicators?.quote?.[0] || {};
