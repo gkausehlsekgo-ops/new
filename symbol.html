@@ -389,6 +389,7 @@
                 <a href="./index.html">Home</a>
                 <a href="./journal.html">Journal</a>
                 <a href="./market.html">Markets</a>
+                <a href="./news.html">News</a>
             </div>
         </div>
     </nav>
@@ -496,6 +497,7 @@
                 <button id="simMarketSellBtn" class="ghost" type="button">시장가 매도</button>
                 <button id="simLimitBuyBtn" class="primary" type="button">지정가 매수</button>
                 <button id="simLimitSellBtn" class="ghost" type="button">지정가 매도</button>
+                <button id="simCloseAllBtn" class="ghost" type="button">모든 포지션 종료</button>
             </div>
             <div class="helper" id="simTradeHint">주문은 현재 선택 종목에 대해 실행됩니다.</div>
 
@@ -1683,6 +1685,59 @@
             refreshRealtimeValuation();
         }
 
+        async function closeAllPositions() {
+            const symbols = Object.keys(simPortfolio);
+            if (symbols.length === 0) {
+                alert('종료할 포지션이 없습니다.');
+                return;
+            }
+
+            await refreshQuotesForSymbols(symbols);
+
+            const now = new Date().toLocaleString();
+            let closedCount = 0;
+            const skipped = [];
+
+            symbols.forEach((sym) => {
+                const holding = simPortfolio[sym];
+                if (!holding || !holding.qty) return;
+
+                const currentPrice = getCurrentDemoPrice(sym);
+                if (currentPrice == null) {
+                    skipped.push(sym);
+                    return;
+                }
+
+                const qty = holding.qty;
+                simCash += currentPrice * qty;
+                delete simPortfolio[sym];
+                simTxs.unshift({ date: now, symbol: sym, side: 'SELL-ALL', qty, price: currentPrice });
+                if (sym === currentSymbol) {
+                    appendTradeMarker('sell', currentPrice);
+                }
+                closedCount += 1;
+            });
+
+            if (simTxs.length > 300) simTxs = simTxs.slice(0, 300);
+
+            saveSimState();
+            renderSimState();
+            renderEntryPriceLine();
+            refreshRealtimeValuation();
+
+            if (closedCount === 0) {
+                alert('현재 시세를 못 불러와 청산이 실행되지 않았습니다. 잠시 후 다시 시도하세요.');
+                return;
+            }
+
+            if (skipped.length > 0) {
+                alert(`총 ${closedCount}개 포지션 종료 완료 (시세 미수신 ${skipped.length}개 제외)`);
+                return;
+            }
+
+            alert(`총 ${closedCount}개 포지션 종료 완료`);
+        }
+
         function setSymbol(symbol) {
             currentSymbol = normalizeSymbol(symbol);
             symbolInput.value = currentSymbol;
@@ -1825,6 +1880,7 @@
         document.getElementById('simMarketSellBtn').addEventListener('click', () => executeSimTrade('market', 'sell'));
         document.getElementById('simLimitBuyBtn').addEventListener('click', () => executeSimTrade('limit', 'buy'));
         document.getElementById('simLimitSellBtn').addEventListener('click', () => executeSimTrade('limit', 'sell'));
+        document.getElementById('simCloseAllBtn').addEventListener('click', closeAllPositions);
 
         loadSimState();
         initLightweightChart();
