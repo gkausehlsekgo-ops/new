@@ -340,6 +340,7 @@
                 <div id="tradingviewWidgetContainer" class="tv-widget-inner"></div>
             </div>
             <div class="chart-meta" id="tvSource">출처: TradingView Advanced Chart · RSI/MACD/MA 포함</div>
+            <div class="chart-meta" id="tvEntryHint">평균 진입가 정보는 아래에 표시됩니다.</div>
         </div>
 
         <div class="panel">
@@ -448,6 +449,7 @@
         let lwSeries;
         let lwEntryLine = null;
         let lwTradeMarkers = [];
+        let realtimeQuoteTimer = null;
         let simCash = SIM_INITIAL_CASH;
         let simPortfolio = {};
         let simTxs = [];
@@ -572,17 +574,28 @@
             };
         }
 
-        async function refreshCurrentSymbolQuote() {
-            try {
-                await fetchDelayedQuote(currentSymbol);
-            } catch (err) {
-                // fallback keeps deterministic demo price
-            }
+        async function refreshQuotesForSymbols(symbols) {
+            const uniqueSymbols = Array.from(new Set(symbols.filter(Boolean)));
+            if (uniqueSymbols.length === 0) return;
+
+            await Promise.allSettled(uniqueSymbols.map(async (symbol) => {
+                try {
+                    await fetchDelayedQuote(symbol);
+                } catch (err) {
+                    // fallback keeps deterministic demo price
+                }
+            }));
+        }
+
+        async function refreshRealtimeValuation() {
+            const portfolioSymbols = Object.keys(simPortfolio);
+            await refreshQuotesForSymbols([currentSymbol, ...portfolioSymbols]);
             if (lwSeries) {
                 lwSeries.setData(generateLightweightData(currentSymbol));
             }
             renderEntryPriceLine();
             renderTradeMarkers();
+            renderTradingViewEntryHint();
             renderSimState();
         }
 
@@ -625,6 +638,21 @@
                 lwTradeMarkers = lwTradeMarkers.slice(lwTradeMarkers.length - 200);
             }
             renderTradeMarkers();
+        }
+
+        function renderTradingViewEntryHint() {
+            const hintEl = document.getElementById('tvEntryHint');
+            if (!hintEl) return;
+
+            const holding = simPortfolio[currentSymbol];
+            if (!holding || !holding.qty) {
+                hintEl.textContent = 'TradingView 임베드 차트는 외부 스크립트 제한으로 진입가 라인을 직접 그릴 수 없습니다. 현재 종목 보유 시 평균 진입가를 여기에 표시합니다.';
+                return;
+            }
+
+            const delayed = delayedQuotes[currentSymbol];
+            const sourceText = delayed ? `지연시세 ${delayed.time.toLocaleTimeString()}` : '데모시세';
+            hintEl.textContent = `평균 진입가: $${format(holding.avgPrice)} · 보유수량: ${holding.qty} · 기준: ${sourceText}`;
         }
 
         function initLightweightChart() {
@@ -705,9 +733,10 @@
             }
             renderEntryPriceLine();
             renderTradeMarkers();
+            renderTradingViewEntryHint();
             renderTradingViewWidget(symbol);
             renderSimState();
-            refreshCurrentSymbolQuote();
+            refreshRealtimeValuation();
         }
 
         function getSimSessionKey() {
@@ -747,6 +776,7 @@
             const delayed = delayedQuotes[currentSymbol];
             const sourceText = delayed ? `지연시세 ${delayed.time.toLocaleTimeString()}` : '데모시세';
             if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol} · 현재가: $${format(getCurrentDemoPrice(currentSymbol))} · ${sourceText}`;
+            renderTradingViewEntryHint();
             cashEl.textContent = '$' + format(simCash);
 
             let total = simCash;
@@ -837,6 +867,7 @@
             renderSimState();
             renderEntryPriceLine();
             appendTradeMarker(side, execPrice);
+            refreshRealtimeValuation();
         }
 
         function setSymbol(symbol) {
@@ -986,6 +1017,8 @@
         initLightweightChart();
         renderCategories();
         initFromQuery();
+        if (realtimeQuoteTimer) clearInterval(realtimeQuoteTimer);
+        realtimeQuoteTimer = setInterval(refreshRealtimeValuation, 60000);
     </script>
 </body>
 </html>
