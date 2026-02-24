@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>종목 게시판 - Smart Investment Tips</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #64748b;
+            --panel: #ffffff;
+            --bg: #f5f7fb;
+            --accent: #2563eb;
+            --accent-soft: #dbeafe;
+            --line: #e2e8f0;
+            --shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
+            background: radial-gradient(circle at top, #eef2ff, #f5f7fb 60%);
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        nav {
+            background: var(--panel);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--ink);
+            font-weight: 600;
+            margin-left: 16px;
+        }
+
+        .hero {
+            max-width: 1200px;
+            margin: 30px auto 0;
+            padding: 0 20px;
+        }
+
+        .hero-card {
+            background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+            color: #fff;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .hero-card p { opacity: 0.9; }
+
+        .content {
+            max-width: 1200px;
+            margin: 24px auto 80px;
+            padding: 0 20px;
+            display: grid;
+            gap: 20px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .panel h2 {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .panel p.desc {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 14px;
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        input, textarea, button {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            padding: 10px 12px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        textarea { min-height: 110px; resize: vertical; }
+
+        button.primary {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button.ghost {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--ink);
+            cursor: pointer;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        .tab.active {
+            background: var(--accent-soft);
+            color: var(--accent);
+            border-color: #bfdbfe;
+        }
+
+        .post-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .post {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 14px;
+            background: #fff;
+        }
+
+        .post h3 {
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .helper {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .chart-wrap {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        #lightweightChart {
+            width: 100%;
+            height: 300px;
+        }
+
+        .chart-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 8px;
+        }
+
+        .tv-wrap {
+            min-height: 420px;
+        }
+
+        @media (max-width: 720px) {
+            nav .container { padding: 1rem; }
+            .hero-card { padding: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <div class="logo">💰 Smart Investment Tips</div>
+            <div>
+                <a href="/">Home</a>
+                <a href="/journal.html">Journal</a>
+                <a href="/market.html">Markets</a>
+                <a href="/simulator.html">Simulator</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-card">
+            <h1 id="boardTitle">종목 게시판</h1>
+            <p>종목별로 매매일지, 자유게시판, 종목토론, 꿀팁공유를 작성할 수 있어요. 모든 글은 브라우저에 저장됩니다.</p>
+        </div>
+    </section>
+
+    <section class="content">
+        <div class="panel">
+            <h2>종목 선택</h2>
+            <p class="desc">종목을 입력하면 해당 종목 게시판으로 이동합니다.</p>
+            <div class="row">
+                <div>
+                    <label for="symbolInput">종목/티커</label>
+                    <input id="symbolInput" type="text" placeholder="AAPL, 005930" />
+                </div>
+                <div>
+                    <label>&nbsp;</label>
+                    <button class="primary" id="goSymbol">게시판 열기</button>
+                </div>
+            </div>
+            <div class="helper">예: AAPL, TSLA, 005930</div>
+        </div>
+
+        <div class="panel">
+            <h2>카테고리</h2>
+            <p class="desc">원하는 카테고리를 눌러 글을 작성하거나 확인하세요.</p>
+            <div class="tabs" id="categoryTabs"></div>
+            <div class="helper">카테고리: 매매일지 · 자유게시판 · 종목토론 · 꿀팁공유</div>
+        </div>
+
+        <div class="panel">
+            <h2 id="chartTitle">AAPL 차트</h2>
+            <p class="desc">종목 변경 시 차트가 자동으로 바뀝니다. 매매일지 작성 전에 가격 흐름을 참고하세요.</p>
+
+            <div class="chart-wrap">
+                <div id="lightweightChart"></div>
+            </div>
+            <div class="chart-meta" id="lightweightSource">출처: Lightweight Charts™ by TradingView (표시 데이터: 데모 생성값)</div>
+
+            <h3 style="margin-top:16px; font-size:16px;">TradingView 위젯</h3>
+            <div class="chart-wrap tv-wrap" id="tradingviewWidgetContainer"></div>
+            <div class="chart-meta" id="tvSource">출처: TradingView Widget</div>
+        </div>
+
+        <div class="panel">
+            <h2>새 글 작성</h2>
+            <p class="desc">선택된 카테고리에 글이 저장됩니다.</p>
+            <form id="postForm">
+                <div class="row">
+                    <div>
+                        <label for="postTitle">제목</label>
+                        <input id="postTitle" type="text" required />
+                    </div>
+                    <div>
+                        <label for="postAuthor">닉네임</label>
+                        <input id="postAuthor" type="text" placeholder="익명" />
+                    </div>
+                </div>
+                <div>
+                    <label for="postBody">내용</label>
+                    <textarea id="postBody" required placeholder="자유롭게 작성하세요"></textarea>
+                </div>
+                <div class="actions">
+                    <button class="primary" type="submit">글 저장</button>
+                    <button class="ghost" type="button" id="exportPosts">내보내기</button>
+                    <button class="ghost" type="button" id="importPosts">가져오기</button>
+                    <input id="postImportFile" type="file" accept="application/json" style="display:none" />
+                </div>
+                <div class="helper">브라우저에만 저장됩니다. 다른 기기와 공유되지 않습니다.</div>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>게시글</h2>
+            <p class="desc" id="postCount">0건</p>
+            <div class="post-list" id="postList"></div>
+        </div>
+    </section>
+
+    <script>
+        const CATEGORIES = ['매매일지', '자유게시판', '종목토론', '꿀팁공유'];
+        const STORAGE_KEY = 'symbol_posts_v1';
+
+        const boardTitle = document.getElementById('boardTitle');
+        const symbolInput = document.getElementById('symbolInput');
+        const goSymbol = document.getElementById('goSymbol');
+        const categoryTabs = document.getElementById('categoryTabs');
+        const postForm = document.getElementById('postForm');
+        const postList = document.getElementById('postList');
+        const postCount = document.getElementById('postCount');
+
+        let currentSymbol = 'AAPL';
+        let currentCategory = CATEGORIES[0];
+        let posts = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        let lwChart;
+        let lwSeries;
+
+        const TV_SYMBOL_OVERRIDES = {
+            KOSPI: 'TVC:KOSPI',
+            KOSDAQ: 'KRX:KQ11',
+            NASDAQ: 'NASDAQ:IXIC',
+            SP500: 'SP:SPX',
+            DOW: 'DJ:DJI',
+            AAPL: 'NASDAQ:AAPL'
+        };
+
+        function resolveTvSymbol(symbol) {
+            if (TV_SYMBOL_OVERRIDES[symbol]) return TV_SYMBOL_OVERRIDES[symbol];
+            if (/^[0-9]{6}$/.test(symbol)) return `KRX:${symbol}`;
+            return `NASDAQ:${symbol}`;
+        }
+
+        function symbolSeed(symbol) {
+            let hash = 0;
+            for (let i = 0; i < symbol.length; i++) {
+                hash = ((hash << 5) - hash) + symbol.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function generateLightweightData(symbol) {
+            const seed = symbolSeed(symbol);
+            let current = 20 + (seed % 500);
+            const points = [];
+            const now = new Date();
+            for (let i = 59; i >= 0; i--) {
+                const d = new Date(now);
+                d.setDate(now.getDate() - i);
+                current = Math.max(1, current * (1 + (Math.random() - 0.5) * 0.02));
+                points.push({ time: d.toISOString().slice(0, 10), value: Number(current.toFixed(2)) });
+            }
+            return points;
+        }
+
+        function initLightweightChart() {
+            const root = document.getElementById('lightweightChart');
+            if (!root || !window.LightweightCharts) return;
+            lwChart = LightweightCharts.createChart(root, {
+                width: root.clientWidth,
+                height: 300,
+                layout: {
+                    background: { color: '#ffffff' },
+                    textColor: '#334155'
+                },
+                grid: {
+                    vertLines: { color: '#f1f5f9' },
+                    horzLines: { color: '#f1f5f9' }
+                }
+            });
+
+            lwSeries = lwChart.addAreaSeries({
+                lineColor: '#2563eb',
+                topColor: 'rgba(37, 99, 235, 0.35)',
+                bottomColor: 'rgba(37, 99, 235, 0.06)',
+                lineWidth: 2
+            });
+
+            lwSeries.setData(generateLightweightData(currentSymbol));
+            window.addEventListener('resize', () => {
+                lwChart.applyOptions({ width: root.clientWidth });
+            });
+        }
+
+        function renderTradingViewWidget(symbol) {
+            const tvSymbol = resolveTvSymbol(symbol);
+            const root = document.getElementById('tradingviewWidgetContainer');
+            if (!root) return;
+            root.innerHTML = '';
+
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js';
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                symbols: [[tvSymbol + '|1D']],
+                chartOnly: false,
+                width: '100%',
+                height: 420,
+                locale: 'kr',
+                colorTheme: 'light',
+                autosize: true,
+                showVolume: false,
+                showMA: false,
+                hideDateRanges: false,
+                hideMarketStatus: false,
+                hideSymbolLogo: false,
+                scalePosition: 'right',
+                scaleMode: 'Normal',
+                fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Noto Sans, sans-serif',
+                fontSize: '10',
+                noTimeScale: false,
+                valuesTracking: '1',
+                changeMode: 'price-and-percent',
+                chartType: 'area',
+                lineWidth: 2
+            });
+            root.appendChild(script);
+            document.getElementById('tvSource').textContent = `출처: TradingView Widget · 심볼: ${tvSymbol}`;
+        }
+
+        function updateChartsForSymbol(symbol) {
+            document.getElementById('chartTitle').textContent = `${symbol} 차트`;
+            if (lwSeries) {
+                lwSeries.setData(generateLightweightData(symbol));
+            }
+            renderTradingViewWidget(symbol);
+        }
+
+        function setSymbol(symbol) {
+            currentSymbol = symbol.toUpperCase();
+            symbolInput.value = currentSymbol;
+            boardTitle.textContent = `${currentSymbol} 게시판`;
+            const url = new URL(window.location.href);
+            url.searchParams.set('symbol', currentSymbol);
+            history.replaceState({}, '', url.toString());
+            renderPosts();
+            updateChartsForSymbol(currentSymbol);
+        }
+
+        function setCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === category);
+            });
+            renderPosts();
+        }
+
+        function renderCategories() {
+            categoryTabs.innerHTML = '';
+            CATEGORIES.forEach(category => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'tab';
+                btn.dataset.category = category;
+                btn.textContent = category;
+                btn.addEventListener('click', () => setCategory(category));
+                categoryTabs.appendChild(btn);
+            });
+            setCategory(currentCategory);
+        }
+
+        function renderPosts() {
+            postList.innerHTML = '';
+            const filtered = posts.filter(p => p.symbol === currentSymbol && p.category === currentCategory);
+            postCount.textContent = `${filtered.length}건`;
+            if (filtered.length === 0) {
+                postList.innerHTML = '<div class="post"><p>아직 글이 없습니다.</p></div>';
+                return;
+            }
+            filtered.forEach((post, index) => {
+                const card = document.createElement('div');
+                card.className = 'post';
+                card.innerHTML = `
+                    <h3>${post.title}</h3>
+                    <div class="meta">${post.author || '익명'} · ${post.date}</div>
+                    <p>${post.body}</p>
+                    <div class="actions">
+                        <button class="ghost" data-index="${index}">삭제</button>
+                    </div>
+                `;
+                postList.appendChild(card);
+            });
+        }
+
+        function savePosts() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+        }
+
+        postForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const post = {
+                symbol: currentSymbol,
+                category: currentCategory,
+                title: document.getElementById('postTitle').value.trim(),
+                author: document.getElementById('postAuthor').value.trim(),
+                body: document.getElementById('postBody').value.trim(),
+                date: new Date().toLocaleString()
+            };
+            posts.unshift(post);
+            savePosts();
+            postForm.reset();
+            renderPosts();
+        });
+
+        postList.addEventListener('click', (event) => {
+            if (event.target.matches('button[data-index]')) {
+                const index = parseInt(event.target.dataset.index, 10);
+                const filtered = posts.filter(p => p.symbol === currentSymbol && p.category === currentCategory);
+                const postToRemove = filtered[index];
+                posts = posts.filter(p => p !== postToRemove);
+                savePosts();
+                renderPosts();
+            }
+        });
+
+        goSymbol.addEventListener('click', () => {
+            const symbol = symbolInput.value.trim();
+            if (!symbol) return;
+            setSymbol(symbol);
+        });
+
+        document.getElementById('exportPosts').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(posts, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'symbol-posts.json';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        });
+
+        document.getElementById('importPosts').addEventListener('click', () => {
+            document.getElementById('postImportFile').click();
+        });
+
+        document.getElementById('postImportFile').addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const imported = JSON.parse(reader.result);
+                    if (Array.isArray(imported)) {
+                        posts = imported;
+                        savePosts();
+                        renderPosts();
+                    }
+                } catch (err) {
+                    alert('불러오기 실패: JSON 형식을 확인하세요.');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        function initFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            const symbol = params.get('symbol');
+            if (symbol) {
+                setSymbol(symbol);
+            } else {
+                setSymbol(currentSymbol);
+            }
+        }
+
+        initLightweightChart();
+        renderCategories();
+        initFromQuery();
+    </script>
+</body>
+</html>
