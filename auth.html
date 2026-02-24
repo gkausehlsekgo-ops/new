@@ -57,7 +57,6 @@
             </div>
             <button id="resendBtn" class="ghost">인증 메일 다시 보내기</button>
             <button id="signOutBtn" class="ghost">로그아웃</button>
-            <button id="goSimulatorBtn">시뮬레이터로 이동</button>
             <div id="authStatus" class="status"></div>
             <div class="helper">회원가입 순서: 인증 코드 발송 → 코드 입력 → 회원가입 버튼</div>
             <div class="helper"><a href="./index.html">홈으로</a> · <a href="./contact.html">문의하기</a></div>
@@ -91,10 +90,12 @@
         }
 
         async function sendSignupCode(client, email) {
+            const redirectUrl = window.location.origin + window.location.pathname;
             return await client.auth.signInWithOtp({
                 email,
                 options: {
-                    shouldCreateUser: true
+                    shouldCreateUser: true,
+                    emailRedirectTo: redirectUrl
                 }
             });
         }
@@ -224,10 +225,6 @@
             }
             await client.auth.signOut();
             authStatus.textContent = '로그아웃 완료';
-        });
-
-        document.getElementById('goSimulatorBtn').addEventListener('click', () => {
-            location.href = './simulator.html';
         });
 
         (async () => {
