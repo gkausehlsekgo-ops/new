@@ -259,7 +259,7 @@
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
                 <a href="./journal.html">Journal</a>
-                <a href="./news.html">News</a>
+                <a href="./prop.html">Prop</a>
                 <a href="./advertise.html">Advertise</a>
                 <a href="./contact.html">Contact</a>
                 <a href="./auth.html">Login</a>
@@ -302,8 +302,14 @@
 
     <script>
         const NEWS_CACHE_KEY = 'economy_news_cache_v1';
-        const NEWS_CACHE_TTL_MS = 90 * 1000;
-        const NEWS_REFRESH_MS = 60 * 1000;
+        const NEWS_CACHE_TTL_MS = 5 * 60 * 1000;
+        const NEWS_REFRESH_MS = 4 * 60 * 1000;
+        const NEWS_REFRESH_COOLDOWN_MS = 45 * 1000;
+        const NEWS_FAIL_COUNT_KEY = 'economy_news_fail_count_v1';
+        const NEWS_NEXT_RETRY_AT_KEY = 'economy_news_next_retry_at_v1';
+        const NEWS_LAST_FETCH_AT_KEY = 'economy_news_last_fetch_at_v1';
+        const NEWS_MAX_BACKOFF_MS = 30 * 60 * 1000;
+        const NEWS_FETCH_TIMEOUT_MS = 10 * 1000;
 
         const FEEDS = [
             { source: 'Reuters Business', url: 'https://feeds.reuters.com/reuters/businessNews' },
@@ -359,6 +365,35 @@
             }
         }
 
+        function getFailCount() {
+            return Number(localStorage.getItem(NEWS_FAIL_COUNT_KEY) || '0');
+        }
+
+        function setFailCount(value) {
+            localStorage.setItem(NEWS_FAIL_COUNT_KEY, String(Math.max(0, Number(value) || 0)));
+        }
+
+        function getNextRetryAt() {
+            return Number(localStorage.getItem(NEWS_NEXT_RETRY_AT_KEY) || '0');
+        }
+
+        function setNextRetryAt(timestampMs) {
+            localStorage.setItem(NEWS_NEXT_RETRY_AT_KEY, String(Math.max(0, Number(timestampMs) || 0)));
+        }
+
+        function getLastFetchAt() {
+            return Number(localStorage.getItem(NEWS_LAST_FETCH_AT_KEY) || '0');
+        }
+
+        function setLastFetchAt(timestampMs) {
+            localStorage.setItem(NEWS_LAST_FETCH_AT_KEY, String(Math.max(0, Number(timestampMs) || 0)));
+        }
+
+        function isCacheFresh(cache) {
+            if (!cache?.updatedAt) return false;
+            return Date.now() - new Date(cache.updatedAt).getTime() < NEWS_CACHE_TTL_MS;
+        }
+
         function renderNews(items) {
             const list = document.getElementById('newsList');
             if (!list) return;
@@ -387,7 +422,10 @@
 
         async function fetchFeed(feed) {
             const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
-            const response = await fetch(proxied, { cache: 'no-store' });
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), NEWS_FETCH_TIMEOUT_MS);
+            const response = await fetch(proxied, { cache: 'no-store', signal: controller.signal });
+            clearTimeout(timeoutId);
             if (!response.ok) throw new Error(`${feed.source} HTTP ${response.status}`);
             const xml = await response.text();
             const doc = new DOMParser().parseFromString(xml, 'text/xml');
@@ -422,59 +460,90 @@
             const cache = readCache();
             const now = Date.now();
 
-            if (!force && cache && now - new Date(cache.updatedAt).getTime() < NEWS_CACHE_TTL_MS) {
+            if (cache?.items?.length) {
                 renderNews(cache.items);
-                
                 setUpdated(cache.updatedAt);
             }
 
-            const jobs = FEEDS.map((feed) => fetchFeed(feed));
-
-            try {
-                const firstBatch = await Promise.any(jobs.map((job) => job.then((items) => ({ items }))));
-                const firstNews = dedupeAndSort(firstBatch.items);
-                if (firstNews.length > 0) {
-                    renderNews(firstNews);
-                    
-                    setUpdated(new Date().toISOString());
-                }
-            } catch {
-                // wait for all settled below
+            if (!force && isCacheFresh(cache)) {
+                setStatus('Showing cached news (cache-first mode).');
+                return;
             }
 
-            const settled = await Promise.allSettled(jobs);
+            const nextRetryAt = getNextRetryAt();
+            if (!force && nextRetryAt > now) {
+                const waitSec = Math.ceil((nextRetryAt - now) / 1000);
+                setStatus(`Source protection mode: waiting ${waitSec}s before next fetch.`);
+                return;
+            }
+
+            const lastFetchAt = getLastFetchAt();
+            if (!force && now - lastFetchAt < NEWS_REFRESH_COOLDOWN_MS) {
+                const waitSec = Math.ceil((NEWS_REFRESH_COOLDOWN_MS - (now - lastFetchAt)) / 1000);
+                setStatus(`Refresh cooldown active (${waitSec}s).`);
+                return;
+            }
+
+            setLastFetchAt(now);
+            setStatus('Fetching latest feeds...');
+
             const merged = [];
-            settled.forEach((result) => {
-                if (result.status === 'fulfilled') merged.push(...result.value);
-            });
+            for (const feed of FEEDS) {
+                try {
+                    const items = await fetchFeed(feed);
+                    merged.push(...items);
+                } catch {
+                    // Continue with remaining feeds
+                }
+            }
 
             const finalNews = dedupeAndSort(merged);
             if (finalNews.length > 0) {
                 renderNews(finalNews);
                 writeCache(finalNews);
-                
+                setFailCount(0);
+                setNextRetryAt(0);
+                setStatus('Live feeds updated successfully.');
                 setUpdated(new Date().toISOString());
                 return;
             }
 
             if (cache?.items?.length) {
                 renderNews(cache.items);
-                setStatus('Live news fetch failed: showing cached items.');
+                const failCount = getFailCount() + 1;
+                setFailCount(failCount);
+                const backoff = Math.min(NEWS_MAX_BACKOFF_MS, 60 * 1000 * Math.pow(2, failCount));
+                const retryAt = Date.now() + backoff;
+                setNextRetryAt(retryAt);
+                setStatus(`Live fetch failed: showing cached items. Auto-retry in ${Math.ceil(backoff / 1000)}s.`);
                 setUpdated(cache.updatedAt);
             } else {
                 renderNews([]);
-                
+                const failCount = getFailCount() + 1;
+                setFailCount(failCount);
+                const backoff = Math.min(NEWS_MAX_BACKOFF_MS, 60 * 1000 * Math.pow(2, failCount));
+                setNextRetryAt(Date.now() + backoff);
+                setStatus(`No feed available right now. Backoff ${Math.ceil(backoff / 1000)}s.`);
                 setUpdated('-');
             }
         }
 
         document.getElementById('refreshNewsBtn').addEventListener('click', () => {
-            
+            const now = Date.now();
+            const lastFetchAt = getLastFetchAt();
+            if (now - lastFetchAt < NEWS_REFRESH_COOLDOWN_MS) {
+                const waitSec = Math.ceil((NEWS_REFRESH_COOLDOWN_MS - (now - lastFetchAt)) / 1000);
+                setStatus(`Please wait ${waitSec}s before refreshing again.`);
+                return;
+            }
             refreshNews({ force: true });
         });
 
         refreshNews();
-        setInterval(() => refreshNews(), NEWS_REFRESH_MS);
+        setInterval(() => {
+            if (document.visibilityState !== 'visible') return;
+            refreshNews();
+        }, NEWS_REFRESH_MS);
     </script>
     <script src="./analytics.js"></script>
     <script src="./legal-consent.js"></script>
