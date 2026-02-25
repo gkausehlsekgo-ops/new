@@ -169,7 +169,7 @@
 <body>
     <nav>
         <div class="container">
-            <div class="logo">?벍 Smart Investment Tips</div>
+            <div class="logo">💰 Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -185,35 +185,35 @@
     <section class="wrap">
         <div class="panel">
             <h1>Contact</h1>
-            <p class="desc">臾몄젣?ы빆 ?묒닔? 愿묎퀬/?묒뾽 臾몄쓽瑜?諛쏆뒿?덈떎.</p>
+            <p class="desc">Submit issues, questions, and advertising/business inquiries.</p>
 
-            <label for="contactType">臾몄쓽 ?좏삎</label>
+            <label for="contactType">Inquiry Type</label>
             <select id="contactType">
-                <option value="臾몄젣?ы빆">臾몄젣?ы빆</option>
-                <option value="愿묎퀬/?묒뾽 臾몄쓽">愿묎퀬/?묒뾽 臾몄쓽</option>
+                <option value="Issue / Question">Issue / Question</option>
+                <option value="Advertising / Business">Advertising / Business</option>
             </select>
 
-            <label for="contactEmail">?뚯떊 ?대찓??/label>
+            <label for="contactEmail">Reply Email</label>
             <input id="contactEmail" type="email" placeholder="you@example.com" />
 
-            <label for="contactTitle">?쒕ぉ</label>
-            <input id="contactTitle" type="text" placeholder="臾몄쓽 ?쒕ぉ" />
+            <label for="contactTitle">Subject</label>
+            <input id="contactTitle" type="text" placeholder="Inquiry subject" />
 
-            <label for="contactMessage">?댁슜</label>
-            <textarea id="contactMessage" placeholder="臾몄쓽 ?댁슜???먯꽭???곸뼱二쇱꽭??"></textarea>
+            <label for="contactMessage">Message</label>
+            <textarea id="contactMessage" placeholder="Please describe your inquiry in detail."></textarea>
 
             <div class="actions">
-                <button id="contactSubmitBtn" class="primary" type="button">臾몄쓽 ?묒닔</button>
-                <button id="contactClearBtn" class="ghost" type="button">??臾몄쓽 鍮꾩슦湲?/button>
+                <button id="contactSubmitBtn" class="primary" type="button">Submit Inquiry</button>
+                <button id="contactClearBtn" class="ghost" type="button">Clear Inquiry History</button>
             </div>
 
             <div id="contactStatus" class="status"></div>
-            <div class="helper">?꾩옱??釉뚮씪?곗? ???諛⑹떇?낅땲?? ?쒕쾭 ?곕룞 ??愿由ъ옄 硫붿씪/DB濡??뺤옣 媛?ν빀?덈떎.</div>
+            <div class="helper">For now, requests are stored in your browser. You can also forward submissions to admin email via FormSubmit.</div>
         </div>
 
         <div class="panel">
-            <h2 style=font-size:20px; margin-bottom:8px;>My Requests</h2>
-            <p class="desc">理쒓렐 ?묒닔??臾몄쓽瑜??뺤씤?????덉뒿?덈떎.</p>
+            <h2 style="font-size:20px; margin-bottom:8px;">My Requests</h2>
+            <p class="desc">Review your recently submitted inquiries.</p>
             <div id="requestList" class="request-list"></div>
         </div>
     </section>
@@ -277,16 +277,16 @@
             const items = loadRequests();
 
             if (items.length === 0) {
-                root.innerHTML = '<div class="helper">?꾩쭅 ?묒닔??臾몄쓽媛 ?놁뒿?덈떎.</div>';
+                root.innerHTML = '<div class="helper">No inquiries submitted yet.</div>';
                 return;
             }
 
             root.innerHTML = items.map((item) => `
                 <article class="request-item">
-                    <div class="meta">${item.type} 쨌 ${new Date(item.createdAt).toLocaleString()} 쨌 ${item.source || 'contact'}</div>
-                    <div style="font-weight:700; margin-bottom:4px;">${item.title || '(?쒕ぉ ?놁쓬)'}</div>
+                    <div class="meta">${item.type} · ${new Date(item.createdAt).toLocaleString()} · ${item.source || 'contact'}</div>
+                    <div style="font-weight:700; margin-bottom:4px;">${item.title || '(No subject)'}</div>
                     <div style="font-size:13px; color:#334155; margin-bottom:4px;">${item.message || ''}</div>
-                    <div class="meta">${item.email || '?대찓??誘몄엯??}</div>
+                    <div class="meta">${item.email || 'No email provided'}</div>
                 </article>
             `).join('');
         }
@@ -296,13 +296,13 @@
         const receiverWrap = document.createElement('div');
         receiverWrap.style.marginBottom = '12px';
         receiverWrap.innerHTML = `
-            <label for="receiverEmail">愿由ъ옄 ?섏떊 ?대찓??/label>
+            <label for="receiverEmail">Admin Receiver Email</label>
             <input id="receiverEmail" type="email" placeholder="owner@example.com" />
             <div class="actions" style="margin-top:8px;">
-                <button id="saveReceiverBtn" class="ghost" type="button">?섏떊 ?대찓?????/button>
-                <button id="testReceiverBtn" class="ghost" type="button">?뚯뒪??諛쒖넚</button>
+                <button id="saveReceiverBtn" class="ghost" type="button">Save Receiver Email</button>
+                <button id="testReceiverBtn" class="ghost" type="button">Send Test Email</button>
             </div>
-            <div class="helper" style="margin-top:6px;">臾몄쓽 ?묒닔 ???ш린????λ맂 ?대찓?쇰줈 ?꾩넚?⑸땲?? (泥?諛쒖넚 ??FormSubmit ?몄쬆 硫붿씪 ?뺤씤 ?꾩슂)</div>
+            <div class="helper" style="margin-top:6px;">Submitted inquiries will be emailed to this address. For first use, confirm FormSubmit verification email.</div>
         `;
         document.querySelector('.panel').insertBefore(receiverWrap, document.querySelector('.panel').children[2]);
 
@@ -312,30 +312,31 @@
         document.getElementById('saveReceiverBtn').addEventListener('click', () => {
             const email = receiverInput.value.trim();
             if (!email) {
-                
+                contactStatus.textContent = 'Please enter a receiver email first.';
                 return;
             }
             localStorage.setItem(EMAIL_RECEIVER_KEY, email);
-            
+            contactStatus.textContent = 'Receiver email saved.';
         });
 
         document.getElementById('testReceiverBtn').addEventListener('click', async () => {
             const email = receiverInput.value.trim();
             if (!email) {
-                
+                contactStatus.textContent = 'Please enter a receiver email first.';
                 return;
             }
             localStorage.setItem(EMAIL_RECEIVER_KEY, email);
-            
+
             const result = await sendInquiryEmail(email, {
-                type: '?뚯뒪??,
-                title: '臾몄쓽 硫붿씪 ?곕룞 ?뚯뒪??,
+                type: 'Test',
+                title: 'Contact Email Integration Test',
                 email,
                 source: 'contact.html',
-                message: 'If you received this email, the integration is working.'`n });
+                message: 'If you received this email, the integration is working.'
+            });
             contactStatus.textContent = result.ok
-                ? '?뚯뒪??硫붿씪 ?꾩넚 ?꾨즺 (泥?諛쒖넚?대㈃ 硫붿씪?⑥뿉???쒖꽦??留곹겕瑜??뺤씤?섏꽭??'
-                : '?뚯뒪??硫붿씪 ?꾩넚 ?ㅽ뙣: ?ㅽ듃?뚰겕 ?먮뒗 ?섏떊 ?대찓?쇱쓣 ?뺤씤?섏꽭??';
+                ? 'Test email sent. If this is your first send, check FormSubmit verification email.'
+                : 'Test email failed. Check network access and receiver email.';
         });
 
         document.getElementById('contactSubmitBtn').addEventListener('click', async () => {
@@ -346,7 +347,7 @@
             const receiverEmail = getReceiverEmail();
 
             if (!title || !message) {
-                
+                contactStatus.textContent = 'Please enter both subject and message.';
                 return;
             }
 
@@ -367,8 +368,8 @@
             const emailResult = await sendInquiryEmail(receiverEmail, payload);
 
             contactStatus.textContent = emailResult.ok
-                ? '臾몄쓽 ?묒닔 ?꾨즺: 愿由ъ옄 ?대찓?쇰줈 ?꾩넚?섏뿀?듬땲??'
-                : '臾몄쓽???묒닔?섏뿀怨?濡쒖뺄 ??λ릺?덉뒿?덈떎. (?대찓???꾩넚 ?ㅽ뙣: ?섏떊 ?대찓???ㅼ젙/?ㅽ듃?뚰겕 ?뺤씤)';
+                ? 'Inquiry submitted and sent to admin email.'
+                : 'Inquiry saved locally. Email sending failed (check receiver email/network).';
             document.getElementById('contactTitle').value = '';
             document.getElementById('contactMessage').value = '';
             renderRequests();
@@ -376,7 +377,7 @@
 
         document.getElementById('contactClearBtn').addEventListener('click', () => {
             localStorage.removeItem(STORAGE_KEY);
-            document.getElementById('contactStatus').textContent = '??臾몄쓽 ?댁뿭??鍮꾩썱?듬땲??';
+            document.getElementById('contactStatus').textContent = 'Inquiry history cleared.';
             renderRequests();
         });
 

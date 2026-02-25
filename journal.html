@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>매매일지 & 매매스타일 - Smart Investment Tips</title>
+    <title>Trading Journal & Style - Smart Investment Tips</title>
     <style>
         :root {
             --ink: #1f2933;
@@ -245,23 +245,23 @@
     <section class="hero">
         <div class="hero-card">
             <span class="badge">Local Only</span>
-            <h1>매매일지와 매매스타일 공유 공간</h1>
-            <p>나의 매매기록을 남기고, 나만의 매매 스타일을 정리해 보세요. 모든 데이터는 브라우저에만 저장됩니다.</p>
+            <h1>Trading Journal and Style Sharing</h1>
+            <p>Log your trades and organize your own trading style. All data is stored only in your browser.</p>
         </div>
     </section>
 
     <section class="content">
         <div class="panel">
-            <h2>종목 게시판 바로가기</h2>
-            <p class="desc">종목별 게시판(매매일지, 자유게시판, 종목토론, 꿀팁공유)으로 이동합니다.</p>
+            <h2>Go to Symbol Board</h2>
+            <p class="desc">Open each symbol board for journals, free posts, discussions, and tips.</p>
             <div class="grid-2">
                 <div>
-                    <label for="boardSymbolInput">종목/티커</label>
+                    <label for="boardSymbolInput">Symbol/Ticker</label>
                     <input id="boardSymbolInput" type="text" placeholder="AAPL, 005930" />
                 </div>
                 <div>
                     <label>&nbsp;</label>
-                    <button class="primary" type="button" id="boardOpenBtn">게시판 열기</button>
+                    <button class="primary" type="button" id="boardOpenBtn">Open Board</button>
                 </div>
             </div>
             <div class="actions" style="margin-top:12px;">
@@ -270,85 +270,85 @@
                 <button class="ghost" type="button" data-board-symbol="005930">005930</button>
                 <button class="ghost" type="button" data-board-symbol="035420">035420</button>
             </div>
-            <div class="helper">입력한 종목으로 종목 게시판 페이지가 열립니다.</div>
+            <div class="helper">The symbol board page opens with the symbol you entered.</div>
         </div>
 
         <div class="panel">
-            <h2>매매일지</h2>
-            <p class="desc">매매 기록을 체계적으로 남기고 성과를 확인하세요.</p>
+            <h2>Trading Journal</h2>
+            <p class="desc">Track your trades systematically and review performance.</p>
             <form id="tradeForm">
                 <div class="grid-2">
                     <div>
-                        <label for="tradeDate">날짜</label>
+                        <label for="tradeDate">Date</label>
                         <input id="tradeDate" type="date" required />
                     </div>
                     <div>
-                        <label for="tradeSymbol">종목/티커</label>
+                        <label for="tradeSymbol">Symbol/Ticker</label>
                         <input id="tradeSymbol" type="text" placeholder="AAPL, 005930" required />
                     </div>
                     <div>
-                        <label for="tradeSide">방향</label>
+                        <label for="tradeSide">Side</label>
                         <select id="tradeSide" required>
-                            <option value="buy">매수</option>
-                            <option value="sell">매도</option>
+                            <option value="buy">Buy</option>
+                            <option value="sell">Sell</option>
                         </select>
                     </div>
                     <div>
-                        <label for="tradeSize">수량</label>
+                        <label for="tradeSize">Size</label>
                         <input id="tradeSize" type="number" min="1" step="1" required />
                     </div>
                     <div>
-                        <label for="tradeEntry">진입가</label>
+                        <label for="tradeEntry">Entry</label>
                         <input id="tradeEntry" type="number" step="0.01" required />
                     </div>
                     <div>
-                        <label for="tradeExit">청산가</label>
+                        <label for="tradeExit">Exit</label>
                         <input id="tradeExit" type="number" step="0.01" required />
                     </div>
                     <div>
-                        <label for="tradeFee">수수료/슬리피지</label>
+                        <label for="tradeFee">Fees/Slippage</label>
                         <input id="tradeFee" type="number" step="0.01" value="0" />
                     </div>
                     <div>
-                        <label for="tradeTag">태그</label>
-                        <input id="tradeTag" type="text" placeholder="돌파, 눌림, 스캘핑" />
+                        <label for="tradeTag">Tag</label>
+                        <input id="tradeTag" type="text" placeholder="breakout, pullback, scalping" />
                     </div>
                 </div>
                 <div>
-                    <label for="tradeNote">메모</label>
-                    <textarea id="tradeNote" placeholder="진입 이유, 감정, 개선점"></textarea>
+                    <label for="tradeNote">Notes</label>
+                    <textarea id="tradeNote" placeholder="Entry reason, emotion, improvements"></textarea>
                 </div>
                 <div class="actions">
-                    <button class="primary" type="submit">기록 저장</button>
-                    <button class="ghost" type="button" id="exportTrades">내보내기</button>
-                    <button class="ghost" type="button" id="importTrades">가져오기</button>
+                    <button class="primary" type="submit">Save Trade</button>
+                    <button class="ghost" type="button" id="exportTrades">Export</button>
+                    <button class="ghost" type="button" id="importTrades">Import</button>
                     <input id="tradeImportFile" type="file" accept="application/json" style="display:none" />
-                    <button class="ghost" type="button" id="clearTrades">전체 삭제</button>
+                    <button class="ghost" type="button" id="clearTrades">Delete All</button>
                 </div>
-                <div class="helper">TIP: 기록은 브라우저에만 저장됩니다. 다른 기기와 공유되지 않습니다.</div>
+                <div class="helper">TIP: Records are stored only in this browser and are not shared across devices.</div>
             </form>
             <div style="margin-top:18px;">
                 <div class="grid-2">
                     <div>
-                        <label for="filterSymbol">심볼 필터</label>
-                        <input id="filterSymbol" type="text" placeholder="예: AAPL" />
+                        <label for="filterSymbol">Symbol Filter</label>
+                        <input id="filterSymbol" type="text" placeholder="e.g. AAPL" />
                     </div>
                     <div>
-                        <label for="filterTag">태그 필터</label>
-                        <input id="filterTag" type="text" placeholder="예: 돌파" />
+                        <label for="filterTag">Tag Filter</label>
+                        <input id="filterTag" type="text" placeholder="e.g. breakout" />
                     </div>
                 </div>
                 <table>
                     <thead>
                         <tr>
-                            <th>날짜</th>
-                            <th>종목</th>
-                            <th>방향</th>
-                            <th>진입</th>
-                            <th>청산</th>
-                            <th>수량</th>
-                            <th>손익</th>
-                            <th>메모</th>
+                            <th>Date</th>
+                            <th>Symbol</th>
+                            <th>Side</th>
+                            <th>Entry</th>
+                            <th>Exit</th>
+                            <th>Size</th>
+                            <th>PnL</th>
+                            <th>Notes</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -358,56 +358,56 @@
         </div>
 
         <div class="panel">
-            <h2>매매스타일 공유</h2>
-            <p class="desc">자기 스타일을 정리하고 공유용 카드로 저장하세요. (로컬 저장)</p>
+            <h2>Share Trading Style</h2>
+            <p class="desc">Organize your style and save it as a shareable card. (Stored locally)</p>
             <form id="styleForm">
                 <div class="grid-2">
                     <div>
-                        <label for="styleName">닉네임</label>
-                        <input id="styleName" type="text" placeholder="예: TraderKim" required />
+                        <label for="styleName">Nickname</label>
+                        <input id="styleName" type="text" placeholder="e.g. TraderKim" required />
                     </div>
                     <div>
-                        <label for="styleType">스타일</label>
+                        <label for="styleType">Style</label>
                         <select id="styleType" required>
-                            <option value="스윙">스윙</option>
-                            <option value="데이">데이</option>
-                            <option value="스캘핑">스캘핑</option>
-                            <option value="포지션">포지션</option>
-                            <option value="퀀트">퀀트</option>
-                            <option value="기타">기타</option>
+                            <option value="swing">Swing</option>
+                            <option value="day">Day</option>
+                            <option value="scalping">Scalping</option>
+                            <option value="position">Position</option>
+                            <option value="quant">Quant</option>
+                            <option value="other">Other</option>
                         </select>
                     </div>
                     <div>
-                        <label for="styleMarket">주력 시장</label>
+                        <label for="styleMarket">Main Market</label>
                         <input id="styleMarket" type="text" placeholder="KOSPI, US Stocks" required />
                     </div>
                     <div>
-                        <label for="styleTimeframe">타임프레임</label>
+                        <label for="styleTimeframe">Timeframe</label>
                         <input id="styleTimeframe" type="text" placeholder="5m / 1h / Day" required />
                     </div>
                     <div>
-                        <label for="styleRisk">1회 리스크(%)</label>
+                        <label for="styleRisk">Risk per Trade (%)</label>
                         <input id="styleRisk" type="number" step="0.1" placeholder="1.0" required />
                     </div>
                     <div>
-                        <label for="styleSetup">주요 셋업</label>
-                        <input id="styleSetup" type="text" placeholder="돌파, 눌림목" required />
+                        <label for="styleSetup">Primary Setup</label>
+                        <input id="styleSetup" type="text" placeholder="breakout, pullback" required />
                     </div>
                 </div>
                 <div>
-                    <label for="styleRules">핵심 룰</label>
-                    <textarea id="styleRules" placeholder="진입/손절/익절 기준"></textarea>
+                    <label for="styleRules">Core Rules</label>
+                    <textarea id="styleRules" placeholder="Entry / stop-loss / take-profit rules"></textarea>
                 </div>
                 <div>
-                    <label for="styleLesson">최근 배운 점</label>
-                    <textarea id="styleLesson" placeholder="실수/개선/루틴"></textarea>
+                    <label for="styleLesson">Recent Lesson</label>
+                    <textarea id="styleLesson" placeholder="Mistakes / improvements / routines"></textarea>
                 </div>
                 <div class="actions">
-                    <button class="primary" type="submit">스타일 카드 저장</button>
-                    <button class="ghost" type="button" id="exportStyles">내보내기</button>
-                    <button class="ghost" type="button" id="importStyles">가져오기</button>
+                    <button class="primary" type="submit">Save Style Card</button>
+                    <button class="ghost" type="button" id="exportStyles">Export</button>
+                    <button class="ghost" type="button" id="importStyles">Import</button>
                     <input id="styleImportFile" type="file" accept="application/json" style="display:none" />
-                    <button class="ghost" type="button" id="clearStyles">전체 삭제</button>
+                    <button class="ghost" type="button" id="clearStyles">Delete All</button>
                 </div>
             </form>
             <div class="cards" id="styleCards"></div>
@@ -453,7 +453,7 @@
             });
 
             if (filtered.length === 0) {
-                tradeTable.innerHTML = '<tr><td colspan="9" style="color: #6b7280;">기록이 없습니다.</td></tr>';
+                tradeTable.innerHTML = '<tr><td colspan="9" style="color: #6b7280;">No records yet.</td></tr>';
                 return;
             }
 
@@ -463,13 +463,13 @@
                 row.innerHTML = `
                     <td>${trade.date}</td>
                     <td>${trade.symbol}</td>
-                    <td>${trade.side === 'buy' ? '매수' : '매도'}</td>
+                    <td>${trade.side === 'buy' ? 'Buy' : 'Sell'}</td>
                     <td>${trade.entry.toFixed(2)}</td>
                     <td>${trade.exit.toFixed(2)}</td>
                     <td>${trade.size}</td>
                     <td class="${pnlClass}">${trade.pnl.toFixed(2)}</td>
                     <td>${trade.note || '-'}</td>
-                    <td><button class="ghost" data-index="${index}">삭제</button></td>
+                    <td><button class="ghost" data-index="${index}">Delete</button></td>
                 `;
                 tradeTable.appendChild(row);
             });
@@ -478,7 +478,7 @@
         function renderStyles() {
             styleCards.innerHTML = '';
             if (styles.length === 0) {
-                styleCards.innerHTML = '<div class="card"><p>아직 저장된 스타일이 없습니다.</p></div>';
+                styleCards.innerHTML = '<div class="card"><p>No style cards saved yet.</p></div>';
                 return;
             }
 
@@ -487,13 +487,13 @@
                 card.className = 'card';
                 card.innerHTML = `
                     <h3>${style.name} · ${style.type}</h3>
-                    <p>시장: ${style.market}</p>
-                    <p>타임프레임: ${style.timeframe}</p>
-                    <p>리스크: ${style.risk}%</p>
-                    <p>셋업: ${style.setup}</p>
-                    <p>룰: ${style.rules || '-'}</p>
-                    <p>배운 점: ${style.lesson || '-'}</p>
-                    <button class="ghost" data-style-index="${index}">삭제</button>
+                    <p>Market: ${style.market}</p>
+                    <p>Timeframe: ${style.timeframe}</p>
+                    <p>Risk: ${style.risk}%</p>
+                    <p>Setup: ${style.setup}</p>
+                    <p>Rules: ${style.rules || '-'}</p>
+                    <p>Lesson: ${style.lesson || '-'}</p>
+                    <button class="ghost" data-style-index="${index}">Delete</button>
                 `;
                 styleCards.appendChild(card);
             });
@@ -608,14 +608,14 @@
                         renderTrades();
                     }
                 } catch (err) {
-                    alert('불러오기 실패: JSON 형식을 확인하세요.');
+                    alert('Import failed: please check JSON format.');
                 }
             };
             reader.readAsText(file);
         });
 
         document.getElementById('clearTrades').addEventListener('click', () => {
-            if (!confirm('모든 매매일지를 삭제할까요?')) return;
+            if (!confirm('Delete all trade records?')) return;
             trades = [];
             saveTrades();
             renderTrades();
@@ -650,14 +650,14 @@
                         renderStyles();
                     }
                 } catch (err) {
-                    alert('불러오기 실패: JSON 형식을 확인하세요.');
+                    alert('Import failed: please check JSON format.');
                 }
             };
             reader.readAsText(file);
         });
 
         document.getElementById('clearStyles').addEventListener('click', () => {
-            if (!confirm('모든 스타일 카드를 삭제할까요?')) return;
+            if (!confirm('Delete all style cards?')) return;
             styles = [];
             saveStyles();
             renderStyles();
