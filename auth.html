@@ -51,27 +51,26 @@
         </div>
 
         <div class="card">
-            <label for="email">Email</label>
-            <input id="email" type="email" placeholder="you@example.com" />
+            <h1 style="font-size:22px; margin-bottom:8px;">Sign Up</h1>
+            <p>Create a new account with email verification.</p>
 
-            <label for="nickname">Nickname</label>
-            <input id="nickname" type="text" placeholder="Nickname (2-20 chars)" />
+            <label for="suEmail">Email</label>
+            <input id="suEmail" type="email" placeholder="you@example.com" />
 
-            <label for="birthDate">Date of Birth</label>
-            <input id="birthDate" type="date" />
+            <label for="suNickname">Nickname</label>
+            <input id="suNickname" type="text" placeholder="Nickname (2-20 chars)" />
 
-            <label for="password">Password</label>
-            <input id="password" type="password" placeholder="At least 8 characters" />
+            <label for="suBirthDate">Date of Birth</label>
+            <input id="suBirthDate" type="date" />
 
-            <label for="verifyCode">Verification Code</label>
-            <input id="verifyCode" type="text" placeholder="8-digit code from your email" />
+            <label for="suPassword">Password</label>
+            <input id="suPassword" type="password" placeholder="At least 8 characters" />
+
+            <label for="suVerifyCode">Verification Code</label>
+            <input id="suVerifyCode" type="text" placeholder="8-digit code from your email" />
 
             <button id="sendCodeBtn" class="ghost">Send Verification Code</button>
 
-            <div class="row">
-                <button id="signUpBtn">Verify Code & Sign Up</button>
-                <button id="signInBtn" class="ghost">Login</button>
-            </div>
             <div class="agree-wrap">
                 <label class="agree-row" for="agreeRequired" style="margin:0;">
                     <input id="agreeRequired" type="checkbox" />
@@ -82,10 +81,27 @@
                     <span>[Required] I agree to the <a href="./community-rules.html" target="_blank" rel="noopener">Community Rules</a> (no personal ads/sexual content; violations may result in a ban).</span>
                 </label>
             </div>
-            <button id="resendBtn" class="ghost">Resend Verification Email</button>
-            <div id="authStatus" class="status"></div>
+            <div class="row">
+                <button id="signUpBtn">Verify Code & Sign Up</button>
+                <button id="resendBtn" class="ghost">Resend Verification Email</button>
+            </div>
+            <div id="signUpStatus" class="status"></div>
             <div class="helper">Sign-up flow: send code → enter code → check required agreements → click sign-up.</div>
             <div class="helper">Only users aged 14 or older can sign up.</div>
+        </div>
+
+        <div class="card">
+            <h1 style="font-size:22px; margin-bottom:8px;">Login</h1>
+            <p>Use your existing account credentials.</p>
+
+            <label for="liEmail">Email</label>
+            <input id="liEmail" type="email" placeholder="you@example.com" />
+
+            <label for="liPassword">Password</label>
+            <input id="liPassword" type="password" placeholder="Your password" />
+
+            <button id="signInBtn" class="ghost">Login</button>
+            <div id="loginStatus" class="status"></div>
             <div class="helper"><a href="./index.html">Back to Home</a> · <a href="./contact.html">Contact</a></div>
         </div>
     </div>
@@ -94,7 +110,8 @@
         const urlInput = document.getElementById('supabaseUrl');
         const keyInput = document.getElementById('supabaseAnonKey');
         const configStatus = document.getElementById('configStatus');
-        const authStatus = document.getElementById('authStatus');
+        const signUpStatus = document.getElementById('signUpStatus');
+        const loginStatus = document.getElementById('loginStatus');
         const LOCAL_USERS_KEY = 'local_auth_users_v1';
         const LOCAL_SESSION_KEY = 'local_auth_session_v1';
 
@@ -150,75 +167,75 @@
 
         document.getElementById('sendCodeBtn').addEventListener('click', async () => {
             const client = getClient();
-            const email = document.getElementById('email').value.trim();
+            const email = document.getElementById('suEmail').value.trim();
 
             if (!email) {
-                authStatus.textContent = 'Please enter your email.';
+                signUpStatus.textContent = 'Please enter your email.';
                 return;
             }
 
             if (!client) {
-                authStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
+                signUpStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
                 return;
             }
 
             const { error } = await sendSignupCode(client, email);
-            authStatus.textContent = error ? ('Code send failed: ' + error.message) : 'Verification code sent. Please check your email.';
+            signUpStatus.textContent = error ? ('Code send failed: ' + error.message) : 'Verification code sent. Please check your email.';
         });
 
         document.getElementById('signUpBtn').addEventListener('click', async () => {
             const client = getClient();
-            const email = document.getElementById('email').value.trim();
-            const nickname = document.getElementById('nickname').value.trim();
-            const birthDate = document.getElementById('birthDate').value;
-            const password = document.getElementById('password').value;
-            const verifyCode = document.getElementById('verifyCode').value.trim();
+            const email = document.getElementById('suEmail').value.trim();
+            const nickname = document.getElementById('suNickname').value.trim();
+            const birthDate = document.getElementById('suBirthDate').value;
+            const password = document.getElementById('suPassword').value;
+            const verifyCode = document.getElementById('suVerifyCode').value.trim();
             const agreeRequired = document.getElementById('agreeRequired').checked;
             const agreeCommunity = document.getElementById('agreeCommunity').checked;
 
             if (!email || !password || !verifyCode) {
-                authStatus.textContent = 'Please enter email, password, and 8-digit verification code.';
+                signUpStatus.textContent = 'Please enter email, password, and 8-digit verification code.';
                 return;
             }
 
             if (!nickname || nickname.length < 2 || nickname.length > 20) {
-                authStatus.textContent = 'Nickname must be 2-20 characters.';
+                signUpStatus.textContent = 'Nickname must be 2-20 characters.';
                 return;
             }
 
             if (!birthDate) {
-                authStatus.textContent = 'Please enter your date of birth.';
+                signUpStatus.textContent = 'Please enter your date of birth.';
                 return;
             }
 
             const age = calculateAgeFromBirthDate(birthDate);
             if (!Number.isFinite(age) || age < 0) {
-                authStatus.textContent = 'Please enter a valid date of birth.';
+                signUpStatus.textContent = 'Please enter a valid date of birth.';
                 return;
             }
 
             if (age < 14) {
-                authStatus.textContent = 'Only users aged 14 or older can sign up.';
+                signUpStatus.textContent = 'Only users aged 14 or older can sign up.';
                 return;
             }
 
             if (!/^\d{8}$/.test(verifyCode)) {
-                authStatus.textContent = 'Verification code must be 8 digits.';
+                signUpStatus.textContent = 'Verification code must be 8 digits.';
                 return;
             }
 
             if (!agreeRequired) {
-                authStatus.textContent = 'You must agree to Privacy Policy and Terms to sign up.';
+                signUpStatus.textContent = 'You must agree to Privacy Policy and Terms to sign up.';
                 return;
             }
 
             if (!agreeCommunity) {
-                authStatus.textContent = 'You must agree to Community Rules to sign up.';
+                signUpStatus.textContent = 'You must agree to Community Rules to sign up.';
                 return;
             }
 
             if (!client) {
-                authStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
+                signUpStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
                 return;
             }
 
@@ -229,7 +246,7 @@
             });
 
             if (verifyError) {
-                authStatus.textContent = 'Code verification failed: ' + verifyError.message;
+                signUpStatus.textContent = 'Code verification failed: ' + verifyError.message;
                 return;
             }
 
@@ -246,12 +263,12 @@
                 }
             });
             if (updateError) {
-                authStatus.textContent = 'Sign-up finalization failed: ' + updateError.message;
+                signUpStatus.textContent = 'Sign-up finalization failed: ' + updateError.message;
                 return;
             }
 
             localStorage.setItem('profile_nickname', nickname);
-            authStatus.textContent = 'Sign-up complete. Redirecting to home...';
+            signUpStatus.textContent = 'Sign-up complete. Redirecting to home...';
             setTimeout(() => {
                 location.href = './index.html';
             }, 800);
@@ -259,11 +276,11 @@
 
         document.getElementById('signInBtn').addEventListener('click', async () => {
             const client = getClient();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
+            const email = document.getElementById('liEmail').value.trim();
+            const password = document.getElementById('liPassword').value;
 
             if (!email || !password) {
-                authStatus.textContent = 'Please enter email and password.';
+                loginStatus.textContent = 'Please enter email and password.';
                 return;
             }
 
@@ -271,17 +288,17 @@
                 const users = getLocalUsers();
                 const matched = users.find(u => u.email === email && u.password === password);
                 if (!matched) {
-                    authStatus.textContent = 'Local login failed: check email/password.';
+                    loginStatus.textContent = 'Local login failed: check email/password.';
                     return;
                 }
                 localStorage.setItem(LOCAL_SESSION_KEY, email);
-                authStatus.textContent = 'Local login successful (using without Supabase).';
+                loginStatus.textContent = 'Local login successful (using without Supabase).';
                 return;
             }
 
             const { data, error } = await client.auth.signInWithPassword({ email, password });
             if (error) {
-                authStatus.textContent = 'Login failed: ' + error.message;
+                loginStatus.textContent = 'Login failed: ' + error.message;
                 return;
             }
 
@@ -292,39 +309,39 @@
 
             if (!data?.user?.email_confirmed_at) {
                 await client.auth.signOut();
-                authStatus.textContent = 'Please verify your email before logging in.';
+                loginStatus.textContent = 'Please verify your email before logging in.';
                 return;
             }
 
-            authStatus.textContent = 'Login successful.';
+            loginStatus.textContent = 'Login successful.';
         });
 
         document.getElementById('resendBtn').addEventListener('click', async () => {
             const client = getClient();
             if (!client) {
-                authStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
+                signUpStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
                 return;
             }
-            const email = document.getElementById('email').value.trim();
-            if (!email) { authStatus.textContent = 'Please enter your email.'; return; }
+            const email = document.getElementById('suEmail').value.trim();
+            if (!email) { signUpStatus.textContent = 'Please enter your email.'; return; }
 
             const { error } = await sendSignupCode(client, email);
-            authStatus.textContent = error ? ('Code resend failed: ' + error.message) : 'Verification code resent.';
+            signUpStatus.textContent = error ? ('Code resend failed: ' + error.message) : 'Verification code resent.';
         });
 
         document.getElementById('signOutBtn')?.addEventListener('click', async () => {
             const client = getClient();
             if (!client) {
                 localStorage.removeItem(LOCAL_SESSION_KEY);
-                authStatus.textContent = 'Local logout complete.';
+                loginStatus.textContent = 'Local logout complete.';
                 return;
             }
             await client.auth.signOut();
-            authStatus.textContent = 'Logout complete.';
+            loginStatus.textContent = 'Logout complete.';
         });
 
         (async () => {
-            const birthDateInput = document.getElementById('birthDate');
+            const birthDateInput = document.getElementById('suBirthDate');
             if (birthDateInput) {
                 const today = new Date().toISOString().slice(0, 10);
                 birthDateInput.setAttribute('max', today);
@@ -334,9 +351,9 @@
             if (!client) {
                 const email = localStorage.getItem(LOCAL_SESSION_KEY);
                 if (email) {
-                    authStatus.textContent = 'Current local session: ' + email;
+                    loginStatus.textContent = 'Current local session: ' + email;
                 } else {
-                    authStatus.textContent = 'Local mode available: sign-up/login possible without Supabase URL.';
+                    loginStatus.textContent = 'Local mode available: sign-up/login possible without Supabase URL.';
                 }
                 return;
             }
@@ -344,9 +361,9 @@
             const { data } = await client.auth.getSession();
             if (data?.session?.user?.email) {
                 if (!data.session.user.email_confirmed_at) {
-                    authStatus.textContent = 'Current session is unverified. Please verify email and log in again.';
+                    loginStatus.textContent = 'Current session is unverified. Please verify email and log in again.';
                 } else {
-                    authStatus.textContent = 'Currently logged in: ' + data.session.user.email;
+                    loginStatus.textContent = 'Currently logged in: ' + data.session.user.email;
                 }
             }
         })();
