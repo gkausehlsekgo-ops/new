@@ -374,30 +374,47 @@
             flex-wrap: wrap;
         }
 
-        .dividend-sort-wrap {
+        .dividend-title-row {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .dividend-sort-buttons {
+            display: flex;
             gap: 8px;
-            margin: 6px 0 12px;
+            flex-wrap: wrap;
+        }
+
+        .dividend-sort-btn {
+            border: 1px solid #d7dce5;
+            background: #f8fafc;
+            color: #334155;
+            border-radius: 999px;
+            padding: 7px 12px;
             font-size: 12px;
             font-weight: 700;
-            opacity: 0.9;
+            cursor: pointer;
         }
 
-        .dividend-sort-wrap select {
-            border: 1px solid #d7dce5;
-            background: #fff;
-            color: #334155;
-            border-radius: 8px;
-            padding: 6px 8px;
-            font-size: 12px;
-            font-weight: 600;
+        .dividend-sort-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: #fff;
         }
 
-        body.dark-mode .dividend-sort-wrap select {
+        body.dark-mode .dividend-sort-btn {
             background: #20243a;
             color: #e2e8f0;
             border-color: #353b57;
+        }
+
+        body.dark-mode .dividend-sort-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: #fff;
         }
 
         .dividend-tab-btn {
@@ -781,19 +798,18 @@
             <div class="market-data-note" id="marketDataNote">Displayed data: loading...</div>
 
             <div class="dividend-section">
-                <h3>Dividend Stocks Category</h3>
-                <p style="font-size:13px; opacity:0.75; margin-top:8px;">Top 50 reference lists for dividend-paying stocks. Rankings are curated for screening use and may differ from real-time market rankings.</p>
+                <div class="dividend-title-row">
+                    <h3 style="margin:0;">Dividend Stocks Category</h3>
+                    <div class="dividend-sort-buttons">
+                        <button class="dividend-sort-btn active" id="sortMarketCapBtn" type="button" data-sort="market_cap_desc">Highest Market Cap</button>
+                        <button class="dividend-sort-btn" id="sortDividendAmountBtn" type="button" data-sort="dividend_amount_desc">Highest Dividend Amount</button>
+                        <button class="dividend-sort-btn" id="sortTurnoverBtn" type="button" data-sort="turnover_desc">Highest Turnover</button>
+                    </div>
+                </div>
+                <p id="dividendCriteriaText" style="font-size:13px; opacity:0.75; margin-top:8px;">이러한 기준으로 산출된 랭크입니다: Highest Market Cap.</p>
                 <div class="dividend-tabs">
                     <button class="dividend-tab-btn active" id="dividendWorldBtn" type="button">World Top 50</button>
                     <button class="dividend-tab-btn" id="dividendUsBtn" type="button">US Top 50</button>
-                </div>
-                <div class="dividend-sort-wrap">
-                    <label for="dividendSortSelect">Sort:</label>
-                    <select id="dividendSortSelect">
-                        <option value="yield_desc">Highest Dividend Yield</option>
-                        <option value="market_cap_desc">Highest Market Cap</option>
-                        <option value="price_asc">Lowest Price per Share</option>
-                    </select>
                 </div>
                 <ol class="dividend-list" id="dividendList"></ol>
                 <div class="dividend-refresh-note" id="dividendRefreshNote">Dividend list data: loading...</div>
@@ -980,7 +996,7 @@
 
         const DIVIDEND_PORTFOLIO_KEY = 'dividend_portfolio_v1';
         let currentDividendTab = 'world';
-        let currentDividendSort = 'yield_desc';
+        let currentDividendSort = 'market_cap_desc';
         let dividendQuoteCache = {};
         let dividendPortfolio = {};
 
@@ -1005,23 +1021,23 @@
             if (mode === 'market_cap_desc') {
                 return typeof quote.marketCap === 'number' ? quote.marketCap : -1;
             }
-            if (mode === 'price_asc') {
-                return typeof quote.price === 'number' ? quote.price : Number.POSITIVE_INFINITY;
+            if (mode === 'turnover_desc') {
+                return typeof quote.turnover === 'number' ? quote.turnover : -1;
             }
-            return typeof quote.dividendYield === 'number' ? quote.dividendYield : -1;
+            return typeof quote.dividendRate === 'number' ? quote.dividendRate : -1;
         }
 
         function getSortedDividendItems(items) {
             const list = [...items];
-            if (currentDividendSort === 'price_asc') {
-                list.sort((a, b) => getSortValue(a, 'price_asc') - getSortValue(b, 'price_asc'));
+            if (currentDividendSort === 'turnover_desc') {
+                list.sort((a, b) => getSortValue(b, 'turnover_desc') - getSortValue(a, 'turnover_desc'));
                 return list;
             }
             if (currentDividendSort === 'market_cap_desc') {
                 list.sort((a, b) => getSortValue(b, 'market_cap_desc') - getSortValue(a, 'market_cap_desc'));
                 return list;
             }
-            list.sort((a, b) => getSortValue(b, 'yield_desc') - getSortValue(a, 'yield_desc'));
+            list.sort((a, b) => getSortValue(b, 'dividend_amount_desc') - getSortValue(a, 'dividend_amount_desc'));
             return list;
         }
 
@@ -1049,7 +1065,10 @@
             const price = Number((base * (1 + wave)).toFixed(2));
             const changePercent = Number((wave * 100).toFixed(2));
             const dividendYield = Number((1.2 + (seed % 55) / 10).toFixed(2));
-            return { price, changePercent, dividendYield, source: 'fallback' };
+            const dividendRate = Number((price * (dividendYield / 100)).toFixed(2));
+            const turnover = Number((price * (100000 + (seed % 900000))).toFixed(0));
+            const marketCap = Number(((seed % 900) + 100) * 1_000_000_000);
+            return { price, changePercent, dividendYield, dividendRate, turnover, marketCap, source: 'fallback' };
         }
 
         async function updateDividendQuotes() {
@@ -1078,6 +1097,10 @@
                             price: Number(row.regularMarketPrice),
                             changePercent: typeof row.regularMarketChangePercent === 'number' ? Number(row.regularMarketChangePercent) : null,
                             dividendYield: typeof row.trailingAnnualDividendYield === 'number' ? Number((row.trailingAnnualDividendYield * 100).toFixed(2)) : null,
+                            dividendRate: typeof row.trailingAnnualDividendRate === 'number' ? Number(row.trailingAnnualDividendRate) : null,
+                            turnover: (typeof row.regularMarketVolume === 'number' && typeof row.regularMarketPrice === 'number')
+                                ? Number(row.regularMarketVolume) * Number(row.regularMarketPrice)
+                                : null,
                             marketCap: typeof row.marketCap === 'number' ? Number(row.marketCap) : null,
                             source: 'yahoo'
                         };
@@ -1096,8 +1119,33 @@
 
             const note = document.getElementById('dividendRefreshNote');
             if (note) {
-                note.textContent = `Dividend list data: ${successCount > 0 ? 'Yahoo delayed quotes + dividend yield' : 'fallback mode'} · received ${successCount}/${items.length}, fallback ${fallbackCount}`;
+                note.textContent = `Dividend list data: ${successCount > 0 ? 'Yahoo delayed quotes + market cap/dividend amount/turnover' : 'fallback mode'} · received ${successCount}/${items.length}, fallback ${fallbackCount}`;
             }
+        }
+
+        function formatCurrencyShort(value) {
+            if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return 'N/A';
+            if (value >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(2)}T`;
+            if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`;
+            if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+            return `$${value.toFixed(0)}`;
+        }
+
+        function updateDividendCriteriaLabel() {
+            const criteriaEl = document.getElementById('dividendCriteriaText');
+            if (!criteriaEl) return;
+            const map = {
+                market_cap_desc: 'Highest Market Cap',
+                dividend_amount_desc: 'Highest Dividend Amount',
+                turnover_desc: 'Highest Turnover'
+            };
+            criteriaEl.textContent = `이러한 기준으로 산출된 랭크입니다: ${map[currentDividendSort] || 'Highest Market Cap'}.`;
+        }
+
+        function syncDividendSortButtons() {
+            document.querySelectorAll('.dividend-sort-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.sort === currentDividendSort);
+            });
         }
 
         function normalizeSymbolForBoard(symbol) {
@@ -1118,8 +1166,9 @@
                 const changeText = quote && typeof quote.changePercent === 'number'
                     ? `${quote.changePercent >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%`
                     : 'N/A';
-                const yieldText = quote && typeof quote.dividendYield === 'number' ? `${quote.dividendYield.toFixed(2)}%` : 'N/A';
+                const dividendAmountText = quote && typeof quote.dividendRate === 'number' ? `$${quote.dividendRate.toFixed(2)}` : 'N/A';
                 const marketCapText = formatMarketCap(quote?.marketCap);
+                const turnoverText = formatCurrencyShort(quote?.turnover);
                 return `
                     <li class="dividend-item">
                         <div class="dividend-rank">Rank #${index + 1}</div>
@@ -1129,8 +1178,9 @@
                         <div class="dividend-live">
                             <span class="dividend-badge">Price ${priceText}</span>
                             <span class="dividend-badge">Change ${changeText}</span>
-                            <span class="dividend-badge">Yield ${yieldText}</span>
+                            <span class="dividend-badge">Dividend ${dividendAmountText}</span>
                             <span class="dividend-badge">Mkt Cap ${marketCapText}</span>
+                            <span class="dividend-badge">Turnover ${turnoverText}</span>
                         </div>
                         <div class="dividend-actions">
                             <input type="number" class="dividend-qty-input" data-symbol="${item.symbol}" data-name="${item.name}" min="1" step="1" value="1" />
@@ -1139,6 +1189,9 @@
                     </li>
                 `;
             }).join('');
+
+            updateDividendCriteriaLabel();
+            syncDividendSortButtons();
         }
 
         function renderDividendPortfolio() {
@@ -1252,13 +1305,20 @@
         }
 
         function bindDividendSort() {
-            const sortSelect = document.getElementById('dividendSortSelect');
-            if (!sortSelect) return;
-            sortSelect.value = currentDividendSort;
-            sortSelect.addEventListener('change', () => {
-                currentDividendSort = sortSelect.value;
-                renderDividendList(currentDividendTab);
+            const sortButtons = document.querySelectorAll('.dividend-sort-btn');
+            if (!sortButtons.length) return;
+            sortButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const sortKey = button.dataset.sort;
+                    if (!sortKey) return;
+                    currentDividendSort = sortKey;
+                    syncDividendSortButtons();
+                    updateDividendCriteriaLabel();
+                    renderDividendList(currentDividendTab);
+                });
             });
+            syncDividendSortButtons();
+            updateDividendCriteriaLabel();
         }
 
         const US_ECONOMIC_EVENTS = {
