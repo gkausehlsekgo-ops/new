@@ -78,13 +78,13 @@
                     </div>
 
                     <div style="display:grid; grid-template-columns:repeat(2, minmax(120px, 1fr)); gap:8px; margin-bottom:8px">
-                        <button id="marketBuyBtn" style="background:#d1fae5; border:1px solid #a7f3d0">시장가 매수</button>
-                        <button id="marketSellBtn" style="background:#fee2e2; border:1px solid #fecaca">시장가 매도</button>
-                        <button id="limitBuyBtn" style="background:#dbeafe; border:1px solid #bfdbfe">지정가 매수</button>
-                        <button id="limitSellBtn" style="background:#ede9fe; border:1px solid #ddd6fe">지정가 매도</button>
+                        <button id="marketBuyBtn" style="background:#d1fae5; border:1px solid #a7f3d0">Market Buy</button>
+                        <button id="marketSellBtn" style="background:#fee2e2; border:1px solid #fecaca">Market Sell</button>
+                        <button id="limitBuyBtn" style="background:#dbeafe; border:1px solid #bfdbfe">Limit Buy</button>
+                        <button id="limitSellBtn" style="background:#ede9fe; border:1px solid #ddd6fe">Limit Sell</button>
                     </div>
 
-                    <div class="small" style="margin-bottom:8px">지정가 주문은 현재가 조건 충족 시 즉시 체결됩니다.</div>
+                    <div class="small" style="margin-bottom:8px">Limit orders execute immediately when the current price meets your limit condition.</div>
 
                     <div style="display:flex; gap:8px; margin-top:6px">
                         <button id="resetBtn" style="background:#f8d7da; border:1px solid #f5c6cb">Reset Portfolio</button>
@@ -324,8 +324,8 @@
                 const hint = document.getElementById('quickTradeHint');
                 hint.style.display = 'block';
                 hint.textContent = autotrade
-                    ? `차트 퀵매매 자동실행 대기: ${symbol || '-'} / ${(side || '-').toUpperCase()} / 수량 ${qty || '-'}`
-                    : `차트 퀵매매 전달값 적용됨: ${symbol || '-'} / ${(side || '-').toUpperCase()} / 수량 ${qty || '-'}. 실행하려면 Execute Trade를 누르세요.`;
+                    ? `Chart quick trade auto-run pending: ${symbol || '-'} / ${(side || '-').toUpperCase()} / qty ${qty || '-'}`
+                    : `Chart quick trade payload applied: ${symbol || '-'} / ${(side || '-').toUpperCase()} / qty ${qty || '-'}. Press Execute Trade to run.`;
             }
 
             return { symbol, side, qty, autotrade };
@@ -343,17 +343,17 @@
                 await executeTrade('market', prefill.side || 'buy');
                 const hint = document.getElementById('quickTradeHint');
                 hint.style.display = 'block';
-                hint.textContent = `자동 가상매매 실행 완료: ${prefill.symbol} / ${prefill.side.toUpperCase()} / 수량 ${prefill.qty}`;
+                hint.textContent = `Auto virtual trade executed: ${prefill.symbol} / ${prefill.side.toUpperCase()} / qty ${prefill.qty}`;
             } catch (err) {
                 const hint = document.getElementById('quickTradeHint');
                 hint.style.display = 'block';
-                hint.textContent = '자동 가상매매 실행 실패: 수량/보유수량/현금 조건을 확인하세요.';
+                hint.textContent = 'Auto virtual trade failed: check qty/holdings/cash conditions.';
             }
         }
 
         async function executeTrade(orderType, side){
             if (!currentUser) {
-                alert('로그인이 필요합니다. auth.html에서 로그인하세요.');
+                alert('Login required. Please sign in at auth.html.');
                 return;
             }
             const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
@@ -366,16 +366,16 @@
             if (orderType === 'limit') {
                 const limit = parseFloat(document.getElementById('limitPriceInput').value);
                 if (!limit || limit <= 0) {
-                    alert('지정가 가격을 입력하세요.');
+                    alert('Enter a limit price.');
                     return;
                 }
 
                 if (side === 'buy' && currentPrice > limit) {
-                    alert(`미체결: 현재가($${format(currentPrice)})가 지정가($${format(limit)})보다 높습니다.`);
+                    alert(`Unfilled: current price ($${format(currentPrice)}) is above your limit price ($${format(limit)}).`);
                     return;
                 }
                 if (side === 'sell' && currentPrice < limit) {
-                    alert(`미체결: 현재가($${format(currentPrice)})가 지정가($${format(limit)})보다 낮습니다.`);
+                    alert(`Unfilled: current price ($${format(currentPrice)}) is below your limit price ($${format(limit)}).`);
                     return;
                 }
 
@@ -495,7 +495,7 @@
 
             const localEmail = localStorage.getItem(LOCAL_SESSION_KEY);
             if (!localEmail) {
-                authStatus.innerHTML = '로그인이 필요합니다. <a href="./auth.html">로그인/회원가입</a>';
+                authStatus.innerHTML = 'Login required. <a href="./auth.html">Login / Sign up</a>';
                 document.getElementById('tradeBtn').disabled = true;
                 return;
             }

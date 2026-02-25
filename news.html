@@ -184,7 +184,7 @@
 <body>
     <nav>
         <div class="container">
-            <div class="logo">?벐 Smart Investment Tips</div>
+            <div class="logo">💰 Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -207,10 +207,10 @@
     <section class="content">
         <div class="panel toolbar">
             <div>
-                <div id="newsStatus" class="status">?댁뒪 濡쒕뵫 以?..</div>
-                <div id="newsUpdated" class="helper">留덉?留?媛깆떊: -</div>
+                <div id="newsStatus" class="status">Loading news feed...</div>
+                <div id="newsUpdated" class="helper">Last updated: -</div>
             </div>
-            <button id="refreshNewsBtn" class="btn" type="button">?덈줈怨좎묠</button>
+            <button id="refreshNewsBtn" class="btn" type="button">Refresh</button>
         </div>
 
         <div class="panel">
@@ -221,7 +221,7 @@
                     <li>BBC Business RSS</li>
                     <li>Yahoo Finance News RSS</li>
                 </ul>
-                <div class="helper" style="margin-top:8px;">媛?湲곗궗 移대뱶??留ㅼ껜紐낆씠 ?④퍡 ?쒖떆?⑸땲?? ?쇰뱶 ?쒓났 吏?곗쑝濡?理쒖떊 湲곗궗 諛섏쁺 ?쒖젏???щ씪吏????덉뒿?덈떎.</div>
+                <div class="helper" style="margin-top:8px;">Each article card shows its source name. Depending on feed supply delays, the time when latest news appears may vary.</div>
             </div>
         </div>
 
@@ -294,14 +294,14 @@
             if (!list) return;
 
             if (!items.length) {
-                list.innerHTML = '<div class="helper">?쒖떆???댁뒪媛 ?놁뒿?덈떎.</div>';
+                list.innerHTML = '<div class="helper">No news items available.</div>';
                 return;
             }
 
             list.innerHTML = items.map((item) => `
                 <article class="news-item">
                     <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
-                    <div class="meta">${escapeHtml(item.source)} 쨌 ${formatTime(item.publishedAt)}</div>
+                    <div class="meta">${escapeHtml(item.source)} · ${formatTime(item.publishedAt)}</div>
                 </article>
             `).join('');
         }
@@ -380,7 +380,7 @@
 
             if (cache?.items?.length) {
                 renderNews(cache.items);
-                setStatus('?ㅼ떆媛??댁뒪 ?ㅽ뙣: 罹먯떆 ?쒖떆 以?);
+                setStatus('Live news fetch failed: showing cached items.');
                 setUpdated(cache.updatedAt);
             } else {
                 renderNews([]);

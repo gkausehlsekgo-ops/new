@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>종목 게시판 - Smart Investment Tips</title>
+    <title>Symbol Board - Smart Investment Tips</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         :root {
@@ -439,48 +439,48 @@
 
     <section class="hero">
         <div class="hero-card">
-            <h1 id="boardTitle">종목 게시판</h1>
-            <p>종목별로 매매일지와 자유게시판 글을 작성할 수 있어요. 모든 글은 브라우저에 저장됩니다.</p>
+            <h1 id="boardTitle">Symbol Board</h1>
+            <p>You can write posts for each symbol in Trading Journal and Free Board categories. All posts are stored in your browser.</p>
         </div>
     </section>
 
     <section class="content">
         <div class="panel" id="symbolPanel">
-            <h2>종목 선택</h2>
-            <p class="desc">종목을 입력하면 해당 종목 게시판으로 이동합니다.</p>
+            <h2>Select Symbol</h2>
+            <p class="desc">Enter a symbol to open its board.</p>
             <div class="row">
                 <div>
-                    <label for="symbolInput">종목/티커</label>
+                    <label for="symbolInput">Symbol/Ticker</label>
                     <input id="symbolInput" type="text" placeholder="AAPL, 005930" />
                 </div>
                 <div>
                     <label>&nbsp;</label>
-                    <button class="primary" id="goSymbol">게시판 열기</button>
+                    <button class="primary" id="goSymbol">Open Board</button>
                 </div>
             </div>
-            <div class="helper">예: AAPL, TSLA, 005930</div>
+            <div class="helper">Example: AAPL, TSLA, 005930</div>
         </div>
 
         <div class="panel" id="categoryPanel">
-            <h2>카테고리</h2>
-            <p class="desc">원하는 카테고리를 눌러 글을 작성하거나 확인하세요.</p>
+            <h2>Category</h2>
+            <p class="desc">Choose a category to write or view posts.</p>
             <div class="tabs" id="categoryTabs"></div>
-            <div class="helper">카테고리: 매매일지 · 자유게시판</div>
+            <div class="helper">Categories: Trading Journal · Free Board</div>
         </div>
 
         <div class="panel" id="chartPanel">
-            <h2 id="chartTitle">AAPL 차트</h2>
-            <p class="desc">종목 변경 시 차트가 자동으로 바뀝니다. 매매일지 작성 전에 가격 흐름을 참고하세요.</p>
+            <h2 id="chartTitle">AAPL Chart</h2>
+            <p class="desc">The chart updates automatically when the symbol changes. Review price flow before posting journal notes.</p>
 
             <div class="chart-wrap">
                 <div id="lightweightChart"></div>
             </div>
-            <div class="chart-meta" id="lightweightSource">출처: Lightweight Charts™ by TradingView (표시 데이터: 지연 시세 우선, 실패 시 데모값)</div>
+            <div class="chart-meta" id="lightweightSource">Source: Lightweight Charts™ by TradingView (display data: delayed quotes preferred, demo fallback on failure)</div>
             <div class="chart-meta" id="chartStatusMessage"></div>
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
-                <div class="helper" style="margin-top:0;">인기 지표 10종 (자체 계산): MA5 · MA20 · MA60 · EMA12 · EMA26 · VWAP · Bollinger Bands · RSI · MACD · Stochastic</div>
+                <div class="helper" style="margin-top:0;">Top 10 indicators (locally calculated): MA5 · MA20 · MA60 · EMA12 · EMA26 · VWAP · Bollinger Bands · RSI · MACD · Stochastic</div>
                 <div class="indicator-list" id="indicatorToggleList"></div>
             </div>
             <div class="indicator-values" id="indicatorValueBoard"></div>
@@ -503,48 +503,48 @@
 
         <div class="panel" id="simulatorPanel">
             <h2>Virtual Trading Simulator</h2>
-            <p class="desc">현재 차트 종목 기준으로 즉시 가상매매가 가능합니다. 별도 시뮬레이터 페이지 없이 여기서 실행됩니다.</p>
+            <p class="desc">You can run instant virtual trades on the current chart symbol, without moving to a separate simulator page.</p>
 
             <div class="sim-grid-mini">
                 <div class="sim-box">
-                    <div class="helper">현금 잔고</div>
+                    <div class="helper">Cash Balance</div>
                     <div class="sim-value" id="simCashDisplay">$100,000.00</div>
                 </div>
                 <div class="sim-box">
-                    <div class="helper">총 평가금액</div>
+                    <div class="helper">Total Portfolio Value</div>
                     <div class="sim-value" id="simPortfolioDisplay">$100,000.00</div>
                 </div>
                 <div class="sim-box">
-                    <div class="helper">현재가 (선택 종목)</div>
+                    <div class="helper">Current Price (Selected Symbol)</div>
                     <div class="sim-value" id="simCurrentPriceDisplay">$0.00</div>
                 </div>
                 <div class="sim-box">
-                    <div class="helper">포지션 손익 (+/-)</div>
+                    <div class="helper">Position P/L (+/-)</div>
                     <div class="sim-value" id="simPositionPnLDisplay">$0.00 (0.00%)</div>
                 </div>
             </div>
 
             <div class="row">
                 <div>
-                    <label for="simQtyInput">수량</label>
+                    <label for="simQtyInput">Quantity</label>
                     <input id="simQtyInput" type="number" min="1" placeholder="Qty" />
                 </div>
                 <div>
-                    <label for="simLimitInput">지정가</label>
+                    <label for="simLimitInput">Limit Price</label>
                     <input id="simLimitInput" type="number" min="0.01" step="0.01" placeholder="Limit Price" />
                 </div>
             </div>
 
             <div class="sim-controls">
-                <button id="simMarketBuyBtn" class="primary" type="button">시장가 매수</button>
-                <button id="simMarketSellBtn" class="ghost" type="button">시장가 매도</button>
-                <button id="simLimitBuyBtn" class="primary" type="button">지정가 매수</button>
-                <button id="simLimitSellBtn" class="ghost" type="button">지정가 매도</button>
-                <button id="simCloseAllBtn" class="ghost" type="button">모든 포지션 종료</button>
+                <button id="simMarketBuyBtn" class="primary" type="button">Market Buy</button>
+                <button id="simMarketSellBtn" class="ghost" type="button">Market Sell</button>
+                <button id="simLimitBuyBtn" class="primary" type="button">Limit Buy</button>
+                <button id="simLimitSellBtn" class="ghost" type="button">Limit Sell</button>
+                <button id="simCloseAllBtn" class="ghost" type="button">Close All Positions</button>
             </div>
-            <div class="helper" id="simTradeHint">주문은 현재 선택 종목에 대해 실행됩니다.</div>
+            <div class="helper" id="simTradeHint">Orders execute for the currently selected symbol.</div>
 
-            <h3 style="margin-top:14px; font-size:16px;">보유 종목</h3>
+            <h3 style="margin-top:14px; font-size:16px;">Holdings</h3>
             <div class="sim-table-wrap">
                 <table class="sim-table">
                     <thead><tr><th>Symbol</th><th>Qty</th><th>Avg</th><th>Current</th><th>P/L</th></tr></thead>
@@ -552,7 +552,7 @@
                 </table>
             </div>
 
-            <h3 style="margin-top:14px; font-size:16px;">체결 내역</h3>
+            <h3 style="margin-top:14px; font-size:16px;">Trade History</h3>
             <div class="sim-table-wrap">
                 <table class="sim-table">
                     <thead><tr><th>Date</th><th>Symbol</th><th>Side</th><th>Qty</th><th>Price</th></tr></thead>
@@ -562,43 +562,43 @@
         </div>
 
         <div class="panel" id="writePanel">
-            <h2>새 글 작성</h2>
-            <p class="desc">선택된 카테고리에 글이 저장됩니다.</p>
+            <h2>Write a New Post</h2>
+            <p class="desc">Posts are saved under the selected category.</p>
             <form id="postForm">
                 <div class="row">
                     <div>
-                        <label for="postTitle">제목</label>
+                        <label for="postTitle">Title</label>
                         <input id="postTitle" type="text" required />
                     </div>
                     <div>
-                        <label for="postAuthor">닉네임</label>
-                        <input id="postAuthor" type="text" placeholder="익명" />
+                        <label for="postAuthor">Nickname</label>
+                        <input id="postAuthor" type="text" placeholder="Anonymous" />
                     </div>
                 </div>
                 <div>
-                    <label for="postBody">내용</label>
-                    <textarea id="postBody" required placeholder="자유롭게 작성하세요"></textarea>
+                    <label for="postBody">Content</label>
+                    <textarea id="postBody" required placeholder="Write freely"></textarea>
                 </div>
                 <div class="actions">
-                    <button class="primary" type="submit">글 저장</button>
-                    <button class="ghost" type="button" id="exportPosts">내보내기</button>
-                    <button class="ghost" type="button" id="importPosts">가져오기</button>
+                    <button class="primary" type="submit">Save Post</button>
+                    <button class="ghost" type="button" id="exportPosts">Export</button>
+                    <button class="ghost" type="button" id="importPosts">Import</button>
                     <input id="postImportFile" type="file" accept="application/json" style="display:none" />
                 </div>
-                <div class="helper">자유게시판 운영정책: 개인 광고/연락처 유도/성적 발언 금지 · 반복 위반 시 게시 제한(밴)될 수 있습니다. <a href="./community-rules.html" target="_blank" rel="noopener">정책 보기</a></div>
-                <div class="helper">브라우저에만 저장됩니다. 다른 기기와 공유되지 않습니다.</div>
+                <div class="helper">Free Board policy: no personal ads, contact-channel solicitation, or sexual content. Repeated violations may lead to posting restrictions (ban). <a href="./community-rules.html" target="_blank" rel="noopener">View policy</a></div>
+                <div class="helper">Stored only in your browser. Not shared across devices.</div>
             </form>
         </div>
 
         <div class="panel" id="postsPanel">
-            <h2>게시글</h2>
-            <p class="desc" id="postCount">0건</p>
+            <h2>Posts</h2>
+            <p class="desc" id="postCount">0 posts</p>
             <div class="post-list" id="postList"></div>
         </div>
     </section>
 
     <script>
-        const CATEGORIES = ['매매일지', '자유게시판'];
+        const CATEGORIES = ['Trading Journal', 'Free Board'];
         const STORAGE_KEY = 'symbol_posts_v1';
 
         const boardTitle = document.getElementById('boardTitle');
@@ -825,7 +825,7 @@
                     currentFrame = opt.key;
                     renderFrameButtons();
                     const statusEl = document.getElementById('chartStatusMessage');
-                    if (statusEl) statusEl.textContent = '선택 프레임 데이터 로딩 중...';
+                    if (statusEl) statusEl.textContent = 'Loading selected timeframe data...';
                     await refreshHistoryForSymbols([currentSymbol]);
                     applyMainSeriesData(currentSymbol);
                 });
@@ -1218,7 +1218,7 @@
             const statusEl = document.getElementById('chartStatusMessage');
 
             if (!nextData.length) {
-                if (statusEl) statusEl.textContent = '차트 데이터 수신 실패: 지연 시세 응답이 없습니다. 네트워크/CORS 제한 또는 공급사 응답 지연일 수 있습니다.';
+                if (statusEl) statusEl.textContent = 'Failed to receive chart data: no delayed quote response. This may be due to network/CORS limits or provider latency.';
                 renderIndicators();
                 return;
             }
@@ -1446,7 +1446,7 @@
 
                 const source = document.getElementById('lightweightSource');
                 if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
-                    source.textContent = '출처: Lightweight Charts™ by TradingView (지연 히스토리 수신 실패 · 현재 지연시세만 표시 가능)';
+                    source.textContent = 'Source: Lightweight Charts™ by TradingView (delayed history unavailable · only current delayed quote shown)';
                 }
 
                 renderEntryPriceLine();
@@ -1495,7 +1495,7 @@
                 lineWidth: 2,
                 lineStyle: 2,
                 axisLabelVisible: true,
-                title: '평균 진입가'
+                title: 'Average Entry'
             });
         }
 
@@ -1538,7 +1538,7 @@
 
             lwSeries = createPrimarySeries(currentSymbol);
             if (!lwSeries) {
-                document.getElementById('lightweightSource').textContent = '차트 로딩 실패: Lightweight Charts 버전 호환 문제';
+                document.getElementById('lightweightSource').textContent = 'Chart load failed: Lightweight Charts version compatibility issue.';
                 return;
             }
 
@@ -1557,7 +1557,7 @@
         }
 
         function updateChartsForSymbol(symbol) {
-            document.getElementById('chartTitle').textContent = `${symbol} 차트`;
+            document.getElementById('chartTitle').textContent = `${symbol} Chart`;
             const targetSeriesType = 'candlestick';
             if (lwSeries && lwSeriesType !== targetSeriesType && lwChart.removeSeries) {
                 lwChart.removeSeries(lwSeries);
@@ -1567,7 +1567,7 @@
             if (lwSeries) applyMainSeriesData(symbol);
             const source = document.getElementById('lightweightSource');
             if (source) {
-                source.textContent = '출처: Lightweight Charts™ by TradingView (전 종목 캔들 모드, 지연 시세 우선)';
+                source.textContent = 'Source: Lightweight Charts™ by TradingView (candlestick mode for all symbols, delayed quotes preferred)';
             }
             renderEntryPriceLine();
             renderTradeMarkers();
@@ -1612,9 +1612,9 @@
             const hint = document.getElementById('simTradeHint');
 
             const delayed = delayedQuotes[currentSymbol];
-            const sourceText = delayed ? `지연시세 ${delayed.time.toLocaleTimeString()}` : '데모시세';
+            const sourceText = delayed ? `Delayed quote ${delayed.time.toLocaleTimeString()}` : 'Demo quote';
             const currentPrice = getCurrentDemoPrice(currentSymbol);
-            if (hint) hint.textContent = `주문 대상 종목: ${currentSymbol} · 현재가: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText}`;
+            if (hint) hint.textContent = `Order symbol: ${currentSymbol} · Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText}`;
             cashEl.textContent = '$' + format(simCash);
             if (currentPriceEl) currentPriceEl.textContent = currentPrice == null ? 'N/A' : '$' + format(currentPrice);
 
@@ -1673,28 +1673,28 @@
             const limit = parseFloat(document.getElementById('simLimitInput').value);
             const sym = currentSymbol;
             if (!qty || qty <= 0) {
-                alert('수량을 올바르게 입력하세요.');
+                alert('Enter a valid quantity.');
                 return;
             }
 
             const currentPrice = getCurrentDemoPrice(sym);
             if (currentPrice == null) {
-                alert('지연 시세를 아직 불러오지 못했습니다. 잠시 후 다시 시도하세요.');
+                alert('Delayed quote is not available yet. Please try again shortly.');
                 return;
             }
             let execPrice = currentPrice;
 
             if (orderType === 'limit') {
                 if (!limit || limit <= 0) {
-                    alert('지정가를 입력하세요.');
+                    alert('Enter a limit price.');
                     return;
                 }
                 if (side === 'buy' && currentPrice > limit) {
-                    alert(`미체결: 현재가($${format(currentPrice)}) > 지정가($${format(limit)})`);
+                    alert(`Unfilled: current price ($${format(currentPrice)}) > limit price ($${format(limit)})`);
                     return;
                 }
                 if (side === 'sell' && currentPrice < limit) {
-                    alert(`미체결: 현재가($${format(currentPrice)}) < 지정가($${format(limit)})`);
+                    alert(`Unfilled: current price ($${format(currentPrice)}) < limit price ($${format(limit)})`);
                     return;
                 }
                 execPrice = limit;
@@ -1703,7 +1703,7 @@
             if (side === 'buy') {
                 const cost = execPrice * qty;
                 if (cost > simCash) {
-                    alert('현금이 부족합니다.');
+                    alert('Insufficient cash.');
                     return;
                 }
                 simCash -= cost;
@@ -1715,7 +1715,7 @@
                 simTxs.unshift({ date: new Date().toLocaleString(), symbol: sym, side: `BUY-${orderType.toUpperCase()}`, qty, price: execPrice });
             } else {
                 if (!simPortfolio[sym] || simPortfolio[sym].qty < qty) {
-                    alert('보유 수량이 부족합니다.');
+                    alert('Insufficient holdings quantity.');
                     return;
                 }
                 simCash += execPrice * qty;
@@ -1735,7 +1735,7 @@
         async function closeAllPositions() {
             const symbols = Object.keys(simPortfolio);
             if (symbols.length === 0) {
-                alert('종료할 포지션이 없습니다.');
+                alert('There are no positions to close.');
                 return;
             }
 
@@ -1773,22 +1773,22 @@
             refreshRealtimeValuation();
 
             if (closedCount === 0) {
-                alert('현재 시세를 못 불러와 청산이 실행되지 않았습니다. 잠시 후 다시 시도하세요.');
+                alert('Close-out could not run because current quote data is unavailable. Please try again shortly.');
                 return;
             }
 
             if (skipped.length > 0) {
-                alert(`총 ${closedCount}개 포지션 종료 완료 (시세 미수신 ${skipped.length}개 제외)`);
+                alert(`${closedCount} positions closed (excluding ${skipped.length} symbols with unavailable quotes).`);
                 return;
             }
 
-            alert(`총 ${closedCount}개 포지션 종료 완료`);
+            alert(`${closedCount} positions closed successfully.`);
         }
 
         function setSymbol(symbol) {
             currentSymbol = normalizeSymbol(symbol);
             symbolInput.value = currentSymbol;
-            boardTitle.textContent = `${currentSymbol} 게시판`;
+            boardTitle.textContent = `${currentSymbol} Board`;
             const url = new URL(window.location.href);
             url.searchParams.set('symbol', currentSymbol);
             history.replaceState({}, '', url.toString());
@@ -1821,9 +1821,9 @@
         function renderPosts() {
             postList.innerHTML = '';
             const filtered = posts.filter(p => p.symbol === currentSymbol && p.category === currentCategory);
-            postCount.textContent = `${filtered.length}건`;
+            postCount.textContent = `${filtered.length} posts`;
             if (filtered.length === 0) {
-                postList.innerHTML = '<div class="post"><p>아직 글이 없습니다.</p></div>';
+                postList.innerHTML = '<div class="post"><p>No posts yet.</p></div>';
                 return;
             }
             filtered.forEach((post, index) => {
@@ -1831,10 +1831,10 @@
                 card.className = 'post';
                 card.innerHTML = `
                     <h3>${post.title}</h3>
-                    <div class="meta">${post.author || '익명'} · ${post.date}</div>
+                    <div class="meta">${post.author || 'Anonymous'} · ${post.date}</div>
                     <p>${post.body}</p>
                     <div class="actions">
-                        <button class="ghost" data-index="${index}">삭제</button>
+                        <button class="ghost" data-index="${index}">Delete</button>
                     </div>
                 `;
                 postList.appendChild(card);
@@ -1864,7 +1864,7 @@
         function normalizeCompactText(text) {
             return (text || '')
                 .toLowerCase()
-                .replace(/[^a-z0-9가-힣]/g, '')
+                .replace(/[^a-z0-9]/g, '')
                 .trim();
         }
 
@@ -1874,9 +1874,9 @@
             if (!lowered) return null;
 
             const adPatterns = [
-                /리딩\s*방|유료\s*방|회원\s*모집|투자\s*권유|홍보|광고|원금\s*보장|수익\s*보장|수익률\s*보장/,
-                /텔레그램|오픈채팅|카톡|카카오톡|line\s*id|디엠|dm\s*주세요|문의\s*주세요/,
-                /채널\s*문의|vip\s*방|픽\s*공유|고수익\s*인증|재테크\s*비법|재테크\s*상담/
+                /signal\s*room|paid\s*room|member\s*recruit|investment\s*solicitation|promotion|advertisement|principal\s*guarantee|profit\s*guarantee/,
+                /telegram|open\s*chat|kakao|line\s*id|dm\s*me|contact\s*me/,
+                /vip\s*room|pick\s*sharing|high\s*return\s*proof|investment\s*secret|investment\s*consulting/
             ];
 
             const contactPatterns = [
@@ -1890,59 +1890,59 @@
             ];
 
             const sexualPatterns = [
-                /야\s*동|성\s*인\s*방\s*송|벗\s*방|몸\s*캠|조건\s*만남|성\s*매\s*매|19\s*금|노\s*출|자\s*위/,
-                /원나잇|ㅅㅅ|섹\s*스|성\s*관\s*계/
+                /porn|adult\s*stream|nude\s*chat|escort|sex\s*trade|explicit|one\s*night/,
+                /sexual\s*content|sexual\s*act/
             ];
 
             const abusePatterns = [
-                /병\s*신|미\s*친|개\s*새\s*끼|좆|씨\s*발|시\s*발|꺼\s*져|죽\s*어|죽\s*여/,
-                /장애\s*비하|인종\s*비하|여성\s*비하|남성\s*비하|혐오/
+                /idiot|moron|stupid|fuck\s*off|die|kill\s*yourself/,
+                /racist|sexist|hate\s*speech|slur/
             ];
 
             const illegalPatterns = [
-                /마\s*약|대\s*마|필\s*로\s*폰|코\s*카\s*인|불\s*법\s*도\s*박|토\s*토|사\s*설\s*토\s*토/,
-                /불\s*법\s*복\s*제|해\s*킹|계\s*정\s*거\s*래|대\s*포\s*통\s*장/
+                /drug|marijuana|meth|cocaine|illegal\s*gambling|betting\s*site/,
+                /piracy|hacking|account\s*trading|fraud/
             ];
 
             const scamPatterns = [
-                /원금\s*보장|무\s*조\s*건\s*수\s*익|수익\s*확\s*정|100\s*%\s*수익|고\s*수\s*익\s*보\s*장/,
-                /선\s*입\s*금|입\s*금\s*유\s*도|환\s*불\s*불\s*가|대\s*리\s*투\s*자/
+                /principal\s*guarantee|guaranteed\s*profit|100\s*%\s*profit|high\s*return\s*guarantee/,
+                /advance\s*payment|deposit\s*inducement|no\s*refund|proxy\s*investment/
             ];
 
             const compactBlockedWords = [
-                '리딩방', '유료방', '오픈채팅', '텔레그램', '카카오톡', '원금보장', '수익보장',
-                '조건만남', '몸캠', '성매매', '야동', '병신', '개새끼', '마약', '불법도박'
+                'signalroom', 'paidroom', 'openchat', 'telegram', 'kakao', 'principalguarantee', 'profitguarantee',
+                'escort', 'explicit', 'prostitution', 'porn', 'idiot', 'moron', 'drug', 'illegalgambling'
             ];
 
             const urlCount = (lowered.match(/https?:\/\//g) || []).length;
             if (urlCount >= 2) {
-                return '외부 링크 과다 포함(스팸성)';
+                return 'Too many external links (spam-like)';
             }
 
             if (/(.)\1{9,}/.test(lowered)) {
-                return '도배성 반복 문자';
+                return 'Repeated spam characters';
             }
 
             if (adPatterns.some(regex => regex.test(lowered))) {
-                return '개인 광고/홍보 또는 외부 유도성 문구';
+                return 'Personal advertising/promotion or external solicitation';
             }
             if (contactPatterns.some(regex => regex.test(lowered))) {
-                return '연락처/외부 채널 유도 문구';
+                return 'Contact info or external channel solicitation';
             }
             if (sexualPatterns.some(regex => regex.test(lowered))) {
-                return '성적·음란성 문구';
+                return 'Sexual/explicit content';
             }
             if (abusePatterns.some(regex => regex.test(lowered))) {
-                return '욕설·혐오·폭력성 문구';
+                return 'Abusive/hateful/violent language';
             }
             if (illegalPatterns.some(regex => regex.test(lowered))) {
-                return '불법 행위 관련 문구';
+                return 'Illegal activity related content';
             }
             if (scamPatterns.some(regex => regex.test(lowered))) {
-                return '사기성/과장 수익 유도 문구';
+                return 'Scam-like / exaggerated profit claim';
             }
             if (compactBlockedWords.some(word => compact.includes(word))) {
-                return '금지된 우회 표현';
+                return 'Blocked evasive expression';
             }
             return null;
         }
@@ -1977,7 +1977,7 @@
             event.preventDefault();
             const blockedUntil = checkPostingBan();
             if (blockedUntil) {
-                alert(`운영정책 위반 누적으로 게시가 제한되었습니다. 해제 시각: ${blockedUntil.toLocaleString()}`);
+                alert(`Posting is restricted due to repeated policy violations. Unban time: ${blockedUntil.toLocaleString()}`);
                 return;
             }
 
@@ -1986,16 +1986,16 @@
             const body = document.getElementById('postBody').value.trim();
             const moderationTarget = `${title}\n${author}\n${body}`;
 
-            if (currentCategory === '자유게시판') {
+            if (currentCategory === 'Free Board') {
                 const violation = checkCommunityViolation(moderationTarget);
                 if (violation) {
                     const state = registerViolation(violation);
                     if (state.bannedUntil && Date.now() < Number(state.bannedUntil)) {
-                        alert(`금지된 내용(${violation})이 감지되어 게시가 차단되었습니다. 반복 위반으로 24시간 게시 제한이 적용됩니다.`);
+                        alert(`Blocked content detected (${violation}). Posting is blocked and a 24-hour restriction has been applied due to repeated violations.`);
                         return;
                     }
                     const remain = MODERATION_MAX_STRIKES - Number(state.strikes || 0);
-                    alert(`금지된 내용(${violation})이 감지되어 게시가 차단되었습니다. 반복 시 게시 제한(밴)될 수 있습니다. 남은 경고: ${remain}`);
+                    alert(`Blocked content detected (${violation}). Posting was blocked. Repeated violations may lead to a ban. Remaining warnings: ${remain}`);
                     return;
                 }
             }
@@ -2060,7 +2060,7 @@
                         renderPosts();
                     }
                 } catch (err) {
-                    alert('불러오기 실패: JSON 형식을 확인하세요.');
+                    alert('Import failed: please check JSON format.');
                 }
             };
             reader.readAsText(file);
