@@ -82,7 +82,7 @@
             margin: 24px auto 80px;
             padding: 0 20px;
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 240px minmax(0, 1fr) 360px;
             gap: 20px;
         }
 
@@ -221,7 +221,7 @@
 
         #lightweightChart {
             width: 100%;
-            height: 300px;
+            height: 280px;
         }
 
         .chart-meta {
@@ -286,8 +286,8 @@
 
         .indicator-values {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 8px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 6px;
             margin-top: 10px;
         }
 
@@ -314,13 +314,13 @@
 
         .subchart-canvas {
             width: 100%;
-            height: 130px;
+            height: 96px;
         }
 
         .indicator-value-card {
             border: 1px solid var(--line);
             border-radius: 10px;
-            padding: 8px;
+            padding: 6px;
             background: #fff;
         }
 
@@ -330,7 +330,7 @@
         }
 
         .indicator-value-card .val {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 700;
         }
 
@@ -436,18 +436,29 @@
         .positive { color: #16a34a; }
         .negative { color: #dc2626; }
 
-        #chartPanel,
-        #simulatorPanel,
         #symbolPanel {
             grid-column: 1 / -1;
         }
 
         #chartPanel { order: 1; }
-        #simulatorPanel { order: 2; }
+        #chartPanel { grid-column: 2; }
+        #simulatorPanel { order: 2; grid-column: 3; align-self: start; }
         #categoryPanel { order: 3; grid-column: 1; }
-        #writePanel { order: 4; grid-column: 2; }
-        #postsPanel { order: 5; grid-column: 2; }
+        #writePanel { order: 4; grid-column: 2 / -1; }
+        #postsPanel { order: 5; grid-column: 2 / -1; }
         #symbolPanel { order: 6; }
+
+        @media (max-width: 1180px) {
+            .content {
+                grid-template-columns: 240px 1fr;
+            }
+            #chartPanel,
+            #simulatorPanel,
+            #writePanel,
+            #postsPanel {
+                grid-column: 2;
+            }
+        }
 
         @media (max-width: 720px) {
             nav .container { padding: 1rem; }
