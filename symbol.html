@@ -1579,17 +1579,30 @@
             return localStorage.getItem('local_auth_session_v1') || 'guest';
         }
 
+        function isPersistentSimSession() {
+            return getSimSessionKey() !== 'guest';
+        }
+
         function getSimStorageKey(suffix) {
             return `merged_sim_v1_${getSimSessionKey()}_${suffix}`;
         }
 
         function loadSimState() {
+            if (!isPersistentSimSession()) {
+                simCash = SIM_INITIAL_CASH;
+                simPortfolio = {};
+                simTxs = [];
+                return;
+            }
             simCash = parseFloat(localStorage.getItem(getSimStorageKey('cash'))) || SIM_INITIAL_CASH;
             simPortfolio = JSON.parse(localStorage.getItem(getSimStorageKey('portfolio')) || '{}');
             simTxs = JSON.parse(localStorage.getItem(getSimStorageKey('tx')) || '[]');
         }
 
         function saveSimState() {
+            if (!isPersistentSimSession()) {
+                return;
+            }
             localStorage.setItem(getSimStorageKey('cash'), String(simCash));
             localStorage.setItem(getSimStorageKey('portfolio'), JSON.stringify(simPortfolio));
             localStorage.setItem(getSimStorageKey('tx'), JSON.stringify(simTxs));
@@ -1614,7 +1627,12 @@
             const delayed = delayedQuotes[currentSymbol];
             const sourceText = delayed ? `Delayed quote ${delayed.time.toLocaleTimeString()}` : 'Demo quote';
             const currentPrice = getCurrentDemoPrice(currentSymbol);
-            if (hint) hint.textContent = `Order symbol: ${currentSymbol} · Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText}`;
+            if (hint) {
+                const persistenceText = isPersistentSimSession()
+                    ? 'Logged-in mode: balance and trades are saved.'
+                    : 'Guest mode: trading is available, but balance changes are not saved.';
+                hint.textContent = `Order symbol: ${currentSymbol} · Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText} · ${persistenceText}`;
+            }
             cashEl.textContent = '$' + format(simCash);
             if (currentPriceEl) currentPriceEl.textContent = currentPrice == null ? 'N/A' : '$' + format(currentPrice);
 
