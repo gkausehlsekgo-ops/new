@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="ko">
+﻿<!DOCTYPE html>
+<html lang=en>
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>문의하기 - Smart Investment Tips</title>
+    <title>Contact - prop challenge lab</title>
     <style>
         :root {
             --ink: #0f172a;
@@ -158,11 +158,18 @@
             nav .container { padding: 1rem; }
         }
     </style>
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "vmylxac7pb");
+</script>
 </head>
 <body>
     <nav>
         <div class="container">
-            <div class="logo">📮 Smart Investment Tips</div>
+            <div class="logo">?벍 Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -177,36 +184,36 @@
 
     <section class="wrap">
         <div class="panel">
-            <h1>문의하기</h1>
-            <p class="desc">문제사항 접수와 광고/협업 문의를 받습니다.</p>
+            <h1>Contact</h1>
+            <p class="desc">臾몄젣?ы빆 ?묒닔? 愿묎퀬/?묒뾽 臾몄쓽瑜?諛쏆뒿?덈떎.</p>
 
-            <label for="contactType">문의 유형</label>
+            <label for="contactType">臾몄쓽 ?좏삎</label>
             <select id="contactType">
-                <option value="문제사항">문제사항</option>
-                <option value="광고/협업 문의">광고/협업 문의</option>
+                <option value="臾몄젣?ы빆">臾몄젣?ы빆</option>
+                <option value="愿묎퀬/?묒뾽 臾몄쓽">愿묎퀬/?묒뾽 臾몄쓽</option>
             </select>
 
-            <label for="contactEmail">회신 이메일</label>
+            <label for="contactEmail">?뚯떊 ?대찓??/label>
             <input id="contactEmail" type="email" placeholder="you@example.com" />
 
-            <label for="contactTitle">제목</label>
-            <input id="contactTitle" type="text" placeholder="문의 제목" />
+            <label for="contactTitle">?쒕ぉ</label>
+            <input id="contactTitle" type="text" placeholder="臾몄쓽 ?쒕ぉ" />
 
-            <label for="contactMessage">내용</label>
-            <textarea id="contactMessage" placeholder="문의 내용을 자세히 적어주세요."></textarea>
+            <label for="contactMessage">?댁슜</label>
+            <textarea id="contactMessage" placeholder="臾몄쓽 ?댁슜???먯꽭???곸뼱二쇱꽭??"></textarea>
 
             <div class="actions">
-                <button id="contactSubmitBtn" class="primary" type="button">문의 접수</button>
-                <button id="contactClearBtn" class="ghost" type="button">내 문의 비우기</button>
+                <button id="contactSubmitBtn" class="primary" type="button">臾몄쓽 ?묒닔</button>
+                <button id="contactClearBtn" class="ghost" type="button">??臾몄쓽 鍮꾩슦湲?/button>
             </div>
 
             <div id="contactStatus" class="status"></div>
-            <div class="helper">현재는 브라우저 저장 방식입니다. 서버 연동 시 관리자 메일/DB로 확장 가능합니다.</div>
+            <div class="helper">?꾩옱??釉뚮씪?곗? ???諛⑹떇?낅땲?? ?쒕쾭 ?곕룞 ??愿由ъ옄 硫붿씪/DB濡??뺤옣 媛?ν빀?덈떎.</div>
         </div>
 
         <div class="panel">
-            <h2 style="font-size:20px; margin-bottom:8px;">내 문의 내역</h2>
-            <p class="desc">최근 접수된 문의를 확인할 수 있습니다.</p>
+            <h2 style=font-size:20px; margin-bottom:8px;>My Requests</h2>
+            <p class="desc">理쒓렐 ?묒닔??臾몄쓽瑜??뺤씤?????덉뒿?덈떎.</p>
             <div id="requestList" class="request-list"></div>
         </div>
     </section>
@@ -230,14 +237,14 @@
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        _subject: `[Smart Investment Tips] ${payload.type} - ${payload.title || '문의'}`,
+                        _subject: `Type: ${payload.type}`,      
                         name: 'Website Contact',
                         email: payload.email || receiverEmail,
                         message: [
-                            `문의유형: ${payload.type}`,
-                            `제목: ${payload.title || '(제목 없음)'}`,
-                            `회신이메일: ${payload.email || '(미입력)'}`,
-                            `소스: ${payload.source || 'contact.html'}`,
+                            `Type: ${payload.type}`,   
+                            `Subject: ${payload.title || '(no subject)'}`,   
+                            `Reply Email: ${payload.email || '(no email provided)'}`,   
+                            `Source: ${payload.source || 'contact.html'}`,   
                             '',
                             payload.message || ''
                         ].join('\n'),
@@ -270,16 +277,16 @@
             const items = loadRequests();
 
             if (items.length === 0) {
-                root.innerHTML = '<div class="helper">아직 접수된 문의가 없습니다.</div>';
+                root.innerHTML = '<div class="helper">?꾩쭅 ?묒닔??臾몄쓽媛 ?놁뒿?덈떎.</div>';
                 return;
             }
 
             root.innerHTML = items.map((item) => `
                 <article class="request-item">
-                    <div class="meta">${item.type} · ${new Date(item.createdAt).toLocaleString()} · ${item.source || 'contact'}</div>
-                    <div style="font-weight:700; margin-bottom:4px;">${item.title || '(제목 없음)'}</div>
+                    <div class="meta">${item.type} 쨌 ${new Date(item.createdAt).toLocaleString()} 쨌 ${item.source || 'contact'}</div>
+                    <div style="font-weight:700; margin-bottom:4px;">${item.title || '(?쒕ぉ ?놁쓬)'}</div>
                     <div style="font-size:13px; color:#334155; margin-bottom:4px;">${item.message || ''}</div>
-                    <div class="meta">${item.email || '이메일 미입력'}</div>
+                    <div class="meta">${item.email || '?대찓??誘몄엯??}</div>
                 </article>
             `).join('');
         }
@@ -289,13 +296,13 @@
         const receiverWrap = document.createElement('div');
         receiverWrap.style.marginBottom = '12px';
         receiverWrap.innerHTML = `
-            <label for="receiverEmail">관리자 수신 이메일</label>
+            <label for="receiverEmail">愿由ъ옄 ?섏떊 ?대찓??/label>
             <input id="receiverEmail" type="email" placeholder="owner@example.com" />
             <div class="actions" style="margin-top:8px;">
-                <button id="saveReceiverBtn" class="ghost" type="button">수신 이메일 저장</button>
-                <button id="testReceiverBtn" class="ghost" type="button">테스트 발송</button>
+                <button id="saveReceiverBtn" class="ghost" type="button">?섏떊 ?대찓?????/button>
+                <button id="testReceiverBtn" class="ghost" type="button">?뚯뒪??諛쒖넚</button>
             </div>
-            <div class="helper" style="margin-top:6px;">문의 접수 시 여기에 저장된 이메일로 전송됩니다. (첫 발송 시 FormSubmit 인증 메일 확인 필요)</div>
+            <div class="helper" style="margin-top:6px;">臾몄쓽 ?묒닔 ???ш린????λ맂 ?대찓?쇰줈 ?꾩넚?⑸땲?? (泥?諛쒖넚 ??FormSubmit ?몄쬆 硫붿씪 ?뺤씤 ?꾩슂)</div>
         `;
         document.querySelector('.panel').insertBefore(receiverWrap, document.querySelector('.panel').children[2]);
 
@@ -305,31 +312,30 @@
         document.getElementById('saveReceiverBtn').addEventListener('click', () => {
             const email = receiverInput.value.trim();
             if (!email) {
-                contactStatus.textContent = '관리자 수신 이메일을 입력하세요.';
+                
                 return;
             }
             localStorage.setItem(EMAIL_RECEIVER_KEY, email);
-            contactStatus.textContent = '수신 이메일 저장 완료';
+            
         });
 
         document.getElementById('testReceiverBtn').addEventListener('click', async () => {
             const email = receiverInput.value.trim();
             if (!email) {
-                contactStatus.textContent = '먼저 수신 이메일을 입력하세요.';
+                
                 return;
             }
             localStorage.setItem(EMAIL_RECEIVER_KEY, email);
-            contactStatus.textContent = '테스트 메일 전송 중...';
+            
             const result = await sendInquiryEmail(email, {
-                type: '테스트',
-                title: '문의 메일 연동 테스트',
+                type: '?뚯뒪??,
+                title: '臾몄쓽 硫붿씪 ?곕룞 ?뚯뒪??,
                 email,
                 source: 'contact.html',
-                message: '이 메일이 도착하면 문의 메일 연동이 정상입니다.'
-            });
+                message: 'If you received this email, the integration is working.'`n });
             contactStatus.textContent = result.ok
-                ? '테스트 메일 전송 완료 (첫 발송이면 메일함에서 활성화 링크를 확인하세요)'
-                : '테스트 메일 전송 실패: 네트워크 또는 수신 이메일을 확인하세요.';
+                ? '?뚯뒪??硫붿씪 ?꾩넚 ?꾨즺 (泥?諛쒖넚?대㈃ 硫붿씪?⑥뿉???쒖꽦??留곹겕瑜??뺤씤?섏꽭??'
+                : '?뚯뒪??硫붿씪 ?꾩넚 ?ㅽ뙣: ?ㅽ듃?뚰겕 ?먮뒗 ?섏떊 ?대찓?쇱쓣 ?뺤씤?섏꽭??';
         });
 
         document.getElementById('contactSubmitBtn').addEventListener('click', async () => {
@@ -340,11 +346,11 @@
             const receiverEmail = getReceiverEmail();
 
             if (!title || !message) {
-                contactStatus.textContent = '제목과 내용을 입력해주세요.';
+                
                 return;
             }
 
-            contactStatus.textContent = '문의 접수 중...';
+            
 
             const next = loadRequests();
             const payload = {
@@ -361,8 +367,8 @@
             const emailResult = await sendInquiryEmail(receiverEmail, payload);
 
             contactStatus.textContent = emailResult.ok
-                ? '문의 접수 완료: 관리자 이메일로 전송되었습니다.'
-                : '문의는 접수되었고 로컬 저장되었습니다. (이메일 전송 실패: 수신 이메일 설정/네트워크 확인)';
+                ? '臾몄쓽 ?묒닔 ?꾨즺: 愿由ъ옄 ?대찓?쇰줈 ?꾩넚?섏뿀?듬땲??'
+                : '臾몄쓽???묒닔?섏뿀怨?濡쒖뺄 ??λ릺?덉뒿?덈떎. (?대찓???꾩넚 ?ㅽ뙣: ?섏떊 ?대찓???ㅼ젙/?ㅽ듃?뚰겕 ?뺤씤)';
             document.getElementById('contactTitle').value = '';
             document.getElementById('contactMessage').value = '';
             renderRequests();
@@ -370,7 +376,7 @@
 
         document.getElementById('contactClearBtn').addEventListener('click', () => {
             localStorage.removeItem(STORAGE_KEY);
-            document.getElementById('contactStatus').textContent = '내 문의 내역을 비웠습니다.';
+            document.getElementById('contactStatus').textContent = '??臾몄쓽 ?댁뿭??鍮꾩썱?듬땲??';
             renderRequests();
         });
 
@@ -381,3 +387,6 @@
     <script src="./assistant-widget.js"></script>
 </body>
 </html>
+
+
+

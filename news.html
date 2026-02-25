@@ -1,9 +1,9 @@
-<!DOCTYPE html>
-<html lang="ko">
+﻿<!DOCTYPE html>
+<html lang=en>
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>경제 뉴스 - Smart Investment Tips</title>
+    <title>News - prop challenge lab</title>
     <style>
         :root {
             --ink: #0f172a;
@@ -173,11 +173,18 @@
             .hero-card { padding: 20px; }
         }
     </style>
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "vmylxac7pb");
+</script>
 </head>
 <body>
     <nav>
         <div class="container">
-            <div class="logo">📰 Smart Investment Tips</div>
+            <div class="logo">?벐 Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -192,29 +199,29 @@
 
     <section class="hero">
         <div class="hero-card">
-            <h1>실시간 경제 뉴스</h1>
-            <p>무료 RSS API를 병렬로 불러와서 빠르게 보여줍니다. 우선 캐시를 즉시 표시하고, 최신 뉴스는 백그라운드로 갱신됩니다.</p>
+            <h1>Real-time Economic News</h1>
+            <p>We load free RSS feeds in parallel for faster display. Cached items appear first, and the latest news updates in the background.</p>
         </div>
     </section>
 
     <section class="content">
         <div class="panel toolbar">
             <div>
-                <div id="newsStatus" class="status">뉴스 로딩 중...</div>
-                <div id="newsUpdated" class="helper">마지막 갱신: -</div>
+                <div id="newsStatus" class="status">?댁뒪 濡쒕뵫 以?..</div>
+                <div id="newsUpdated" class="helper">留덉?留?媛깆떊: -</div>
             </div>
-            <button id="refreshNewsBtn" class="btn" type="button">새로고침</button>
+            <button id="refreshNewsBtn" class="btn" type="button">?덈줈怨좎묠</button>
         </div>
 
         <div class="panel">
             <div class="source-box">
-                <h3>뉴스 출처</h3>
+                <h3>News Sources</h3>
                 <ul>
                     <li>Reuters Business RSS</li>
                     <li>BBC Business RSS</li>
                     <li>Yahoo Finance News RSS</li>
                 </ul>
-                <div class="helper" style="margin-top:8px;">각 기사 카드에 매체명이 함께 표시됩니다. 피드 제공 지연으로 최신 기사 반영 시점이 달라질 수 있습니다.</div>
+                <div class="helper" style="margin-top:8px;">媛?湲곗궗 移대뱶??留ㅼ껜紐낆씠 ?④퍡 ?쒖떆?⑸땲?? ?쇰뱶 ?쒓났 吏?곗쑝濡?理쒖떊 湲곗궗 諛섏쁺 ?쒖젏???щ씪吏????덉뒿?덈떎.</div>
             </div>
         </div>
 
@@ -256,7 +263,7 @@
 
         function setUpdated(dateLike) {
             const updated = document.getElementById('newsUpdated');
-            if (updated) updated.textContent = `마지막 갱신: ${formatTime(dateLike)}`;
+            if (updated) updated.textContent = `Last updated: ${formatTime(dateLike)}`;
         }
 
         function readCache() {
@@ -287,14 +294,14 @@
             if (!list) return;
 
             if (!items.length) {
-                list.innerHTML = '<div class="helper">표시할 뉴스가 없습니다.</div>';
+                list.innerHTML = '<div class="helper">?쒖떆???댁뒪媛 ?놁뒿?덈떎.</div>';
                 return;
             }
 
             list.innerHTML = items.map((item) => `
                 <article class="news-item">
                     <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
-                    <div class="meta">${escapeHtml(item.source)} · ${formatTime(item.publishedAt)}</div>
+                    <div class="meta">${escapeHtml(item.source)} 쨌 ${formatTime(item.publishedAt)}</div>
                 </article>
             `).join('');
         }
@@ -308,8 +315,8 @@
             const nodes = Array.from(doc.querySelectorAll('item')).slice(0, 15);
 
             return nodes.map((node) => {
-                const title = node.querySelector('title')?.textContent?.trim() || '제목 없음';
-                const link = node.querySelector('link')?.textContent?.trim() || '#';
+                const title = node.querySelector('title')?.textContent?.trim() || 'Untitled';
+                const link = node.querySelector('link')?.textContent?.trim() || 'Untitled';
                 const pubDate = node.querySelector('pubDate')?.textContent?.trim() || new Date().toISOString();
                 return {
                     title,
@@ -338,7 +345,7 @@
 
             if (!force && cache && now - new Date(cache.updatedAt).getTime() < NEWS_CACHE_TTL_MS) {
                 renderNews(cache.items);
-                setStatus('캐시 뉴스 표시 중 (백그라운드 갱신 대기)');
+                
                 setUpdated(cache.updatedAt);
             }
 
@@ -349,7 +356,7 @@
                 const firstNews = dedupeAndSort(firstBatch.items);
                 if (firstNews.length > 0) {
                     renderNews(firstNews);
-                    setStatus('초기 뉴스 빠른 표시 완료');
+                    
                     setUpdated(new Date().toISOString());
                 }
             } catch {
@@ -366,24 +373,24 @@
             if (finalNews.length > 0) {
                 renderNews(finalNews);
                 writeCache(finalNews);
-                setStatus('최신 경제 뉴스 갱신 완료');
+                
                 setUpdated(new Date().toISOString());
                 return;
             }
 
             if (cache?.items?.length) {
                 renderNews(cache.items);
-                setStatus('실시간 뉴스 실패: 캐시 표시 중');
+                setStatus('?ㅼ떆媛??댁뒪 ?ㅽ뙣: 罹먯떆 ?쒖떆 以?);
                 setUpdated(cache.updatedAt);
             } else {
                 renderNews([]);
-                setStatus('뉴스를 불러오지 못했습니다. 잠시 후 다시 시도하세요.');
+                
                 setUpdated('-');
             }
         }
 
         document.getElementById('refreshNewsBtn').addEventListener('click', () => {
-            setStatus('뉴스 새로고침 중...');
+            
             refreshNews({ force: true });
         });
 
@@ -395,3 +402,6 @@
     <script src="./assistant-widget.js"></script>
 </body>
 </html>
+
+
+
