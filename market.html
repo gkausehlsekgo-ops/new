@@ -353,6 +353,100 @@
             font-size: 12px;
             opacity: 0.7;
         }
+
+        .dividend-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        body.dark-mode .dividend-section {
+            background: #1a1a2e;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .dividend-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 14px 0;
+            flex-wrap: wrap;
+        }
+
+        .dividend-tab-btn {
+            border: 1px solid #d7dce5;
+            background: #f8fafc;
+            color: #334155;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .dividend-tab-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: #fff;
+        }
+
+        body.dark-mode .dividend-tab-btn {
+            background: #20243a;
+            color: #e2e8f0;
+            border-color: #353b57;
+        }
+
+        body.dark-mode .dividend-tab-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: #fff;
+        }
+
+        .dividend-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 10px;
+        }
+
+        .dividend-item {
+            border: 1px solid #e8ecf1;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #fff;
+        }
+
+        body.dark-mode .dividend-item {
+            background: #171a2d;
+            border-color: #2f3348;
+        }
+
+        .dividend-rank {
+            font-size: 12px;
+            color: #667085;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .dividend-symbol {
+            font-size: 14px;
+            font-weight: 800;
+            color: #667eea;
+        }
+
+        .dividend-name {
+            font-size: 13px;
+            margin: 4px 0 6px;
+            font-weight: 600;
+        }
+
+        .dividend-meta {
+            font-size: 12px;
+            opacity: 0.75;
+        }
         
         .info-box {
             background: #e7f3ff;
@@ -540,6 +634,17 @@
                 </div>
             </div>
             <div class="market-data-note" id="marketDataNote">Displayed data: loading...</div>
+
+            <div class="dividend-section">
+                <h3>Dividend Stocks Category</h3>
+                <p style="font-size:13px; opacity:0.75; margin-top:8px;">Top 50 reference lists for dividend-paying stocks. Rankings are curated for screening use and may differ from real-time market rankings.</p>
+                <div class="dividend-tabs">
+                    <button class="dividend-tab-btn active" id="dividendWorldBtn" type="button">World Top 50</button>
+                    <button class="dividend-tab-btn" id="dividendUsBtn" type="button">US Top 50</button>
+                </div>
+                <ol class="dividend-list" id="dividendList"></ol>
+                <div class="calendar-note" style="margin-top:12px;">Note: Always verify dividends, payout dates, and tax rules on official filings before investing.</div>
+            </div>
             
             <div class="calendar-section">
                 <h3>🗓️ Monthly Calendar for Key U.S. Economic Indicators</h3>
@@ -591,6 +696,153 @@
             dow: 'DOW',
             aapl: 'AAPL'
         };
+
+        const DIVIDEND_TOP50_WORLD = [
+            { symbol: 'NESN.SW', name: 'Nestlé', region: 'Switzerland' },
+            { symbol: 'NOVO-B.CO', name: 'Novo Nordisk', region: 'Denmark' },
+            { symbol: 'ASML.AS', name: 'ASML Holding', region: 'Netherlands' },
+            { symbol: 'ROG.SW', name: 'Roche Holding', region: 'Switzerland' },
+            { symbol: 'SHEL', name: 'Shell', region: 'UK' },
+            { symbol: 'TTE', name: 'TotalEnergies', region: 'France' },
+            { symbol: 'UL', name: 'Unilever', region: 'UK' },
+            { symbol: 'BP', name: 'BP', region: 'UK' },
+            { symbol: 'BHP', name: 'BHP Group', region: 'Australia' },
+            { symbol: 'RIO', name: 'Rio Tinto', region: 'UK/Australia' },
+            { symbol: 'ENB', name: 'Enbridge', region: 'Canada' },
+            { symbol: 'TD', name: 'Toronto-Dominion Bank', region: 'Canada' },
+            { symbol: 'RY', name: 'Royal Bank of Canada', region: 'Canada' },
+            { symbol: 'BNS', name: 'Bank of Nova Scotia', region: 'Canada' },
+            { symbol: 'CM', name: 'CIBC', region: 'Canada' },
+            { symbol: 'SU', name: 'Suncor Energy', region: 'Canada' },
+            { symbol: 'BBVA', name: 'Banco Bilbao Vizcaya Argentaria', region: 'Spain' },
+            { symbol: 'SAN', name: 'Banco Santander', region: 'Spain' },
+            { symbol: 'IBE.MC', name: 'Iberdrola', region: 'Spain' },
+            { symbol: 'ENEL.MI', name: 'Enel', region: 'Italy' },
+            { symbol: 'ISP.MI', name: 'Intesa Sanpaolo', region: 'Italy' },
+            { symbol: 'UCG.MI', name: 'UniCredit', region: 'Italy' },
+            { symbol: 'AIR.PA', name: 'Air Liquide', region: 'France' },
+            { symbol: 'MC.PA', name: 'LVMH', region: 'France' },
+            { symbol: 'BN.PA', name: 'Danone', region: 'France' },
+            { symbol: 'DG.PA', name: 'Vinci', region: 'France' },
+            { symbol: 'ORA.PA', name: 'Orange', region: 'France' },
+            { symbol: 'RWE.DE', name: 'RWE', region: 'Germany' },
+            { symbol: 'ALV.DE', name: 'Allianz', region: 'Germany' },
+            { symbol: 'DTE.DE', name: 'Deutsche Telekom', region: 'Germany' },
+            { symbol: 'BAS.DE', name: 'BASF', region: 'Germany' },
+            { symbol: 'SIE.DE', name: 'Siemens', region: 'Germany' },
+            { symbol: 'BMW.DE', name: 'BMW', region: 'Germany' },
+            { symbol: 'VOW3.DE', name: 'Volkswagen Pref', region: 'Germany' },
+            { symbol: '7203.T', name: 'Toyota Motor', region: 'Japan' },
+            { symbol: '9432.T', name: 'NTT', region: 'Japan' },
+            { symbol: '8306.T', name: 'Mitsubishi UFJ Financial', region: 'Japan' },
+            { symbol: '8058.T', name: 'Mitsubishi Corp', region: 'Japan' },
+            { symbol: '9983.T', name: 'Fast Retailing', region: 'Japan' },
+            { symbol: '005930.KS', name: 'Samsung Electronics', region: 'Korea' },
+            { symbol: '000660.KS', name: 'SK hynix', region: 'Korea' },
+            { symbol: '035420.KS', name: 'NAVER', region: 'Korea' },
+            { symbol: '051910.KS', name: 'LG Chem', region: 'Korea' },
+            { symbol: '078930.KS', name: 'GS Holdings', region: 'Korea' },
+            { symbol: '3690.HK', name: 'Meituan', region: 'Hong Kong/China' },
+            { symbol: '0700.HK', name: 'Tencent', region: 'Hong Kong/China' },
+            { symbol: '1299.HK', name: 'AIA Group', region: 'Hong Kong' },
+            { symbol: '3988.HK', name: 'Bank of China', region: 'Hong Kong/China' },
+            { symbol: '0883.HK', name: 'CNOOC', region: 'Hong Kong/China' },
+            { symbol: 'VALE', name: 'Vale', region: 'Brazil' }
+        ];
+
+        const DIVIDEND_TOP50_US = [
+            { symbol: 'MSFT', name: 'Microsoft' },
+            { symbol: 'AAPL', name: 'Apple' },
+            { symbol: 'NVDA', name: 'NVIDIA' },
+            { symbol: 'AVGO', name: 'Broadcom' },
+            { symbol: 'XOM', name: 'Exxon Mobil' },
+            { symbol: 'JPM', name: 'JPMorgan Chase' },
+            { symbol: 'WMT', name: 'Walmart' },
+            { symbol: 'JNJ', name: 'Johnson & Johnson' },
+            { symbol: 'PG', name: 'Procter & Gamble' },
+            { symbol: 'KO', name: 'Coca-Cola' },
+            { symbol: 'PEP', name: 'PepsiCo' },
+            { symbol: 'ABBV', name: 'AbbVie' },
+            { symbol: 'CVX', name: 'Chevron' },
+            { symbol: 'BAC', name: 'Bank of America' },
+            { symbol: 'WFC', name: 'Wells Fargo' },
+            { symbol: 'PM', name: 'Philip Morris International' },
+            { symbol: 'MO', name: 'Altria Group' },
+            { symbol: 'T', name: 'AT&T' },
+            { symbol: 'VZ', name: 'Verizon' },
+            { symbol: 'IBM', name: 'IBM' },
+            { symbol: 'CSCO', name: 'Cisco Systems' },
+            { symbol: 'QCOM', name: 'Qualcomm' },
+            { symbol: 'INTC', name: 'Intel' },
+            { symbol: 'TXN', name: 'Texas Instruments' },
+            { symbol: 'AMGN', name: 'Amgen' },
+            { symbol: 'MRK', name: 'Merck & Co.' },
+            { symbol: 'PFE', name: 'Pfizer' },
+            { symbol: 'BMY', name: 'Bristol-Myers Squibb' },
+            { symbol: 'MCD', name: 'McDonald\'s' },
+            { symbol: 'HD', name: 'Home Depot' },
+            { symbol: 'LOW', name: 'Lowe\'s' },
+            { symbol: 'UPS', name: 'UPS' },
+            { symbol: 'RTX', name: 'RTX' },
+            { symbol: 'LMT', name: 'Lockheed Martin' },
+            { symbol: 'CAT', name: 'Caterpillar' },
+            { symbol: 'DE', name: 'Deere & Co.' },
+            { symbol: 'MMM', name: '3M' },
+            { symbol: 'GE', name: 'GE Aerospace' },
+            { symbol: 'DUK', name: 'Duke Energy' },
+            { symbol: 'SO', name: 'Southern Company' },
+            { symbol: 'NEE', name: 'NextEra Energy' },
+            { symbol: 'AEP', name: 'American Electric Power' },
+            { symbol: 'O', name: 'Realty Income' },
+            { symbol: 'SPG', name: 'Simon Property Group' },
+            { symbol: 'PLD', name: 'Prologis' },
+            { symbol: 'SCHW', name: 'Charles Schwab' },
+            { symbol: 'BLK', name: 'BlackRock' },
+            { symbol: 'C', name: 'Citigroup' },
+            { symbol: 'USB', name: 'U.S. Bancorp' },
+            { symbol: 'TROW', name: 'T. Rowe Price' }
+        ];
+
+        function normalizeSymbolForBoard(symbol) {
+            return String(symbol || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+        }
+
+        function renderDividendList(type = 'world') {
+            const listEl = document.getElementById('dividendList');
+            if (!listEl) return;
+            const items = type === 'us' ? DIVIDEND_TOP50_US : DIVIDEND_TOP50_WORLD;
+
+            listEl.innerHTML = items.map((item, index) => {
+                const boardSymbol = normalizeSymbolForBoard(item.symbol);
+                const regionText = item.region ? ` · ${item.region}` : ' · United States';
+                return `
+                    <li class="dividend-item">
+                        <div class="dividend-rank">Rank #${index + 1}</div>
+                        <div class="dividend-symbol">${item.symbol}</div>
+                        <div class="dividend-name">${item.name}</div>
+                        <div class="dividend-meta">Dividend payer${regionText} · <a class="board-link" href="./symbol.html?symbol=${encodeURIComponent(boardSymbol)}">Symbol Board →</a></div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function bindDividendTabs() {
+            const worldBtn = document.getElementById('dividendWorldBtn');
+            const usBtn = document.getElementById('dividendUsBtn');
+            if (!worldBtn || !usBtn) return;
+
+            worldBtn.addEventListener('click', () => {
+                worldBtn.classList.add('active');
+                usBtn.classList.remove('active');
+                renderDividendList('world');
+            });
+
+            usBtn.addEventListener('click', () => {
+                usBtn.classList.add('active');
+                worldBtn.classList.remove('active');
+                renderDividendList('us');
+            });
+        }
 
         const US_ECONOMIC_EVENTS = {
             '2026-02-27': [
@@ -849,6 +1101,8 @@
         });
 
         window.addEventListener('load', async function() {
+            bindDividendTabs();
+            renderDividendList('world');
             renderEconomicCalendar();
             await updateMarketData();
             setInterval(updateMarketData, 60000);
