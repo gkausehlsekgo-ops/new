@@ -659,6 +659,7 @@
                 <div class="actions" style="margin-top:8px;">
                     <button id="propApplyRulesBtn" class="primary" type="button">Apply Rules</button>
                     <button id="propResetAccountBtn" class="ghost" type="button">Reset Account</button>
+                    <button id="propSavePresetBtn" class="ghost" type="button">Save Current to Preset</button>
                 </div>
                 <div class="helper" id="propRuleMemberNote">Login required to change prop rules.</div>
                 <div class="prop-rule-status" id="propRuleStatus"></div>
@@ -740,6 +741,31 @@
             maxQtyPerOrder: 500,
             maxPositionPct: 60
         };
+        const PROP_PRESETS_DEFAULT = {
+            custom: { ...PROP_RULES_DEFAULT, mode: 'custom' },
+            eod: {
+                ...PROP_RULES_DEFAULT,
+                mode: 'eod',
+                dailyLossPct: 5,
+                maxDrawdownPct: 10,
+                consistencyPct: 35,
+                maxTradesPerDay: 30,
+                maxOpenPositions: 5,
+                maxQtyPerOrder: 500,
+                maxPositionPct: 60
+            },
+            tmdd: {
+                ...PROP_RULES_DEFAULT,
+                mode: 'tmdd',
+                dailyLossPct: 5,
+                maxDrawdownPct: 6,
+                consistencyPct: 35,
+                maxTradesPerDay: 20,
+                maxOpenPositions: 4,
+                maxQtyPerOrder: 300,
+                maxPositionPct: 45
+            }
+        };
         const MODERATION_STATE_KEY = 'community_moderation_state_v1';
         const MODERATION_MAX_STRIKES = 3;
         const MODERATION_BAN_MS = 24 * 60 * 60 * 1000;
@@ -772,6 +798,11 @@
         let simPortfolio = {};
         let simTxs = [];
         let propRules = { ...PROP_RULES_DEFAULT };
+        let propPresetConfigs = {
+            custom: { ...PROP_PRESETS_DEFAULT.custom },
+            eod: { ...PROP_PRESETS_DEFAULT.eod },
+            tmdd: { ...PROP_PRESETS_DEFAULT.tmdd }
+        };
         let propRuleDay = '';
         let propDailyStartEquity = SIM_INITIAL_CASH;
         let propPeakEquity = SIM_INITIAL_CASH;
@@ -1731,8 +1762,51 @@
             return `prop_rule_state_v1_${getSimSessionKey()}`;
         }
 
+        function getPropPresetStorageKey() {
+            return `prop_preset_v1_${getSimSessionKey()}`;
+        }
+
         function getDefaultPropRules() {
             return { ...PROP_RULES_DEFAULT };
+        }
+
+        function sanitizePropRuleValues(raw, fallbackMode = 'custom') {
+            return {
+                mode: ['custom', 'eod', 'tmdd'].includes(raw?.mode) ? raw.mode : fallbackMode,
+                startingBalance: [25000, 50000, 100000].includes(Number(raw?.startingBalance)) ? Number(raw.startingBalance) : 100000,
+                dailyLossPct: Math.min(50, Math.max(0.1, Number(raw?.dailyLossPct) || 5)),
+                maxDrawdownPct: Math.min(90, Math.max(0.1, Number(raw?.maxDrawdownPct) || 10)),
+                consistencyPct: Math.min(100, Math.max(1, Number(raw?.consistencyPct) || 35)),
+                maxTradesPerDay: Math.min(500, Math.max(1, Number(raw?.maxTradesPerDay) || 30)),
+                maxOpenPositions: Math.min(100, Math.max(1, Number(raw?.maxOpenPositions) || 5)),
+                maxQtyPerOrder: Math.min(1000000, Math.max(1, Number(raw?.maxQtyPerOrder) || 500)),
+                maxPositionPct: Math.min(100, Math.max(1, Number(raw?.maxPositionPct) || 60))
+            };
+        }
+
+        function loadPropPresetConfigs() {
+            propPresetConfigs = {
+                custom: { ...PROP_PRESETS_DEFAULT.custom },
+                eod: { ...PROP_PRESETS_DEFAULT.eod },
+                tmdd: { ...PROP_PRESETS_DEFAULT.tmdd }
+            };
+
+            if (!isPersistentSimSession()) return;
+            try {
+                const raw = localStorage.getItem(getPropPresetStorageKey());
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                ['custom', 'eod', 'tmdd'].forEach(mode => {
+                    if (!parsed?.[mode]) return;
+                    propPresetConfigs[mode] = sanitizePropRuleValues(parsed[mode], mode);
+                });
+            } catch {
+            }
+        }
+
+        function savePropPresetConfigs() {
+            if (!isPersistentSimSession()) return;
+            localStorage.setItem(getPropPresetStorageKey(), JSON.stringify(propPresetConfigs));
         }
 
         function getSimTotalEquity() {
@@ -1758,17 +1832,7 @@
                     return;
                 }
                 const parsed = JSON.parse(raw);
-                propRules = {
-                    mode: ['custom', 'eod', 'tmdd'].includes(parsed?.mode) ? parsed.mode : 'custom',
-                    startingBalance: [25000, 50000, 100000].includes(Number(parsed?.startingBalance)) ? Number(parsed.startingBalance) : 100000,
-                    dailyLossPct: Math.min(50, Math.max(0.1, Number(parsed?.dailyLossPct) || 5)),
-                    maxDrawdownPct: Math.min(90, Math.max(0.1, Number(parsed?.maxDrawdownPct) || 10)),
-                    consistencyPct: Math.min(100, Math.max(1, Number(parsed?.consistencyPct) || 35)),
-                    maxTradesPerDay: Math.min(500, Math.max(1, Number(parsed?.maxTradesPerDay) || 30)),
-                    maxOpenPositions: Math.min(100, Math.max(1, Number(parsed?.maxOpenPositions) || 5)),
-                    maxQtyPerOrder: Math.min(1000000, Math.max(1, Number(parsed?.maxQtyPerOrder) || 500)),
-                    maxPositionPct: Math.min(100, Math.max(1, Number(parsed?.maxPositionPct) || 60))
-                };
+                propRules = sanitizePropRuleValues(parsed, parsed?.mode || 'custom');
             } catch {
                 propRules = getDefaultPropRules();
             }
@@ -1946,27 +2010,36 @@
                 alert('Login required to change prop presets.');
                 return;
             }
-            propRules.mode = mode;
-            if (mode === 'eod') {
-                propRules.dailyLossPct = 5;
-                propRules.maxDrawdownPct = 10;
-                propRules.consistencyPct = 35;
-                propRules.maxTradesPerDay = 30;
-                propRules.maxOpenPositions = 5;
-                propRules.maxQtyPerOrder = 500;
-                propRules.maxPositionPct = 60;
-            } else if (mode === 'tmdd') {
-                propRules.dailyLossPct = 5;
-                propRules.maxDrawdownPct = 6;
-                propRules.consistencyPct = 35;
-                propRules.maxTradesPerDay = 20;
-                propRules.maxOpenPositions = 4;
-                propRules.maxQtyPerOrder = 300;
-                propRules.maxPositionPct = 45;
-            }
+            const preset = propPresetConfigs[mode] || PROP_PRESETS_DEFAULT[mode] || PROP_PRESETS_DEFAULT.custom;
+            propRules = sanitizePropRuleValues({ ...preset, mode }, mode);
             syncPropRuleUI();
             savePropRules();
             renderPropRuleStatus();
+        }
+
+        function readPropRuleInputs(targetMode = propRules.mode || 'custom') {
+            return sanitizePropRuleValues({
+                mode: targetMode,
+                startingBalance: Number(document.getElementById('propAccountSize')?.value || 100000),
+                dailyLossPct: Number(document.getElementById('propDailyLossPct')?.value || 5),
+                maxDrawdownPct: Number(document.getElementById('propMaxDrawdownPct')?.value || 10),
+                consistencyPct: Number(document.getElementById('propConsistencyPct')?.value || 35),
+                maxTradesPerDay: Number(document.getElementById('propMaxTradesPerDay')?.value || 30),
+                maxOpenPositions: Number(document.getElementById('propMaxOpenPositions')?.value || 5),
+                maxQtyPerOrder: Number(document.getElementById('propMaxQtyPerOrder')?.value || 500),
+                maxPositionPct: Number(document.getElementById('propMaxPositionPct')?.value || 60)
+            }, targetMode);
+        }
+
+        function saveCurrentRulesToPreset() {
+            if (!isPersistentSimSession()) {
+                alert('Login required to edit preset values.');
+                return;
+            }
+            const mode = propRules.mode || 'custom';
+            propPresetConfigs[mode] = readPropRuleInputs(mode);
+            savePropPresetConfigs();
+            alert(`${mode.toUpperCase()} preset has been updated with current values.`);
         }
 
         function applyPropRules() {
@@ -1974,24 +2047,7 @@
                 alert('Login required to change prop rules.');
                 return;
             }
-            const accountValue = Number(document.getElementById('propAccountSize')?.value || 100000);
-            const dailyValue = Number(document.getElementById('propDailyLossPct')?.value || 5);
-            const drawdownValue = Number(document.getElementById('propMaxDrawdownPct')?.value || 10);
-            const consistencyValue = Number(document.getElementById('propConsistencyPct')?.value || 35);
-            const maxTradesPerDayValue = Number(document.getElementById('propMaxTradesPerDay')?.value || 30);
-            const maxOpenPositionsValue = Number(document.getElementById('propMaxOpenPositions')?.value || 5);
-            const maxQtyPerOrderValue = Number(document.getElementById('propMaxQtyPerOrder')?.value || 500);
-            const maxPositionPctValue = Number(document.getElementById('propMaxPositionPct')?.value || 60);
-
-            propRules.startingBalance = [25000, 50000, 100000].includes(accountValue) ? accountValue : 100000;
-            propRules.dailyLossPct = Math.min(50, Math.max(0.1, dailyValue));
-            propRules.maxDrawdownPct = Math.min(90, Math.max(0.1, drawdownValue));
-            propRules.consistencyPct = Math.min(100, Math.max(1, consistencyValue));
-            propRules.maxTradesPerDay = Math.min(500, Math.max(1, maxTradesPerDayValue));
-            propRules.maxOpenPositions = Math.min(100, Math.max(1, maxOpenPositionsValue));
-            propRules.maxQtyPerOrder = Math.min(1000000, Math.max(1, maxQtyPerOrderValue));
-            propRules.maxPositionPct = Math.min(100, Math.max(1, maxPositionPctValue));
-            if (!['custom', 'eod', 'tmdd'].includes(propRules.mode)) propRules.mode = 'custom';
+            propRules = readPropRuleInputs(propRules.mode || 'custom');
 
             simBaseCash = propRules.startingBalance;
             savePropRules();
@@ -2555,16 +2611,15 @@
         document.getElementById('simLimitSellBtn').addEventListener('click', () => executeSimTrade('limit', 'sell'));
         document.getElementById('simCloseAllBtn').addEventListener('click', closeAllPositions);
         document.getElementById('propPresetCustomBtn').addEventListener('click', () => {
-            propRules.mode = 'custom';
-            syncPropRuleUI();
-            savePropRules();
-            renderPropRuleStatus();
+            applyPropPreset('custom');
         });
         document.getElementById('propPresetEodBtn').addEventListener('click', () => applyPropPreset('eod'));
         document.getElementById('propPresetTmddBtn').addEventListener('click', () => applyPropPreset('tmdd'));
         document.getElementById('propApplyRulesBtn').addEventListener('click', applyPropRules);
         document.getElementById('propResetAccountBtn').addEventListener('click', resetPropAccount);
+        document.getElementById('propSavePresetBtn').addEventListener('click', saveCurrentRulesToPreset);
 
+        loadPropPresetConfigs();
         loadPropRules();
         syncPropRuleUI();
         loadSimState();
