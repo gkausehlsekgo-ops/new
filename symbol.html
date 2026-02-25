@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Symbol Board - Smart Investment Tips</title>
     <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --ink: #0f172a;
@@ -353,6 +354,45 @@
         .indicator-value-card .val {
             font-size: 12px;
             font-weight: 700;
+        }
+
+        .chat-wrap {
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 10px;
+            background: #fff;
+            margin-bottom: 10px;
+        }
+
+        .chat-messages {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 8px;
+            background: #f8fafc;
+            display: grid;
+            gap: 6px;
+        }
+
+        .chat-item {
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: #fff;
+            padding: 6px 8px;
+        }
+
+        .chat-meta {
+            font-size: 11px;
+            color: var(--muted);
+            margin-bottom: 2px;
+        }
+
+        .chat-form {
+            margin-top: 8px;
+            display: grid;
+            grid-template-columns: 1fr 110px;
+            gap: 8px;
         }
 
         .sim-grid-mini {
@@ -811,7 +851,15 @@
 
         <div class="panel" id="disqusPanel">
             <h2>Live Discussion</h2>
-            <p class="desc">Use Disqus for comments and real-time conversation around the current symbol.</p>
+            <p class="desc">Realtime chat room (by symbol) + Disqus thread.</p>
+            <div class="chat-wrap">
+                <div id="liveChatStatus" class="helper">Live chat connecting...</div>
+                <div id="liveChatMessages" class="chat-messages"></div>
+                <div class="chat-form">
+                    <input id="liveChatInput" type="text" maxlength="300" placeholder="Type message (max 300)" />
+                    <button id="liveChatSendBtn" class="primary" type="button">Send</button>
+                </div>
+            </div>
             <div id="disqusThreadStatus" class="helper">Disqus is loading...</div>
             <div id="disqus_thread"></div>
         </div>
@@ -825,6 +873,8 @@
         const RESET_AD_GRANT_KEY = 'prop_reset_ad_grant_v1';
         const DISQUS_SHORTNAME_KEY = 'disqus_shortname_v1';
         const INDICATOR_SETTINGS_KEY = 'symbol_indicator_settings_v1';
+        const SUPABASE_URL_KEY = 'supabase_url';
+        const SUPABASE_ANON_KEY = 'supabase_anon_key';
 
         const boardTitle = document.getElementById('boardTitle');
         const symbolInput = document.getElementById('symbolInput');
@@ -949,6 +999,8 @@
         let delayedQuotes = {};
         let delayedHistoryBySymbol = {};
         let disqusLoadedForIdentifier = '';
+        let liveChatClient = null;
+        let liveChatChannel = null;
         let indicatorSettings = {
             maFast: 5,
             maMid: 20,
@@ -1540,7 +1592,7 @@
             indicatorSeriesMap.volumeHist = addHistogramSeriesCompat(lwChart, {
                 priceFormat: { type: 'volume' },
                 priceScaleId: '',
-                scaleMargins: { top: 0.74, bottom: 0 },
+                scaleMargins: { top: 0.948, bottom: 0 },
                 lastValueVisible: false,
                 priceLineVisible: false
             });
@@ -1548,7 +1600,7 @@
                 color: '#475569',
                 lineWidth: 1,
                 priceScaleId: '',
-                scaleMargins: { top: 0.74, bottom: 0 },
+                scaleMargins: { top: 0.948, bottom: 0 },
                 lastValueVisible: false,
                 priceLineVisible: false
             });
@@ -2473,6 +2525,101 @@
             }
         }
 
+        function escapeHtml(text) {
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getLiveChatNickname() {
+            const session = localStorage.getItem('local_auth_session_v1') || '';
+            if (!session || session === 'guest') return 'Guest';
+            const users = JSON.parse(localStorage.getItem('local_auth_users_v1') || '[]');
+            const user = users.find(u => u.email === session);
+            return user?.nickname || session.split('@')[0] || 'Member';
+        }
+
+        function renderLiveChatMessage(msg) {
+            const box = document.getElementById('liveChatMessages');
+            if (!box) return;
+            const at = msg?.ts ? new Date(msg.ts) : new Date();
+            const item = document.createElement('div');
+            item.className = 'chat-item';
+            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
+            box.appendChild(item);
+            while (box.children.length > 120) box.removeChild(box.firstChild);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function initLiveChat() {
+            const status = document.getElementById('liveChatStatus');
+            const box = document.getElementById('liveChatMessages');
+            if (!status || !box) return;
+
+            if (liveChatChannel && liveChatClient) {
+                try {
+                    await liveChatClient.removeChannel(liveChatChannel);
+                } catch {
+                }
+                liveChatChannel = null;
+            }
+            box.innerHTML = '';
+
+            const supabaseUrl = localStorage.getItem(SUPABASE_URL_KEY) || '';
+            const supabaseAnonKey = localStorage.getItem(SUPABASE_ANON_KEY) || '';
+            if (!supabaseUrl || !supabaseAnonKey || !window.supabase) {
+                status.textContent = 'Live chat off: set Supabase URL/Anon key in auth page to activate realtime.';
+                return;
+            }
+
+            try {
+                if (!liveChatClient) {
+                    liveChatClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+                }
+                const room = `symbol-chat-${normalizeSymbol(currentSymbol).toLowerCase()}`;
+                liveChatChannel = liveChatClient
+                    .channel(room)
+                    .on('broadcast', { event: 'message' }, ({ payload }) => {
+                        if (payload && payload.text) renderLiveChatMessage(payload);
+                    })
+                    .subscribe((state) => {
+                        status.textContent = state === 'SUBSCRIBED'
+                            ? `Live chat connected: ${normalizeSymbol(currentSymbol)}`
+                            : `Live chat status: ${state}`;
+                    });
+            } catch (err) {
+                status.textContent = `Live chat failed: ${err?.message || 'init error'}`;
+            }
+        }
+
+        async function sendLiveChatMessage() {
+            const input = document.getElementById('liveChatInput');
+            const status = document.getElementById('liveChatStatus');
+            if (!input) return;
+            const text = (input.value || '').trim();
+            if (!text) return;
+            if (!liveChatChannel) {
+                if (status) status.textContent = 'Live chat is not connected.';
+                return;
+            }
+
+            const payload = {
+                nickname: getLiveChatNickname(),
+                text: text.slice(0, 300),
+                ts: Date.now(),
+                symbol: normalizeSymbol(currentSymbol)
+            };
+            const { error } = await liveChatChannel.send({ type: 'broadcast', event: 'message', payload });
+            if (error && status) {
+                status.textContent = `Send failed: ${error.message}`;
+                return;
+            }
+            input.value = '';
+        }
+
         function initDisqusThread() {
             const statusEl = document.getElementById('disqusThreadStatus');
             const host = document.getElementById('disqus_thread');
@@ -2972,6 +3119,7 @@
             renderPosts();
             updateChartsForSymbol(currentSymbol);
             initDisqusThread();
+            initLiveChat();
         }
 
         function setCategory(category) {
@@ -3259,6 +3407,13 @@
         document.getElementById('simLimitBuyBtn').addEventListener('click', () => executeSimTrade('limit', 'buy'));
         document.getElementById('simLimitSellBtn').addEventListener('click', () => executeSimTrade('limit', 'sell'));
         document.getElementById('simCloseAllBtn').addEventListener('click', closeAllPositions);
+        document.getElementById('liveChatSendBtn')?.addEventListener('click', sendLiveChatMessage);
+        document.getElementById('liveChatInput')?.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendLiveChatMessage();
+            }
+        });
         document.getElementById('propPresetCustomBtn').addEventListener('click', () => {
             applyPropPreset('custom');
         });
@@ -3276,6 +3431,7 @@
         renderCategories();
         initFromQuery();
         initDisqusThread();
+        initLiveChat();
         consumeAdResetRequest();
         consumeReadResetRequest();
         if (realtimeQuoteTimer) clearInterval(realtimeQuoteTimer);
