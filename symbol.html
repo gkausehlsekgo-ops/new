@@ -475,7 +475,7 @@
             <div class="chart-wrap">
                 <div id="lightweightChart"></div>
             </div>
-            <div class="chart-meta" id="lightweightSource">Source: Lightweight Charts™ by TradingView (display data: delayed quotes preferred, demo fallback on failure)</div>
+            <div class="chart-meta" id="lightweightSource">This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts™ by TradingView.</div>
             <div class="chart-meta" id="chartStatusMessage"></div>
 
             <div class="indicator-toolbar">
@@ -1446,7 +1446,7 @@
 
                 const source = document.getElementById('lightweightSource');
                 if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
-                    source.textContent = 'Source: Lightweight Charts™ by TradingView (delayed history unavailable · only current delayed quote shown)';
+                    source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts™ by TradingView (delayed history unavailable; only current delayed quote shown).';
                 }
 
                 renderEntryPriceLine();
@@ -1567,7 +1567,7 @@
             if (lwSeries) applyMainSeriesData(symbol);
             const source = document.getElementById('lightweightSource');
             if (source) {
-                source.textContent = 'Source: Lightweight Charts™ by TradingView (candlestick mode for all symbols, delayed quotes preferred)';
+                source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts™ by TradingView (candlestick mode for all symbols, delayed quotes preferred).';
             }
             renderEntryPriceLine();
             renderTradeMarkers();

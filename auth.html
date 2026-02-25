@@ -57,6 +57,9 @@
             <label for="nickname">Nickname</label>
             <input id="nickname" type="text" placeholder="Nickname (2-20 chars)" />
 
+            <label for="birthDate">Date of Birth</label>
+            <input id="birthDate" type="date" />
+
             <label for="password">Password</label>
             <input id="password" type="password" placeholder="At least 8 characters" />
 
@@ -82,6 +85,7 @@
             <button id="resendBtn" class="ghost">Resend Verification Email</button>
             <div id="authStatus" class="status"></div>
             <div class="helper">Sign-up flow: send code → enter code → check required agreements → click sign-up.</div>
+            <div class="helper">Only users aged 14 or older can sign up.</div>
             <div class="helper"><a href="./index.html">Back to Home</a> · <a href="./contact.html">Contact</a></div>
         </div>
     </div>
@@ -110,6 +114,17 @@
 
         function setLocalUsers(users) {
             localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
+        }
+
+        function calculateAgeFromBirthDate(birthDate) {
+            const today = new Date();
+            const dob = new Date(birthDate + 'T00:00:00');
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age -= 1;
+            }
+            return age;
         }
 
         async function sendSignupCode(client, email) {
@@ -155,6 +170,7 @@
             const client = getClient();
             const email = document.getElementById('email').value.trim();
             const nickname = document.getElementById('nickname').value.trim();
+            const birthDate = document.getElementById('birthDate').value;
             const password = document.getElementById('password').value;
             const verifyCode = document.getElementById('verifyCode').value.trim();
             const agreeRequired = document.getElementById('agreeRequired').checked;
@@ -167,6 +183,22 @@
 
             if (!nickname || nickname.length < 2 || nickname.length > 20) {
                 authStatus.textContent = 'Nickname must be 2-20 characters.';
+                return;
+            }
+
+            if (!birthDate) {
+                authStatus.textContent = 'Please enter your date of birth.';
+                return;
+            }
+
+            const age = calculateAgeFromBirthDate(birthDate);
+            if (!Number.isFinite(age) || age < 0) {
+                authStatus.textContent = 'Please enter a valid date of birth.';
+                return;
+            }
+
+            if (age < 14) {
+                authStatus.textContent = 'Only users aged 14 or older can sign up.';
                 return;
             }
 
@@ -205,6 +237,8 @@
                 password,
                 data: {
                     nickname,
+                    birth_date: birthDate,
+                    age_verified_minimum_14: true,
                     terms_agreed_at: new Date().toISOString(),
                     terms_version: '2026-02-24',
                     community_rules_agreed_at: new Date().toISOString(),
@@ -290,6 +324,12 @@
         });
 
         (async () => {
+            const birthDateInput = document.getElementById('birthDate');
+            if (birthDateInput) {
+                const today = new Date().toISOString().slice(0, 10);
+                birthDateInput.setAttribute('max', today);
+            }
+
             const client = getClient();
             if (!client) {
                 const email = localStorage.getItem(LOCAL_SESSION_KEY);
