@@ -374,6 +374,32 @@
             flex-wrap: wrap;
         }
 
+        .dividend-sort-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0 12px;
+            font-size: 12px;
+            font-weight: 700;
+            opacity: 0.9;
+        }
+
+        .dividend-sort-wrap select {
+            border: 1px solid #d7dce5;
+            background: #fff;
+            color: #334155;
+            border-radius: 8px;
+            padding: 6px 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        body.dark-mode .dividend-sort-wrap select {
+            background: #20243a;
+            color: #e2e8f0;
+            border-color: #353b57;
+        }
+
         .dividend-tab-btn {
             border: 1px solid #d7dce5;
             background: #f8fafc;
@@ -761,6 +787,14 @@
                     <button class="dividend-tab-btn active" id="dividendWorldBtn" type="button">World Top 50</button>
                     <button class="dividend-tab-btn" id="dividendUsBtn" type="button">US Top 50</button>
                 </div>
+                <div class="dividend-sort-wrap">
+                    <label for="dividendSortSelect">Sort:</label>
+                    <select id="dividendSortSelect">
+                        <option value="yield_desc">Highest Dividend Yield</option>
+                        <option value="market_cap_desc">Highest Market Cap</option>
+                        <option value="price_asc">Lowest Price per Share</option>
+                    </select>
+                </div>
                 <ol class="dividend-list" id="dividendList"></ol>
                 <div class="dividend-refresh-note" id="dividendRefreshNote">Dividend list data: loading...</div>
 
@@ -946,6 +980,7 @@
 
         const DIVIDEND_PORTFOLIO_KEY = 'dividend_portfolio_v1';
         let currentDividendTab = 'world';
+        let currentDividendSort = 'yield_desc';
         let dividendQuoteCache = {};
         let dividendPortfolio = {};
 
@@ -955,6 +990,39 @@
 
         function getDividendCacheKey(item) {
             return `${currentDividendTab}:${item.symbol}`;
+        }
+
+        function formatMarketCap(value) {
+            if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) return 'N/A';
+            if (value >= 1_000_000_000_000) return `$${(value / 1_000_000_000_000).toFixed(2)}T`;
+            if (value >= 1_000_000_000) return `$${(value / 1_000_000_000).toFixed(1)}B`;
+            if (value >= 1_000_000) return `$${(value / 1_000_000).toFixed(1)}M`;
+            return `$${value.toFixed(0)}`;
+        }
+
+        function getSortValue(item, mode) {
+            const quote = dividendQuoteCache[getDividendCacheKey(item)] || {};
+            if (mode === 'market_cap_desc') {
+                return typeof quote.marketCap === 'number' ? quote.marketCap : -1;
+            }
+            if (mode === 'price_asc') {
+                return typeof quote.price === 'number' ? quote.price : Number.POSITIVE_INFINITY;
+            }
+            return typeof quote.dividendYield === 'number' ? quote.dividendYield : -1;
+        }
+
+        function getSortedDividendItems(items) {
+            const list = [...items];
+            if (currentDividendSort === 'price_asc') {
+                list.sort((a, b) => getSortValue(a, 'price_asc') - getSortValue(b, 'price_asc'));
+                return list;
+            }
+            if (currentDividendSort === 'market_cap_desc') {
+                list.sort((a, b) => getSortValue(b, 'market_cap_desc') - getSortValue(a, 'market_cap_desc'));
+                return list;
+            }
+            list.sort((a, b) => getSortValue(b, 'yield_desc') - getSortValue(a, 'yield_desc'));
+            return list;
         }
 
         function loadDividendPortfolio() {
@@ -1010,6 +1078,7 @@
                             price: Number(row.regularMarketPrice),
                             changePercent: typeof row.regularMarketChangePercent === 'number' ? Number(row.regularMarketChangePercent) : null,
                             dividendYield: typeof row.trailingAnnualDividendYield === 'number' ? Number((row.trailingAnnualDividendYield * 100).toFixed(2)) : null,
+                            marketCap: typeof row.marketCap === 'number' ? Number(row.marketCap) : null,
                             source: 'yahoo'
                         };
                     } else {
@@ -1039,7 +1108,7 @@
             const listEl = document.getElementById('dividendList');
             if (!listEl) return;
             currentDividendTab = type;
-            const items = getActiveDividendItems();
+            const items = getSortedDividendItems(getActiveDividendItems());
 
             listEl.innerHTML = items.map((item, index) => {
                 const boardSymbol = normalizeSymbolForBoard(item.symbol);
@@ -1050,6 +1119,7 @@
                     ? `${quote.changePercent >= 0 ? '+' : ''}${quote.changePercent.toFixed(2)}%`
                     : 'N/A';
                 const yieldText = quote && typeof quote.dividendYield === 'number' ? `${quote.dividendYield.toFixed(2)}%` : 'N/A';
+                const marketCapText = formatMarketCap(quote?.marketCap);
                 return `
                     <li class="dividend-item">
                         <div class="dividend-rank">Rank #${index + 1}</div>
@@ -1060,6 +1130,7 @@
                             <span class="dividend-badge">Price ${priceText}</span>
                             <span class="dividend-badge">Change ${changeText}</span>
                             <span class="dividend-badge">Yield ${yieldText}</span>
+                            <span class="dividend-badge">Mkt Cap ${marketCapText}</span>
                         </div>
                         <div class="dividend-actions">
                             <input type="number" class="dividend-qty-input" data-symbol="${item.symbol}" data-name="${item.name}" min="1" step="1" value="1" />
@@ -1177,6 +1248,16 @@
                 await updateDividendQuotes();
                 renderDividendList('us');
                 renderDividendPortfolio();
+            });
+        }
+
+        function bindDividendSort() {
+            const sortSelect = document.getElementById('dividendSortSelect');
+            if (!sortSelect) return;
+            sortSelect.value = currentDividendSort;
+            sortSelect.addEventListener('change', () => {
+                currentDividendSort = sortSelect.value;
+                renderDividendList(currentDividendTab);
             });
         }
 
@@ -1442,6 +1523,7 @@
         window.addEventListener('load', async function() {
             loadDividendPortfolio();
             bindDividendTabs();
+            bindDividendSort();
             bindDividendPortfolioActions();
             await updateDividendQuotes();
             renderDividendList('world');
