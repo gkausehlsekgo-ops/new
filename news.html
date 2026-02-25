@@ -152,6 +152,28 @@
             color: var(--muted);
         }
 
+        .news-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .origin-btn {
+            display: inline-block;
+            text-decoration: none;
+            background: #2563eb;
+            color: #fff;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .origin-btn:hover {
+            background: #1d4ed8;
+        }
+
         .news-thumb {
             width: 100%;
             height: 130px;
@@ -328,6 +350,9 @@
                     <div class="news-content">
                         <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
                         <div class="meta">${escapeHtml(item.source)} · ${formatTime(item.publishedAt)}</div>
+                        <div class="news-actions">
+                            <a class="origin-btn" href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">원문 이동</a>
+                        </div>
                     </div>
                     ${item.imageUrl ? `<img class="news-thumb" src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" referrerpolicy="no-referrer" />` : ''}
                 </article>
