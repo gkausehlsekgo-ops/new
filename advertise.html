@@ -17,6 +17,10 @@
         .cta { display: inline-block; margin-top: 16px; padding: 10px 14px; border-radius: 10px; background: #2563eb; color: #fff; text-decoration: none; font-weight: 700; }
         .small { font-size: 13px; color: #6b7280; margin-top: 10px; }
         .top { display: inline-block; margin-top: 14px; color: #2563eb; text-decoration: none; }
+        .watch-card { display: none; margin-bottom: 14px; border: 1px solid #dbeafe; background: #eff6ff; }
+        .watch-status { font-size: 14px; color: #1e3a8a; margin-top: 8px; }
+        .watch-btn { margin-top: 12px; width: auto; border: none; border-radius: 10px; padding: 10px 14px; background: #2563eb; color: #fff; font-weight: 700; cursor: pointer; }
+        .watch-btn:disabled { opacity: .6; cursor: not-allowed; }
     </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -28,6 +32,14 @@
 </head>
 <body>
     <div class="wrap">
+        <div class="card watch-card" id="resetAdWatchCard">
+            <h1 style="font-size:24px;">Reset Account Ad Watch</h1>
+            <p>3번째 리셋부터는 광고 시청 후 리셋이 진행됩니다. 아래 카운트가 끝나면 완료 버튼을 눌러 돌아가세요.</p>
+            <div class="watch-status" id="resetAdWatchStatus">광고 시청 준비 중...</div>
+            <button id="resetAdWatchDoneBtn" class="watch-btn" type="button" disabled>광고 시청 완료 후 돌아가기</button>
+            <p class="small">완료 시 데모 리셋 권한이 1회 부여됩니다.</p>
+        </div>
+
         <div class="card">
             <h1>Advertise With Us</h1>
             <p>Smart Investment Tips reaches users interested in trading, investing, and US market education. If you want to promote a relevant product or service, we can discuss available placements.</p>
@@ -54,6 +66,44 @@
             <a class="top" href="./index.html">Back to Home</a>
         </div>
     </div>
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('flow') !== 'reset-ad') return;
+
+            const card = document.getElementById('resetAdWatchCard');
+            const status = document.getElementById('resetAdWatchStatus');
+            const doneBtn = document.getElementById('resetAdWatchDoneBtn');
+            if (!card || !status || !doneBtn) return;
+
+            card.style.display = 'block';
+
+            let remain = 8;
+            status.textContent = `광고 시청 중... ${remain}초`;
+            const timer = setInterval(() => {
+                remain -= 1;
+                if (remain <= 0) {
+                    clearInterval(timer);
+                    status.textContent = '시청 완료! 아래 버튼으로 돌아가세요.';
+                    doneBtn.disabled = false;
+                    return;
+                }
+                status.textContent = `광고 시청 중... ${remain}초`;
+            }, 1000);
+
+            doneBtn.addEventListener('click', () => {
+                const session = localStorage.getItem('local_auth_session_v1') || 'guest';
+                const key = `prop_reset_ad_grant_v1_${session}`;
+                try {
+                    localStorage.setItem(key, JSON.stringify({ grantedAt: Date.now() }));
+                } catch {
+                }
+
+                const next = params.get('next') || './symbol.html?ad_reset=1';
+                window.location.href = next;
+            });
+        })();
+    </script>
     <script src="./analytics.js"></script>
     <script src="./legal-consent.js"></script>
 </body>

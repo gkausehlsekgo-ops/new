@@ -270,6 +270,27 @@
             gap: 6px;
         }
 
+        .indicator-settings {
+            margin-top: 8px;
+            padding: 8px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            gap: 8px;
+        }
+
+        .indicator-settings label {
+            margin-bottom: 4px;
+            font-size: 11px;
+        }
+
+        .indicator-settings input {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
         .indicator-item {
             display: flex;
             align-items: center;
@@ -543,8 +564,78 @@
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
-                <div class="helper" style="margin-top:0;">Top 10 indicators (locally calculated): MA5 · MA20 · MA60 · EMA12 · EMA26 · VWAP · Bollinger Bands · RSI · MACD · Stochastic</div>
+                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA · VWAP · Bollinger · RSI · MACD · Stochastic · ATR · ROC · CCI · Volume</div>
                 <div class="indicator-list" id="indicatorToggleList"></div>
+                <div class="indicator-settings" id="indicatorSettingsPanel">
+                    <div>
+                        <label for="maFastPeriodInput">MA Fast</label>
+                        <input id="maFastPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="maMidPeriodInput">MA Mid</label>
+                        <input id="maMidPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="maSlowPeriodInput">MA Slow</label>
+                        <input id="maSlowPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="emaFastPeriodInput">EMA Fast</label>
+                        <input id="emaFastPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="emaSlowPeriodInput">EMA Slow</label>
+                        <input id="emaSlowPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="wmaPeriodInput">WMA</label>
+                        <input id="wmaPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="bbPeriodInput">Bollinger</label>
+                        <input id="bbPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="rsiPeriodInput">RSI</label>
+                        <input id="rsiPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="macdFastPeriodInput">MACD Fast</label>
+                        <input id="macdFastPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="macdSlowPeriodInput">MACD Slow</label>
+                        <input id="macdSlowPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="macdSignalPeriodInput">MACD Signal</label>
+                        <input id="macdSignalPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="stochPeriodInput">Stoch %K</label>
+                        <input id="stochPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="stochSmoothInput">Stoch %D</label>
+                        <input id="stochSmoothInput" type="number" min="1" max="100" step="1" />
+                    </div>
+                    <div>
+                        <label for="atrPeriodInput">ATR</label>
+                        <input id="atrPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="rocPeriodInput">ROC</label>
+                        <input id="rocPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="cciPeriodInput">CCI</label>
+                        <input id="cciPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                    <div>
+                        <label for="volumeMaPeriodInput">Volume MA</label>
+                        <input id="volumeMaPeriodInput" type="number" min="2" max="300" step="1" />
+                    </div>
+                </div>
             </div>
             <div class="indicator-values" id="indicatorValueBoard"></div>
             <div class="indicator-subcharts" id="indicatorSubcharts">
@@ -605,7 +696,7 @@
                 <button id="simLimitSellBtn" class="ghost" type="button">Limit Sell</button>
                 <button id="simCloseAllBtn" class="ghost" type="button">Close All Positions</button>
             </div>
-            <div class="helper" id="simTradeHint">Orders execute for the currently selected symbol.</div>
+            <div class="helper" id="simTradeHint">Orders execute for the currently selected symbol. Sell orders can open short positions.</div>
 
             <div class="prop-rule-box" id="propRulePanel">
                 <div class="prop-rule-head">
@@ -663,6 +754,7 @@
                 </div>
                 <div class="helper" id="propRuleMemberNote">Login required to change prop rules.</div>
                 <div class="prop-rule-status" id="propRuleStatus"></div>
+                <div class="helper negative" id="propRuleFailBadge" style="display:none; margin-top:6px; font-weight:700;"></div>
             </div>
 
             <h3 style="margin-top:14px; font-size:16px;">Holdings</h3>
@@ -716,11 +808,23 @@
             <p class="desc" id="postCount">0 posts</p>
             <div class="post-list" id="postList"></div>
         </div>
+
+        <div class="panel" id="disqusPanel">
+            <h2>Live Discussion</h2>
+            <p class="desc">Use Disqus for comments and real-time conversation around the current symbol.</p>
+            <div id="disqusThreadStatus" class="helper">Disqus is loading...</div>
+            <div id="disqus_thread"></div>
+        </div>
     </section>
 
     <script>
         const CATEGORIES = ['Trading Journal', 'Free Board'];
         const STORAGE_KEY = 'symbol_posts_v1';
+        const READ_RESET_REQUEST_KEY = 'prop_read_reset_request_v1';
+        const RESET_CLICK_COUNT_KEY = 'prop_reset_click_count_v1';
+        const RESET_AD_GRANT_KEY = 'prop_reset_ad_grant_v1';
+        const DISQUS_SHORTNAME_KEY = 'disqus_shortname_v1';
+        const INDICATOR_SETTINGS_KEY = 'symbol_indicator_settings_v1';
 
         const boardTitle = document.getElementById('boardTitle');
         const symbolInput = document.getElementById('symbolInput');
@@ -806,6 +910,7 @@
         let propRuleDay = '';
         let propDailyStartEquity = SIM_INITIAL_CASH;
         let propPeakEquity = SIM_INITIAL_CASH;
+        let propAccountFailedReason = '';
 
         const FRAME_OPTIONS = [
             { key: '1D', label: '1D', range: '1d', interval: '5m' },
@@ -843,18 +948,43 @@
 
         let delayedQuotes = {};
         let delayedHistoryBySymbol = {};
+        let disqusLoadedForIdentifier = '';
+        let indicatorSettings = {
+            maFast: 5,
+            maMid: 20,
+            maSlow: 60,
+            emaFast: 12,
+            emaSlow: 26,
+            wmaPeriod: 20,
+            bbPeriod: 20,
+            rsiPeriod: 14,
+            macdFast: 12,
+            macdSlow: 26,
+            macdSignal: 9,
+            stochPeriod: 14,
+            stochSmooth: 3,
+            atrPeriod: 14,
+            rocPeriod: 14,
+            cciPeriod: 20,
+            volumeMaPeriod: 20
+        };
 
         const INDICATOR_DEFINITIONS = [
-            { key: 'ma5', label: 'MA 5', type: 'overlay', defaultOn: false, color: '#f59e0b' },
-            { key: 'ma20', label: 'MA 20', type: 'overlay', defaultOn: false, color: '#8b5cf6' },
-            { key: 'ma60', label: 'MA 60', type: 'overlay', defaultOn: false, color: '#06b6d4' },
-            { key: 'ema12', label: 'EMA 12', type: 'overlay', defaultOn: false, color: '#10b981' },
-            { key: 'ema26', label: 'EMA 26', type: 'overlay', defaultOn: false, color: '#ef4444' },
+            { key: 'maFast', label: 'MA Fast', type: 'overlay', defaultOn: false, color: '#f59e0b' },
+            { key: 'maMid', label: 'MA Mid', type: 'overlay', defaultOn: false, color: '#8b5cf6' },
+            { key: 'maSlow', label: 'MA Slow', type: 'overlay', defaultOn: false, color: '#06b6d4' },
+            { key: 'emaFast', label: 'EMA Fast', type: 'overlay', defaultOn: false, color: '#10b981' },
+            { key: 'emaSlow', label: 'EMA Slow', type: 'overlay', defaultOn: false, color: '#ef4444' },
+            { key: 'wma', label: 'WMA', type: 'overlay', defaultOn: false, color: '#0ea5e9' },
             { key: 'vwap', label: 'VWAP', type: 'overlay', defaultOn: false, color: '#0ea5e9' },
             { key: 'bbands', label: 'Bollinger', type: 'overlay-multi', defaultOn: false, color: '#6366f1' },
-            { key: 'rsi', label: 'RSI 14', type: 'value', defaultOn: true, color: '#334155' },
+            { key: 'rsi', label: 'RSI', type: 'value', defaultOn: true, color: '#334155' },
             { key: 'macd', label: 'MACD', type: 'value', defaultOn: true, color: '#334155' },
-            { key: 'stoch', label: 'Stochastic', type: 'value', defaultOn: true, color: '#334155' }
+            { key: 'stoch', label: 'Stochastic', type: 'value', defaultOn: true, color: '#334155' },
+            { key: 'atr', label: 'ATR', type: 'value', defaultOn: false, color: '#334155' },
+            { key: 'roc', label: 'ROC', type: 'value', defaultOn: false, color: '#334155' },
+            { key: 'cci', label: 'CCI', type: 'value', defaultOn: false, color: '#334155' },
+            { key: 'volume', label: 'Volume', type: 'value', defaultOn: true, color: '#334155' }
         ];
 
         let indicatorEnabled = INDICATOR_DEFINITIONS.reduce((acc, item) => {
@@ -1053,6 +1183,58 @@
             return lwMainData.map((point, idx) => (values[idx] == null ? null : { time: point.time, value: Number(values[idx].toFixed(2)) })).filter(Boolean);
         }
 
+        function sanitizeIndicatorSettings(raw) {
+            const norm = (value, fallback) => {
+                const num = Number(value);
+                if (!Number.isFinite(num)) return fallback;
+                return Math.max(2, Math.min(300, Math.round(num)));
+            };
+            const normSmooth = (value, fallback) => {
+                const num = Number(value);
+                if (!Number.isFinite(num)) return fallback;
+                return Math.max(1, Math.min(100, Math.round(num)));
+            };
+            return {
+                maFast: norm(raw?.maFast, 5),
+                maMid: norm(raw?.maMid, 20),
+                maSlow: norm(raw?.maSlow, 60),
+                emaFast: norm(raw?.emaFast, 12),
+                emaSlow: norm(raw?.emaSlow, 26),
+                wmaPeriod: norm(raw?.wmaPeriod, 20),
+                bbPeriod: norm(raw?.bbPeriod, 20),
+                rsiPeriod: norm(raw?.rsiPeriod, 14),
+                macdFast: norm(raw?.macdFast, 12),
+                macdSlow: norm(raw?.macdSlow, 26),
+                macdSignal: norm(raw?.macdSignal, 9),
+                stochPeriod: norm(raw?.stochPeriod, 14),
+                stochSmooth: normSmooth(raw?.stochSmooth, 3),
+                atrPeriod: norm(raw?.atrPeriod, 14),
+                rocPeriod: norm(raw?.rocPeriod, 14),
+                cciPeriod: norm(raw?.cciPeriod, 20),
+                volumeMaPeriod: norm(raw?.volumeMaPeriod, 20)
+            };
+        }
+
+        function loadIndicatorSettings() {
+            try {
+                const raw = localStorage.getItem(INDICATOR_SETTINGS_KEY);
+                if (!raw) {
+                    indicatorSettings = sanitizeIndicatorSettings(indicatorSettings);
+                    return;
+                }
+                indicatorSettings = sanitizeIndicatorSettings(JSON.parse(raw));
+            } catch {
+                indicatorSettings = sanitizeIndicatorSettings(indicatorSettings);
+            }
+        }
+
+        function saveIndicatorSettings() {
+            try {
+                localStorage.setItem(INDICATOR_SETTINGS_KEY, JSON.stringify(indicatorSettings));
+            } catch {
+            }
+        }
+
         function calcSma(period, source) {
             const out = Array(source.length).fill(null);
             let sum = 0;
@@ -1073,6 +1255,19 @@
             for (let i = 1; i < source.length; i++) {
                 ema = (source[i] * alpha) + (ema * (1 - alpha));
                 out[i] = ema;
+            }
+            return out;
+        }
+
+        function calcWma(period, source) {
+            const out = Array(source.length).fill(null);
+            const denom = (period * (period + 1)) / 2;
+            for (let i = period - 1; i < source.length; i++) {
+                let weighted = 0;
+                for (let j = 0; j < period; j++) {
+                    weighted += source[i - j] * (period - j);
+                }
+                out[i] = weighted / denom;
             }
             return out;
         }
@@ -1128,12 +1323,15 @@
             return out;
         }
 
-        function calcMacdSeries(source) {
-            const ema12 = calcEma(12, source);
-            const ema26 = calcEma(26, source);
-            const macd = source.map((_, idx) => (ema12[idx] == null || ema26[idx] == null) ? null : (ema12[idx] - ema26[idx]));
+        function calcMacdSeries(source, fastPeriod = 12, slowPeriod = 26, signalPeriod = 9) {
+            const fast = Math.max(2, Math.min(300, Number(fastPeriod) || 12));
+            const slow = Math.max(2, Math.min(300, Number(slowPeriod) || 26));
+            const signalLen = Math.max(2, Math.min(300, Number(signalPeriod) || 9));
+            const emaFast = calcEma(fast, source);
+            const emaSlow = calcEma(slow, source);
+            const macd = source.map((_, idx) => (emaFast[idx] == null || emaSlow[idx] == null) ? null : (emaFast[idx] - emaSlow[idx]));
             const valid = macd.map(v => v == null ? 0 : v);
-            const signal = calcEma(9, valid);
+            const signal = calcEma(signalLen, valid);
             const hist = macd.map((v, idx) => (v == null || signal[idx] == null) ? null : (v - signal[idx]));
             return {
                 macd,
@@ -1154,6 +1352,44 @@
             const kSafe = k.map(v => v == null ? 50 : v);
             const d = calcSma(smooth, kSafe);
             return { k, d };
+        }
+
+        function calcAtrSeries(period, data) {
+            const tr = Array(data.length).fill(null);
+            for (let i = 0; i < data.length; i++) {
+                const current = data[i];
+                const prevClose = i === 0 ? current.value : data[i - 1].value;
+                const highLow = current.high - current.low;
+                const highPrev = Math.abs(current.high - prevClose);
+                const lowPrev = Math.abs(current.low - prevClose);
+                tr[i] = Math.max(highLow, highPrev, lowPrev);
+            }
+            return calcSma(period, tr.map(v => v == null ? 0 : v));
+        }
+
+        function calcRocSeries(period, source) {
+            const out = Array(source.length).fill(null);
+            for (let i = period; i < source.length; i++) {
+                const base = source[i - period];
+                if (!base) continue;
+                out[i] = ((source[i] - base) / base) * 100;
+            }
+            return out;
+        }
+
+        function calcCciSeries(period, data) {
+            const tp = data.map(d => (d.high + d.low + d.value) / 3);
+            const smaTp = calcSma(period, tp);
+            const out = Array(data.length).fill(null);
+            for (let i = period - 1; i < data.length; i++) {
+                const window = tp.slice(i - period + 1, i + 1);
+                const mean = smaTp[i];
+                if (mean == null) continue;
+                const md = window.reduce((acc, x) => acc + Math.abs(x - mean), 0) / period;
+                if (md === 0) continue;
+                out[i] = (tp[i] - mean) / (0.015 * md);
+            }
+            return out;
         }
 
         function addHistogramSeriesCompat(chart, options) {
@@ -1289,38 +1525,63 @@
 
         function ensureIndicatorSeries() {
             if (!lwChart || !lwSeries) return;
-            if (indicatorSeriesMap.ma5) return;
+            if (indicatorSeriesMap.maFast) return;
 
-            indicatorSeriesMap.ma5 = addLineSeriesCompat({ color: '#f59e0b', lineWidth: 1 });
-            indicatorSeriesMap.ma20 = addLineSeriesCompat({ color: '#8b5cf6', lineWidth: 1 });
-            indicatorSeriesMap.ma60 = addLineSeriesCompat({ color: '#06b6d4', lineWidth: 1 });
-            indicatorSeriesMap.ema12 = addLineSeriesCompat({ color: '#10b981', lineWidth: 1 });
-            indicatorSeriesMap.ema26 = addLineSeriesCompat({ color: '#ef4444', lineWidth: 1 });
+            indicatorSeriesMap.maFast = addLineSeriesCompat({ color: '#f59e0b', lineWidth: 1 });
+            indicatorSeriesMap.maMid = addLineSeriesCompat({ color: '#8b5cf6', lineWidth: 1 });
+            indicatorSeriesMap.maSlow = addLineSeriesCompat({ color: '#06b6d4', lineWidth: 1 });
+            indicatorSeriesMap.emaFast = addLineSeriesCompat({ color: '#10b981', lineWidth: 1 });
+            indicatorSeriesMap.emaSlow = addLineSeriesCompat({ color: '#ef4444', lineWidth: 1 });
+            indicatorSeriesMap.wma = addLineSeriesCompat({ color: '#0284c7', lineWidth: 1 });
             indicatorSeriesMap.vwap = addLineSeriesCompat({ color: '#0ea5e9', lineWidth: 1 });
             indicatorSeriesMap.bbUpper = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1, lineStyle: 2 });
             indicatorSeriesMap.bbMid = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1 });
             indicatorSeriesMap.bbLower = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1, lineStyle: 2 });
+            indicatorSeriesMap.volumeHist = addHistogramSeriesCompat(lwChart, {
+                priceFormat: { type: 'volume' },
+                priceScaleId: '',
+                scaleMargins: { top: 0.74, bottom: 0 },
+                lastValueVisible: false,
+                priceLineVisible: false
+            });
+            indicatorSeriesMap.volumeMa = addLineSeriesCompat({
+                color: '#475569',
+                lineWidth: 1,
+                priceScaleId: '',
+                scaleMargins: { top: 0.74, bottom: 0 },
+                lastValueVisible: false,
+                priceLineVisible: false
+            });
         }
+
+        let lastIndicatorValues = {};
 
         function renderIndicatorBoard(values) {
             const board = document.getElementById('indicatorValueBoard');
             if (!board) return;
+            lastIndicatorValues = values || {};
 
             const rows = [];
             const push = (name, value) => {
                 rows.push(`<div class="indicator-value-card"><div class="name">${name}</div><div class="val">${value}</div></div>`);
             };
 
-            if (indicatorEnabled.ma5) push('MA5', `$${format(values.ma5)}`);
-            if (indicatorEnabled.ma20) push('MA20', `$${format(values.ma20)}`);
-            if (indicatorEnabled.ma60) push('MA60', `$${format(values.ma60)}`);
-            if (indicatorEnabled.ema12) push('EMA12', `$${format(values.ema12)}`);
-            if (indicatorEnabled.ema26) push('EMA26', `$${format(values.ema26)}`);
+            if (indicatorEnabled.maFast) push(`MA${indicatorSettings.maFast}`, `$${format(values.maFast)}`);
+            if (indicatorEnabled.maMid) push(`MA${indicatorSettings.maMid}`, `$${format(values.maMid)}`);
+            if (indicatorEnabled.maSlow) push(`MA${indicatorSettings.maSlow}`, `$${format(values.maSlow)}`);
+            if (indicatorEnabled.emaFast) push(`EMA${indicatorSettings.emaFast}`, `$${format(values.emaFast)}`);
+            if (indicatorEnabled.emaSlow) push(`EMA${indicatorSettings.emaSlow}`, `$${format(values.emaSlow)}`);
+            if (indicatorEnabled.wma) push(`WMA${indicatorSettings.wmaPeriod}`, `$${format(values.wma)}`);
             if (indicatorEnabled.vwap) push('VWAP', `$${format(values.vwap)}`);
             if (indicatorEnabled.bbands) push('Bollinger', `$${format(values.bbLower)} / $${format(values.bbMid)} / $${format(values.bbUpper)}`);
-            if (indicatorEnabled.rsi) push('RSI(14)', `${format(values.rsi)}`);
-            if (indicatorEnabled.macd) push('MACD', `${format(values.macd)} / ${format(values.macdSignal)} / ${format(values.macdHist)}`);
-            if (indicatorEnabled.stoch) push('Stochastic', `${format(values.stoch)}`);
+            if (indicatorEnabled.rsi) push(`RSI(${indicatorSettings.rsiPeriod})`, `${format(values.rsi)}`);
+            if (indicatorEnabled.macd) push(`MACD(${indicatorSettings.macdFast},${indicatorSettings.macdSlow},${indicatorSettings.macdSignal})`, `${format(values.macd)} / ${format(values.macdSignal)} / ${format(values.macdHist)}`);
+            if (indicatorEnabled.stoch) push(`Stoch(${indicatorSettings.stochPeriod},${indicatorSettings.stochSmooth})`, `${format(values.stoch)}`);
+            if (indicatorEnabled.atr) push(`ATR(${indicatorSettings.atrPeriod})`, `${format(values.atr)}`);
+            if (indicatorEnabled.roc) push(`ROC(${indicatorSettings.rocPeriod})`, `${format(values.roc)}%`);
+            if (indicatorEnabled.cci) push(`CCI(${indicatorSettings.cciPeriod})`, `${format(values.cci)}`);
+            if (indicatorEnabled.volume) push('Volume', `${Math.round(values.volume || 0).toLocaleString()}`);
+            if (indicatorEnabled.volume) push(`Vol MA(${indicatorSettings.volumeMaPeriod})`, `${Math.round(values.volumeMa || 0).toLocaleString()}`);
 
             board.innerHTML = rows.join('');
         }
@@ -1330,16 +1591,19 @@
             if (!lwMainData.length) return;
 
             const closes = lwMainData.map(x => x.value);
-            const ma5 = calcSma(5, closes);
-            const ma20 = calcSma(20, closes);
-            const ma60 = calcSma(60, closes);
-            const ema12 = calcEma(12, closes);
-            const ema26 = calcEma(26, closes);
+            const maFast = calcSma(indicatorSettings.maFast, closes);
+            const maMid = calcSma(indicatorSettings.maMid, closes);
+            const maSlow = calcSma(indicatorSettings.maSlow, closes);
+            const emaFast = calcEma(indicatorSettings.emaFast, closes);
+            const emaSlow = calcEma(indicatorSettings.emaSlow, closes);
+            const wma = calcWma(indicatorSettings.wmaPeriod, closes);
             const vwap = calcVwap(lwMainData);
-            const std20 = calcStd(closes, 20);
-            const bbMid = ma20;
-            const bbUpper = bbMid.map((v, idx) => (v == null || std20[idx] == null) ? null : (v + (2 * std20[idx])));
-            const bbLower = bbMid.map((v, idx) => (v == null || std20[idx] == null) ? null : (v - (2 * std20[idx])));
+            const std = calcStd(closes, indicatorSettings.bbPeriod);
+            const bbMid = maMid;
+            const bbUpper = bbMid.map((v, idx) => (v == null || std[idx] == null) ? null : (v + (2 * std[idx])));
+            const bbLower = bbMid.map((v, idx) => (v == null || std[idx] == null) ? null : (v - (2 * std[idx])));
+            const volumes = lwMainData.map(x => Number(x.volume || 0));
+            const volumeMa = calcSma(indicatorSettings.volumeMaPeriod, volumes);
 
             const bindSeries = (key, values) => {
                 const series = indicatorSeriesMap[key];
@@ -1347,27 +1611,53 @@
                 series.setData(indicatorEnabled[key] ? toLineData(values) : []);
             };
 
-            bindSeries('ma5', ma5);
-            bindSeries('ma20', ma20);
-            bindSeries('ma60', ma60);
-            bindSeries('ema12', ema12);
-            bindSeries('ema26', ema26);
+            bindSeries('maFast', maFast);
+            bindSeries('maMid', maMid);
+            bindSeries('maSlow', maSlow);
+            bindSeries('emaFast', emaFast);
+            bindSeries('emaSlow', emaSlow);
+            bindSeries('wma', wma);
             bindSeries('vwap', vwap);
             indicatorSeriesMap.bbUpper?.setData(indicatorEnabled.bbands ? toLineData(bbUpper) : []);
             indicatorSeriesMap.bbMid?.setData(indicatorEnabled.bbands ? toLineData(bbMid) : []);
             indicatorSeriesMap.bbLower?.setData(indicatorEnabled.bbands ? toLineData(bbLower) : []);
+            if (indicatorSeriesMap.volumeHist) {
+                indicatorSeriesMap.volumeHist.setData(indicatorEnabled.volume
+                    ? lwMainData.map((point, idx) => {
+                        const prev = idx === 0 ? point.value : lwMainData[idx - 1].value;
+                        return {
+                            time: point.time,
+                            value: Number(point.volume || 0),
+                            color: point.value >= prev ? 'rgba(22,163,74,0.65)' : 'rgba(220,38,38,0.65)'
+                        };
+                    })
+                    : []);
+            }
+            if (indicatorSeriesMap.volumeMa) {
+                indicatorSeriesMap.volumeMa.setData(indicatorEnabled.volume
+                    ? lwMainData.map((point, idx) => {
+                        const value = volumeMa[idx];
+                        if (value == null) return null;
+                        return { time: point.time, value: Number(value) };
+                    }).filter(Boolean)
+                    : []);
+            }
 
-            const rsiSeriesData = calcRsiSeries(14, closes);
-            const macdSeriesData = calcMacdSeries(closes);
-            const stochSeriesData = calcStochasticSeries(14, 3, lwMainData);
+            const rsiSeriesData = calcRsiSeries(indicatorSettings.rsiPeriod, closes);
+            const macdSeriesData = calcMacdSeries(closes, indicatorSettings.macdFast, indicatorSettings.macdSlow, indicatorSettings.macdSignal);
+            const stochSeriesData = calcStochasticSeries(indicatorSettings.stochPeriod, indicatorSettings.stochSmooth, lwMainData);
+            const atrSeriesData = calcAtrSeries(indicatorSettings.atrPeriod, lwMainData);
+            const rocSeriesData = calcRocSeries(indicatorSettings.rocPeriod, closes);
+            const cciSeriesData = calcCciSeries(indicatorSettings.cciPeriod, lwMainData);
             renderIndicatorSubcharts(rsiSeriesData, macdSeriesData, stochSeriesData);
             const last = closes.length - 1;
             renderIndicatorBoard({
-                ma5: ma5[ma5.length - 1],
-                ma20: ma20[ma20.length - 1],
-                ma60: ma60[ma60.length - 1],
-                ema12: ema12[ema12.length - 1],
-                ema26: ema26[ema26.length - 1],
+                maFast: maFast[maFast.length - 1],
+                maMid: maMid[maMid.length - 1],
+                maSlow: maSlow[maSlow.length - 1],
+                emaFast: emaFast[emaFast.length - 1],
+                emaSlow: emaSlow[emaSlow.length - 1],
+                wma: wma[wma.length - 1],
                 vwap: vwap[vwap.length - 1],
                 bbUpper: bbUpper[bbUpper.length - 1],
                 bbMid: bbMid[bbMid.length - 1],
@@ -1376,7 +1666,12 @@
                 macd: macdSeriesData.macd[last],
                 macdSignal: macdSeriesData.signal[last],
                 macdHist: macdSeriesData.hist[last],
-                stoch: stochSeriesData.k[last]
+                stoch: stochSeriesData.k[last],
+                atr: atrSeriesData[last],
+                roc: rocSeriesData[last],
+                cci: cciSeriesData[last],
+                volume: volumes[last],
+                volumeMa: volumeMa[last]
             });
         }
 
@@ -1619,6 +1914,12 @@
                 renderEntryPriceLine();
                 renderTradeMarkers();
                 renderSimState();
+
+                const passiveBreach = getPassiveRiskBreachDetail();
+                if (passiveBreach) {
+                    blowPropAccountByRule(`${passiveBreach.code}: ${passiveBreach.message}`);
+                    return;
+                }
             } finally {
                 realtimeRefreshInFlight = false;
             }
@@ -1629,10 +1930,24 @@
             if (!root) return;
             root.innerHTML = '';
 
+            const getDynamicLabel = (ind) => {
+                if (ind.key === 'maFast') return `MA ${indicatorSettings.maFast}`;
+                if (ind.key === 'maMid') return `MA ${indicatorSettings.maMid}`;
+                if (ind.key === 'maSlow') return `MA ${indicatorSettings.maSlow}`;
+                if (ind.key === 'emaFast') return `EMA ${indicatorSettings.emaFast}`;
+                if (ind.key === 'emaSlow') return `EMA ${indicatorSettings.emaSlow}`;
+                if (ind.key === 'wma') return `WMA ${indicatorSettings.wmaPeriod}`;
+                if (ind.key === 'rsi') return `RSI ${indicatorSettings.rsiPeriod}`;
+                if (ind.key === 'atr') return `ATR ${indicatorSettings.atrPeriod}`;
+                if (ind.key === 'roc') return `ROC ${indicatorSettings.rocPeriod}`;
+                if (ind.key === 'cci') return `CCI ${indicatorSettings.cciPeriod}`;
+                return ind.label;
+            };
+
             INDICATOR_DEFINITIONS.forEach(ind => {
                 const label = document.createElement('label');
                 label.className = 'indicator-item';
-                label.innerHTML = `<input type="checkbox" data-indicator="${ind.key}" ${indicatorEnabled[ind.key] ? 'checked' : ''} /><span>${ind.label}</span>`;
+                label.innerHTML = `<input type="checkbox" data-indicator="${ind.key}" ${indicatorEnabled[ind.key] ? 'checked' : ''} /><span>${getDynamicLabel(ind)}</span>`;
                 root.appendChild(label);
             });
 
@@ -1643,6 +1958,56 @@
                     renderIndicators();
                 });
             });
+        }
+
+        function renderIndicatorSettings() {
+            const panel = document.getElementById('indicatorSettingsPanel');
+            if (!panel) return;
+            const idToKey = {
+                maFastPeriodInput: 'maFast',
+                maMidPeriodInput: 'maMid',
+                maSlowPeriodInput: 'maSlow',
+                emaFastPeriodInput: 'emaFast',
+                emaSlowPeriodInput: 'emaSlow',
+                wmaPeriodInput: 'wmaPeriod',
+                bbPeriodInput: 'bbPeriod',
+                rsiPeriodInput: 'rsiPeriod',
+                macdFastPeriodInput: 'macdFast',
+                macdSlowPeriodInput: 'macdSlow',
+                macdSignalPeriodInput: 'macdSignal',
+                stochPeriodInput: 'stochPeriod',
+                stochSmoothInput: 'stochSmooth',
+                atrPeriodInput: 'atrPeriod',
+                rocPeriodInput: 'rocPeriod',
+                cciPeriodInput: 'cciPeriod',
+                volumeMaPeriodInput: 'volumeMaPeriod'
+            };
+
+            Object.entries(idToKey).forEach(([id, key]) => {
+                const input = document.getElementById(id);
+                if (!input) return;
+                input.value = String(indicatorSettings[key]);
+                input.onchange = () => {
+                    indicatorSettings[key] = Number(input.value || indicatorSettings[key]);
+                    indicatorSettings = sanitizeIndicatorSettings(indicatorSettings);
+                    saveIndicatorSettings();
+                    renderIndicatorToggles();
+                    const rsiTitle = document.querySelector('#rsiChart')?.previousElementSibling;
+                    const macdTitle = document.querySelector('#macdChart')?.previousElementSibling;
+                    const stochTitle = document.querySelector('#stochChart')?.previousElementSibling;
+                    if (rsiTitle) rsiTitle.textContent = `RSI (${indicatorSettings.rsiPeriod})`;
+                    if (macdTitle) macdTitle.textContent = `MACD (${indicatorSettings.macdFast}, ${indicatorSettings.macdSlow}, ${indicatorSettings.macdSignal})`;
+                    if (stochTitle) stochTitle.textContent = `Stochastic (${indicatorSettings.stochPeriod}, ${indicatorSettings.stochSmooth})`;
+                    renderIndicators();
+                };
+            });
+
+            const rsiTitle = document.querySelector('#rsiChart')?.previousElementSibling;
+            const macdTitle = document.querySelector('#macdChart')?.previousElementSibling;
+            const stochTitle = document.querySelector('#stochChart')?.previousElementSibling;
+            if (rsiTitle) rsiTitle.textContent = `RSI (${indicatorSettings.rsiPeriod})`;
+            if (macdTitle) macdTitle.textContent = `MACD (${indicatorSettings.macdFast}, ${indicatorSettings.macdSlow}, ${indicatorSettings.macdSignal})`;
+            if (stochTitle) stochTitle.textContent = `Stochastic (${indicatorSettings.stochPeriod}, ${indicatorSettings.stochSmooth})`;
         }
 
         function renderEntryPriceLine() {
@@ -1711,7 +2076,9 @@
 
             applyMainSeriesData(currentSymbol);
             renderFrameButtons();
+            loadIndicatorSettings();
             renderIndicatorToggles();
+            renderIndicatorSettings();
             initIndicatorSubcharts();
             renderIndicators();
             window.addEventListener('resize', () => {
@@ -1764,6 +2131,39 @@
 
         function getPropPresetStorageKey() {
             return `prop_preset_v1_${getSimSessionKey()}`;
+        }
+
+        function getResetClickCountStorageKey() {
+            return `${RESET_CLICK_COUNT_KEY}_${getSimSessionKey()}`;
+        }
+
+        function getResetAdGrantStorageKey() {
+            return `${RESET_AD_GRANT_KEY}_${getSimSessionKey()}`;
+        }
+
+        function bumpManualResetClickCount() {
+            const key = getResetClickCountStorageKey();
+            let next = 1;
+            try {
+                const current = Number(localStorage.getItem(key) || '0');
+                next = Number.isFinite(current) ? current + 1 : 1;
+                localStorage.setItem(key, String(next));
+            } catch {
+                next = 1;
+            }
+            return next;
+        }
+
+        function consumeResetAdGrant() {
+            const key = getResetAdGrantStorageKey();
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return false;
+                localStorage.removeItem(key);
+                return true;
+            } catch {
+                return false;
+            }
         }
 
         function getDefaultPropRules() {
@@ -1849,6 +2249,7 @@
             propRuleDay = new Date().toISOString().slice(0, 10);
             propDailyStartEquity = defaultEquity;
             propPeakEquity = defaultEquity;
+            propAccountFailedReason = '';
 
             if (!isPersistentSimSession()) return;
             try {
@@ -1858,6 +2259,7 @@
                 if (typeof parsed?.day === 'string') propRuleDay = parsed.day;
                 if (typeof parsed?.dailyStartEquity === 'number') propDailyStartEquity = parsed.dailyStartEquity;
                 if (typeof parsed?.peakEquity === 'number') propPeakEquity = parsed.peakEquity;
+                if (typeof parsed?.failedReason === 'string') propAccountFailedReason = parsed.failedReason;
             } catch {
             }
         }
@@ -1867,7 +2269,8 @@
             localStorage.setItem(getPropRuleStateStorageKey(), JSON.stringify({
                 day: propRuleDay,
                 dailyStartEquity: propDailyStartEquity,
-                peakEquity: propPeakEquity
+                peakEquity: propPeakEquity,
+                failedReason: propAccountFailedReason
             }));
         }
 
@@ -1893,55 +2296,101 @@
             }).length;
         }
 
-        function getRuleBreachMessage({ side, symbol, qty, price, orderNotional = 0 }) {
+        function getRuleBreachDetail({ side, symbol, qty, price, orderNotional = 0 }) {
             ensurePropRuleState();
+            if (propAccountFailedReason) {
+                return { code: 'ACCOUNT_FAILED', message: propAccountFailedReason };
+            }
             const equity = getSimTotalEquity();
 
             if (qty > propRules.maxQtyPerOrder) {
-                return `Max qty per order breached (${qty} > ${propRules.maxQtyPerOrder}).`;
+                return { code: 'MAX_QTY', message: `Max qty per order breached (${qty} > ${propRules.maxQtyPerOrder}).` };
             }
 
             const tradesToday = getTodayTradeCount();
             if ((tradesToday + 1) > propRules.maxTradesPerDay) {
-                return `Max trades per day breached (${tradesToday + 1} > ${propRules.maxTradesPerDay}).`;
+                return { code: 'MAX_TRADES', message: `Max trades per day breached (${tradesToday + 1} > ${propRules.maxTradesPerDay}).` };
             }
 
             const dailyLossPct = propDailyStartEquity > 0
                 ? ((propDailyStartEquity - equity) / propDailyStartEquity) * 100
                 : 0;
             if (dailyLossPct > propRules.dailyLossPct) {
-                return `Daily loss rule breached (${dailyLossPct.toFixed(2)}% > ${propRules.dailyLossPct.toFixed(2)}%).`;
+                return { code: 'DAILY_LOSS', message: `Daily loss rule breached (${dailyLossPct.toFixed(2)}% > ${propRules.dailyLossPct.toFixed(2)}%).` };
             }
 
             const drawdownBase = propRules.mode === 'tmdd' ? propPeakEquity : simBaseCash;
             const maxLossAllowed = drawdownBase * (propRules.maxDrawdownPct / 100);
             if ((drawdownBase - equity) > maxLossAllowed) {
-                return `${propRules.mode.toUpperCase()} drawdown rule breached.`;
+                return { code: 'DRAWDOWN', message: `${propRules.mode.toUpperCase()} drawdown rule breached.` };
             }
 
+            const existingPositions = Object.keys(simPortfolio).filter(sym => (simPortfolio[sym]?.qty || 0) !== 0).length;
+            const currentQty = simPortfolio[symbol]?.qty || 0;
+
             if (side === 'buy') {
-                const existingPositions = Object.keys(simPortfolio).filter(sym => (simPortfolio[sym]?.qty || 0) > 0).length;
-                const nextPositions = simPortfolio[symbol] ? existingPositions : (existingPositions + 1);
+                const projectedQty = currentQty + qty;
+                const nextPositions = currentQty !== 0
+                    ? existingPositions - (projectedQty === 0 ? 1 : 0)
+                    : (projectedQty !== 0 ? existingPositions + 1 : existingPositions);
                 if (nextPositions > propRules.maxOpenPositions) {
-                    return `Max open positions breached (${nextPositions} > ${propRules.maxOpenPositions}).`;
+                    return { code: 'MAX_POSITIONS', message: `Max open positions breached (${nextPositions} > ${propRules.maxOpenPositions}).` };
                 }
 
-                const newQty = (simPortfolio[symbol]?.qty || 0) + qty;
-                const positionNotional = newQty * price;
+                const positionNotional = Math.abs(projectedQty) * price;
                 const positionCap = equity * (propRules.maxPositionPct / 100);
                 if (positionNotional > positionCap) {
-                    return `Max position notional breached (${propRules.maxPositionPct}% cap).`;
+                    return { code: 'POSITION_CAP', message: `Max position notional breached (${propRules.maxPositionPct}% cap).` };
+                }
+            }
+
+            if (side === 'sell') {
+                const projectedQty = currentQty - qty;
+                const nextPositions = currentQty !== 0
+                    ? existingPositions - (projectedQty === 0 ? 1 : 0)
+                    : (projectedQty !== 0 ? existingPositions + 1 : existingPositions);
+                if (nextPositions > propRules.maxOpenPositions) {
+                    return { code: 'MAX_POSITIONS', message: `Max open positions breached (${nextPositions} > ${propRules.maxOpenPositions}).` };
+                }
+
+                const positionNotional = Math.abs(projectedQty) * price;
+                const positionCap = equity * (propRules.maxPositionPct / 100);
+                if (positionNotional > positionCap) {
+                    return { code: 'POSITION_CAP', message: `Max position notional breached (${propRules.maxPositionPct}% cap).` };
                 }
             }
 
             if (orderNotional > 0) {
                 const cap = equity * (propRules.consistencyPct / 100);
                 if (orderNotional > cap) {
-                    return `Consistency rule breached (order > ${propRules.consistencyPct}% of equity).`;
+                    return { code: 'CONSISTENCY', message: `Consistency rule breached (order > ${propRules.consistencyPct}% of equity).` };
                 }
             }
 
-            return '';
+            return null;
+        }
+
+        function getPassiveRiskBreachDetail() {
+            ensurePropRuleState();
+            if (propAccountFailedReason) {
+                return { code: 'ACCOUNT_FAILED', message: propAccountFailedReason };
+            }
+
+            const equity = getSimTotalEquity();
+            const dailyLossPct = propDailyStartEquity > 0
+                ? ((propDailyStartEquity - equity) / propDailyStartEquity) * 100
+                : 0;
+            if (dailyLossPct > propRules.dailyLossPct) {
+                return { code: 'DAILY_LOSS', message: `Daily loss rule breached (${dailyLossPct.toFixed(2)}% > ${propRules.dailyLossPct.toFixed(2)}%).` };
+            }
+
+            const drawdownBase = propRules.mode === 'tmdd' ? propPeakEquity : simBaseCash;
+            const maxLossAllowed = drawdownBase * (propRules.maxDrawdownPct / 100);
+            if ((drawdownBase - equity) > maxLossAllowed) {
+                return { code: 'DRAWDOWN', message: `${propRules.mode.toUpperCase()} drawdown rule breached.` };
+            }
+
+            return null;
         }
 
         function setActivePresetButton(mode) {
@@ -1993,6 +2442,7 @@
 
         function renderPropRuleStatus() {
             const status = document.getElementById('propRuleStatus');
+            const failBadge = document.getElementById('propRuleFailBadge');
             if (!status) return;
             ensurePropRuleState();
             const equity = getSimTotalEquity();
@@ -2002,7 +2452,66 @@
             const drawdownBase = propRules.mode === 'tmdd' ? propPeakEquity : simBaseCash;
             const drawdownPct = drawdownBase > 0 ? ((drawdownBase - equity) / drawdownBase) * 100 : 0;
             const tradesToday = getTodayTradeCount();
-            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · PosCap ${propRules.maxPositionPct}% · Consistency ${propRules.consistencyPct}%`;
+            const failTag = propAccountFailedReason ? ` · FAILED (${propAccountFailedReason})` : '';
+            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · PosCap ${propRules.maxPositionPct}% · Consistency ${propRules.consistencyPct}%${failTag}`;
+            if (failBadge) {
+                if (propAccountFailedReason) {
+                    failBadge.style.display = '';
+                    failBadge.textContent = `실격 규칙: ${propAccountFailedReason}`;
+                } else {
+                    failBadge.style.display = 'none';
+                    failBadge.textContent = '';
+                }
+            }
+        }
+
+        function getDisqusShortname() {
+            try {
+                return (localStorage.getItem(DISQUS_SHORTNAME_KEY) || '').trim();
+            } catch {
+                return '';
+            }
+        }
+
+        function initDisqusThread() {
+            const statusEl = document.getElementById('disqusThreadStatus');
+            const host = document.getElementById('disqus_thread');
+            if (!statusEl || !host) return;
+
+            const shortname = getDisqusShortname();
+            if (!shortname) {
+                statusEl.textContent = 'Disqus shortname이 설정되지 않았습니다. localStorage key(disqus_shortname_v1)에 shortname을 저장하면 댓글 기능이 활성화됩니다.';
+                return;
+            }
+
+            const pageIdentifier = `symbol-${currentSymbol}`;
+            const pageUrl = `${location.origin}${location.pathname}?symbol=${encodeURIComponent(currentSymbol)}`;
+            window.disqus_config = function () {
+                this.page.url = pageUrl;
+                this.page.identifier = pageIdentifier;
+                this.page.title = `Symbol Board - ${currentSymbol}`;
+            };
+
+            if (disqusLoadedForIdentifier && disqusLoadedForIdentifier !== pageIdentifier && window.DISQUS && typeof window.DISQUS.reset === 'function') {
+                window.DISQUS.reset({
+                    reload: true,
+                    config: window.disqus_config
+                });
+                disqusLoadedForIdentifier = pageIdentifier;
+                statusEl.textContent = `Disqus thread loaded for ${currentSymbol}.`;
+                return;
+            }
+
+            if (!document.getElementById('disqus-embed-script')) {
+                const script = document.createElement('script');
+                script.id = 'disqus-embed-script';
+                script.src = `https://${shortname}.disqus.com/embed.js`;
+                script.setAttribute('data-timestamp', String(Date.now()));
+                script.async = true;
+                (document.head || document.body).appendChild(script);
+            }
+            disqusLoadedForIdentifier = pageIdentifier;
+            statusEl.textContent = `Disqus thread loaded for ${currentSymbol}.`;
         }
 
         function applyPropPreset(mode) {
@@ -2056,11 +2565,35 @@
             alert('Prop rules saved. Use Reset Account to restart with the selected account size.');
         }
 
-        function resetPropAccount() {
-            if (!isPersistentSimSession()) {
+        function resetPropAccount(options = {}) {
+            const skipAuthCheck = !!options.skipAuthCheck;
+            const silent = !!options.silent;
+            const fromAdWatch = !!options.fromAdWatch;
+            if (!skipAuthCheck && !isPersistentSimSession()) {
                 alert('Login required to reset account.');
                 return;
             }
+
+            let resetCount = 0;
+            if (!silent && !fromAdWatch) {
+                resetCount = bumpManualResetClickCount();
+                if (resetCount >= 3 && !consumeResetAdGrant()) {
+                    alert('3번째 리셋부터는 광고 시청 후 진행됩니다. 광고를 본 뒤 자동으로 리셋됩니다.');
+                    const nextUrl = `./symbol.html?symbol=${encodeURIComponent(currentSymbol)}&ad_reset=1`;
+                    location.href = `./advertise.html?flow=reset-ad&next=${encodeURIComponent(nextUrl)}`;
+                    return;
+                }
+            }
+
+            if (!silent && fromAdWatch) {
+                try {
+                    const current = Number(localStorage.getItem(getResetClickCountStorageKey()) || '3');
+                    resetCount = Number.isFinite(current) ? current : 3;
+                } catch {
+                    resetCount = 3;
+                }
+            }
+
             simBaseCash = propRules.startingBalance;
             simCash = simBaseCash;
             simPortfolio = {};
@@ -2068,6 +2601,7 @@
             propRuleDay = new Date().toISOString().slice(0, 10);
             propDailyStartEquity = simBaseCash;
             propPeakEquity = simBaseCash;
+            propAccountFailedReason = '';
 
             savePropRules();
             savePropRuleState();
@@ -2077,7 +2611,65 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            alert('Account has been reset using current prop settings.');
+            if (!silent) {
+                if (resetCount >= 2) {
+                    alert('리셋은 결제 없이 운영됩니다. 교육 글을 읽어주시고, 3회차부터는 광고 시청 후 리셋이 진행됩니다.');
+                } else {
+                    alert('미국식 조크: 결제는 없어요 😄 데모 교육이잖아요, 화이팅!');
+                }
+            }
+        }
+
+        function blowPropAccountByRule(reason) {
+            if (propAccountFailedReason) {
+                return;
+            }
+            propAccountFailedReason = reason;
+            simCash = 0;
+            simPortfolio = {};
+            simTxs.unshift({
+                date: new Date().toLocaleString(),
+                ts: Date.now(),
+                symbol: currentSymbol,
+                side: 'RULE-FAIL',
+                qty: 0,
+                price: 0
+            });
+            if (simTxs.length > 300) simTxs = simTxs.slice(0, 300);
+            saveSimState();
+            savePropRuleState();
+            renderSimState();
+            renderEntryPriceLine();
+            renderTradeMarkers();
+            refreshRealtimeValuation();
+            alert(`Rule breach detected: ${reason}\n계좌가 즉시 종료되었습니다. Reset Account로 다시 시작하세요.`);
+        }
+
+        function consumeReadResetRequest() {
+            let requested = false;
+            try {
+                const raw = localStorage.getItem(READ_RESET_REQUEST_KEY);
+                if (raw) {
+                    requested = true;
+                    localStorage.removeItem(READ_RESET_REQUEST_KEY);
+                }
+            } catch {
+                return;
+            }
+
+            if (!requested) return;
+            resetPropAccount({ skipAuthCheck: true, silent: true });
+            alert('다읽었습니다 확인 완료: 데모 계좌를 초기화했습니다.');
+        }
+
+        function consumeAdResetRequest() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('ad_reset') !== '1') return;
+
+            resetPropAccount({ fromAdWatch: true });
+            const url = new URL(window.location.href);
+            url.searchParams.delete('ad_reset');
+            history.replaceState({}, '', url.toString());
         }
 
         function loadSimState() {
@@ -2184,6 +2776,10 @@
         }
 
         function executeSimTrade(orderType, side) {
+            if (propAccountFailedReason) {
+                alert(`계좌가 이미 종료되었습니다: ${propAccountFailedReason}\nReset Account로 재시작하세요.`);
+                return;
+            }
             const qty = parseInt(document.getElementById('simQtyInput').value, 10);
             const limit = parseFloat(document.getElementById('simLimitInput').value);
             const sym = currentSymbol;
@@ -2216,7 +2812,7 @@
             }
 
             const orderNotional = execPrice * qty;
-            const ruleBreach = getRuleBreachMessage({
+            const ruleBreach = getRuleBreachDetail({
                 side,
                 symbol: sym,
                 qty,
@@ -2224,7 +2820,7 @@
                 orderNotional
             });
             if (ruleBreach) {
-                alert(`Order blocked by prop rules: ${ruleBreach}`);
+                blowPropAccountByRule(`${ruleBreach.code}: ${ruleBreach.message}`);
                 return;
             }
 
@@ -2237,19 +2833,54 @@
                 simCash -= cost;
                 if (!simPortfolio[sym]) simPortfolio[sym] = { qty: 0, avgPrice: 0 };
                 const oldQty = simPortfolio[sym].qty;
-                const newQty = oldQty + qty;
-                simPortfolio[sym].avgPrice = ((simPortfolio[sym].avgPrice * oldQty) + (execPrice * qty)) / newQty;
-                simPortfolio[sym].qty = newQty;
-                simTxs.unshift({ date: new Date().toLocaleString(), ts: Date.now(), symbol: sym, side: `BUY-${orderType.toUpperCase()}`, qty, price: execPrice });
-            } else {
-                if (!simPortfolio[sym] || simPortfolio[sym].qty < qty) {
-                    alert('Insufficient holdings quantity.');
-                    return;
+                let tradeSideLabel = `BUY-${orderType.toUpperCase()}`;
+                if (oldQty < 0) {
+                    const shortAbs = Math.abs(oldQty);
+                    if (qty < shortAbs) {
+                        simPortfolio[sym].qty = oldQty + qty;
+                        tradeSideLabel = `BUY-COVER-${orderType.toUpperCase()}`;
+                    } else if (qty === shortAbs) {
+                        delete simPortfolio[sym];
+                        tradeSideLabel = `BUY-COVER-CLOSE-${orderType.toUpperCase()}`;
+                    } else {
+                        const longQty = qty - shortAbs;
+                        simPortfolio[sym] = { qty: longQty, avgPrice: execPrice };
+                        tradeSideLabel = `BUY-COVER-FLIP-${orderType.toUpperCase()}`;
+                    }
+                } else {
+                    const newQty = oldQty + qty;
+                    const oldNotional = simPortfolio[sym].avgPrice * oldQty;
+                    const newNotional = oldNotional + (execPrice * qty);
+                    simPortfolio[sym].avgPrice = newQty === 0 ? 0 : (newNotional / newQty);
+                    simPortfolio[sym].qty = newQty;
                 }
+                simTxs.unshift({ date: new Date().toLocaleString(), ts: Date.now(), symbol: sym, side: tradeSideLabel, qty, price: execPrice });
+            } else {
                 simCash += execPrice * qty;
-                simPortfolio[sym].qty -= qty;
-                if (simPortfolio[sym].qty === 0) delete simPortfolio[sym];
-                simTxs.unshift({ date: new Date().toLocaleString(), ts: Date.now(), symbol: sym, side: `SELL-${orderType.toUpperCase()}`, qty, price: execPrice });
+                if (!simPortfolio[sym]) simPortfolio[sym] = { qty: 0, avgPrice: 0 };
+                const oldQty = simPortfolio[sym].qty;
+                let tradeSideLabel = `SELL-${orderType.toUpperCase()}`;
+                if (oldQty > 0) {
+                    if (qty < oldQty) {
+                        simPortfolio[sym].qty = oldQty - qty;
+                    } else if (qty === oldQty) {
+                        delete simPortfolio[sym];
+                        tradeSideLabel = `SELL-CLOSE-${orderType.toUpperCase()}`;
+                    } else {
+                        const shortQty = qty - oldQty;
+                        simPortfolio[sym] = { qty: -shortQty, avgPrice: execPrice };
+                        tradeSideLabel = `SELL-FLIP-SHORT-${orderType.toUpperCase()}`;
+                    }
+                } else {
+                    const oldAbs = Math.abs(oldQty);
+                    const newAbs = oldAbs + qty;
+                    const oldNotional = simPortfolio[sym].avgPrice * oldAbs;
+                    const newNotional = oldNotional + (execPrice * qty);
+                    simPortfolio[sym].avgPrice = newAbs === 0 ? 0 : (newNotional / newAbs);
+                    simPortfolio[sym].qty = -newAbs;
+                    tradeSideLabel = `SELL-SHORT-${orderType.toUpperCase()}`;
+                }
+                simTxs.unshift({ date: new Date().toLocaleString(), ts: Date.now(), symbol: sym, side: tradeSideLabel, qty, price: execPrice });
             }
 
             if (simTxs.length > 300) simTxs = simTxs.slice(0, 300);
@@ -2259,9 +2890,18 @@
             renderEntryPriceLine();
             appendTradeMarker(side, execPrice);
             refreshRealtimeValuation();
+
+            const postTradeBreach = getPassiveRiskBreachDetail();
+            if (postTradeBreach) {
+                blowPropAccountByRule(`${postTradeBreach.code}: ${postTradeBreach.message}`);
+            }
         }
 
         async function closeAllPositions() {
+            if (propAccountFailedReason) {
+                alert(`계좌가 이미 종료되었습니다: ${propAccountFailedReason}\nReset Account로 재시작하세요.`);
+                return;
+            }
             const symbols = Object.keys(simPortfolio);
             if (symbols.length === 0) {
                 alert('There are no positions to close.');
@@ -2285,11 +2925,19 @@
                 }
 
                 const qty = holding.qty;
+                const closeQty = Math.abs(qty);
                 simCash += currentPrice * qty;
                 delete simPortfolio[sym];
-                simTxs.unshift({ date: now, ts: Date.now(), symbol: sym, side: 'SELL-ALL', qty, price: currentPrice });
+                simTxs.unshift({
+                    date: now,
+                    ts: Date.now(),
+                    symbol: sym,
+                    side: qty > 0 ? 'SELL-ALL' : 'BUY-COVER-ALL',
+                    qty: closeQty,
+                    price: currentPrice
+                });
                 if (sym === currentSymbol) {
-                    appendTradeMarker('sell', currentPrice);
+                    appendTradeMarker(qty > 0 ? 'sell' : 'buy', currentPrice);
                 }
                 closedCount += 1;
             });
@@ -2323,6 +2971,7 @@
             history.replaceState({}, '', url.toString());
             renderPosts();
             updateChartsForSymbol(currentSymbol);
+            initDisqusThread();
         }
 
         function setCategory(category) {
@@ -2626,6 +3275,9 @@
         initLightweightChart();
         renderCategories();
         initFromQuery();
+        initDisqusThread();
+        consumeAdResetRequest();
+        consumeReadResetRequest();
         if (realtimeQuoteTimer) clearInterval(realtimeQuoteTimer);
         realtimeQuoteTimer = setInterval(refreshRealtimeValuation, 10000);
     </script>

@@ -116,6 +116,17 @@
             color: var(--muted);
         }
 
+        .read-reset-btn {
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: #fff;
+            font-weight: 700;
+            padding: 10px 14px;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
         @media (max-width: 720px) {
             nav .container { padding: 1rem; }
             .hero-card { padding: 22px; }
@@ -182,8 +193,25 @@
             <p>This site provides educational content, not investment advice. In leveraged products, strict rules (position size, stop-loss, and daily max loss limits) are essential.</p>
         </article>
 
+        <article class="panel">
+            <h2>Read Complete Check</h2>
+            <p>Click the button below after reading this page. Your demo account will reset for a fresh education run.</p>
+            <button id="propReadDoneBtn" class="read-reset-btn" type="button">다읽었습니다 (Reset Demo Account)</button>
+            <div class="helper" style="margin-top:8px;">No payment required. This is an education-only reset flow.</div>
+        </article>
+
         <div class="helper">Tip: If you are new, start with no leverage or very low leverage and focus on consistency first.</div>
     </section>
+
+    <script>
+        document.getElementById('propReadDoneBtn')?.addEventListener('click', () => {
+            try {
+                localStorage.setItem('prop_read_reset_request_v1', JSON.stringify({ requestedAt: Date.now() }));
+            } catch {
+            }
+            location.href = './symbol.html';
+        });
+    </script>
 
     <script src="./analytics.js"></script>
     <script src="./legal-consent.js"></script>
