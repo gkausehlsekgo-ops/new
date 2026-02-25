@@ -128,7 +128,7 @@
         };
         const hideBanner = () => {
             banner.classList.remove('show');
-            manageBtn.style.display = 'inline-block';
+            manageBtn.style.display = 'none';
         };
 
         document.getElementById('legalConsentAccept').addEventListener('click', () => {
