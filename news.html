@@ -116,20 +116,30 @@
 
         .news-grid {
             display: grid;
-            gap: 10px;
+            gap: 14px;
         }
 
         .news-item {
             border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 12px;
+            border-radius: 14px;
+            padding: 16px;
             background: #fff;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 220px;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .news-content {
+            min-width: 0;
         }
 
         .news-item a {
             color: #0f172a;
             text-decoration: none;
-            font-weight: 700;
+            font-weight: 800;
+            font-size: 18px;
+            line-height: 1.45;
         }
 
         .news-item a:hover {
@@ -137,9 +147,18 @@
         }
 
         .meta {
-            margin-top: 6px;
-            font-size: 12px;
+            margin-top: 10px;
+            font-size: 13px;
             color: var(--muted);
+        }
+
+        .news-thumb {
+            width: 100%;
+            height: 130px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid var(--line);
+            background: #f8fafc;
         }
 
         .helper {
@@ -171,6 +190,12 @@
         @media (max-width: 720px) {
             nav .container { padding: 1rem; }
             .hero-card { padding: 20px; }
+            .news-item {
+                grid-template-columns: 1fr;
+            }
+            .news-thumb {
+                height: 180px;
+            }
         }
     </style>
 <script type="text/javascript">
@@ -300,10 +325,35 @@
 
             list.innerHTML = items.map((item) => `
                 <article class="news-item">
-                    <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
-                    <div class="meta">${escapeHtml(item.source)} · ${formatTime(item.publishedAt)}</div>
+                    <div class="news-content">
+                        <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
+                        <div class="meta">${escapeHtml(item.source)} · ${formatTime(item.publishedAt)}</div>
+                    </div>
+                    ${item.imageUrl ? `<img class="news-thumb" src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" referrerpolicy="no-referrer" />` : ''}
                 </article>
             `).join('');
+        }
+
+        function extractImageUrl(node) {
+            const mediaContent = node.querySelector('media\\:content, content');
+            const mediaThumb = node.querySelector('media\\:thumbnail, thumbnail');
+            const enclosure = node.querySelector('enclosure');
+
+            const mediaContentUrl = mediaContent?.getAttribute('url');
+            if (mediaContentUrl) return mediaContentUrl.trim();
+
+            const mediaThumbUrl = mediaThumb?.getAttribute('url');
+            if (mediaThumbUrl) return mediaThumbUrl.trim();
+
+            const enclosureType = enclosure?.getAttribute('type') || '';
+            const enclosureUrl = enclosure?.getAttribute('url');
+            if (enclosureUrl && enclosureType.startsWith('image/')) return enclosureUrl.trim();
+
+            const description = node.querySelector('description')?.textContent || '';
+            const match = description.match(/<img[^>]+src=["']([^"']+)["']/i);
+            if (match?.[1]) return match[1].trim();
+
+            return '';
         }
 
         async function fetchFeed(feed) {
@@ -322,7 +372,8 @@
                     title,
                     link,
                     source: feed.source,
-                    publishedAt: pubDate
+                    publishedAt: pubDate,
+                    imageUrl: extractImageUrl(node)
                 };
             });
         }
