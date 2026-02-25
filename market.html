@@ -1152,6 +1152,15 @@
             return String(symbol || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
         }
 
+        function escapeHtml(text) {
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderDividendList(type = 'world') {
             const listEl = document.getElementById('dividendList');
             if (!listEl) return;
@@ -1172,8 +1181,8 @@
                 return `
                     <li class="dividend-item">
                         <div class="dividend-rank">Rank #${index + 1}</div>
-                        <div class="dividend-symbol">${item.symbol}</div>
-                        <div class="dividend-name">${item.name}</div>
+                        <div class="dividend-symbol">${escapeHtml(item.symbol)}</div>
+                        <div class="dividend-name">${escapeHtml(item.name)}</div>
                         <div class="dividend-meta">Dividend payer${regionText} · <a class="board-link" href="./symbol.html?symbol=${encodeURIComponent(boardSymbol)}">Symbol Board →</a></div>
                         <div class="dividend-live">
                             <span class="dividend-badge">Price ${priceText}</span>
@@ -1183,8 +1192,8 @@
                             <span class="dividend-badge">Turnover ${turnoverText}</span>
                         </div>
                         <div class="dividend-actions">
-                            <input type="number" class="dividend-qty-input" data-symbol="${item.symbol}" data-name="${item.name}" min="1" step="1" value="1" />
-                            <button class="dividend-add-btn" type="button" data-symbol="${item.symbol}" data-name="${item.name}">Add to Portfolio</button>
+                            <input type="number" class="dividend-qty-input" data-symbol="${escapeHtml(item.symbol)}" data-name="${escapeHtml(item.name)}" min="1" step="1" value="1" />
+                            <button class="dividend-add-btn" type="button" data-symbol="${escapeHtml(item.symbol)}" data-name="${escapeHtml(item.name)}">Add to Portfolio</button>
                         </div>
                     </li>
                 `;
@@ -1215,8 +1224,8 @@
                 total += value;
                 return `
                     <tr>
-                        <td>${item.symbol}</td>
-                        <td>${item.name}</td>
+                        <td>${escapeHtml(item.symbol)}</td>
+                        <td>${escapeHtml(item.name)}</td>
                         <td><input type="number" min="1" step="1" class="portfolio-qty-input" data-key="${key}" value="${item.qty}" /></td>
                         <td>$${price.toFixed(2)}</td>
                         <td>$${value.toFixed(2)}</td>

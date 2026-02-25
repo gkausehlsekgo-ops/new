@@ -441,6 +441,15 @@
             return (diff * size) - fee;
         }
 
+        function escapeHtml(text) {
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function renderTrades() {
             const symbolFilter = filterSymbol.value.trim().toLowerCase();
             const tagFilter = filterTag.value.trim().toLowerCase();
@@ -461,14 +470,14 @@
                 const pnlClass = trade.pnl >= 0 ? 'positive' : 'negative';
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${trade.date}</td>
-                    <td>${trade.symbol}</td>
+                    <td>${escapeHtml(trade.date)}</td>
+                    <td>${escapeHtml(trade.symbol)}</td>
                     <td>${trade.side === 'buy' ? 'Buy' : 'Sell'}</td>
                     <td>${trade.entry.toFixed(2)}</td>
                     <td>${trade.exit.toFixed(2)}</td>
                     <td>${trade.size}</td>
                     <td class="${pnlClass}">${trade.pnl.toFixed(2)}</td>
-                    <td>${trade.note || '-'}</td>
+                    <td>${escapeHtml(trade.note || '-')}</td>
                     <td><button class="ghost" data-index="${index}">Delete</button></td>
                 `;
                 tradeTable.appendChild(row);
@@ -486,13 +495,13 @@
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
-                    <h3>${style.name} · ${style.type}</h3>
-                    <p>Market: ${style.market}</p>
-                    <p>Timeframe: ${style.timeframe}</p>
+                    <h3>${escapeHtml(style.name)} · ${escapeHtml(style.type)}</h3>
+                    <p>Market: ${escapeHtml(style.market)}</p>
+                    <p>Timeframe: ${escapeHtml(style.timeframe)}</p>
                     <p>Risk: ${style.risk}%</p>
-                    <p>Setup: ${style.setup}</p>
-                    <p>Rules: ${style.rules || '-'}</p>
-                    <p>Lesson: ${style.lesson || '-'}</p>
+                    <p>Setup: ${escapeHtml(style.setup)}</p>
+                    <p>Rules: ${escapeHtml(style.rules || '-')}</p>
+                    <p>Lesson: ${escapeHtml(style.lesson || '-')}</p>
                     <button class="ghost" data-style-index="${index}">Delete</button>
                 `;
                 styleCards.appendChild(card);

@@ -233,6 +233,15 @@
 
         function format(n){ return typeof n==='number' ? n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : n }
 
+        function escapeHtml(text){
+            return String(text || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function render(){
             cashDisplay.textContent = '$' + format(cash);
             // render holdings
@@ -248,7 +257,7 @@
                 const pl = (cur - it.avgPrice) * it.qty;
                 total += cur * it.qty;
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${sym}</td><td>${it.qty}</td><td>$${format(it.avgPrice)}</td><td>$${format(cur)}</td><td class="${pl>=0? 'positive':'negative'}">$${format(pl)}</td>`;
+                tr.innerHTML = `<td>${escapeHtml(sym)}</td><td>${it.qty}</td><td>$${format(it.avgPrice)}</td><td>$${format(cur)}</td><td class="${pl>=0? 'positive':'negative'}">$${format(pl)}</td>`;
                 holdingsTbody.appendChild(tr);
             });
             portfolioValueEl.textContent = '$' + format(total);
@@ -258,7 +267,7 @@
             if(txs.length===0){ txTbody.innerHTML = '<tr><td colspan="5" class="small">No transactions</td></tr>' }
             txs.forEach(t=>{
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${t.date}</td><td>${t.symbol}</td><td>${t.side}</td><td>${t.qty}</td><td>$${format(t.price)}</td>`;
+                tr.innerHTML = `<td>${escapeHtml(t.date)}</td><td>${escapeHtml(t.symbol)}</td><td>${escapeHtml(t.side)}</td><td>${t.qty}</td><td>$${format(t.price)}</td>`;
                 txTbody.appendChild(tr);
             });
             updatePerf(total);
