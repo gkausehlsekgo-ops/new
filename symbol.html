@@ -225,6 +225,11 @@
             height: 340px;
         }
 
+        #volumeChart {
+            width: 100%;
+            height: 78px;
+        }
+
         .chart-meta {
             font-size: 12px;
             color: var(--muted);
@@ -599,6 +604,9 @@
             <div class="chart-wrap">
                 <div id="lightweightChart"></div>
             </div>
+            <div class="chart-wrap" style="margin-top:8px;">
+                <div id="volumeChart"></div>
+            </div>
             <div class="chart-meta" id="lightweightSource">This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts™ by TradingView.</div>
             <div class="chart-meta" id="chartStatusMessage"></div>
 
@@ -933,6 +941,9 @@
         let lwEntryLine = null;
         let lwTradeMarkers = [];
         let lwMainData = [];
+        let volumeChart;
+        let volumeHistSeries;
+        let volumeMaSeries;
         let indicatorSeriesMap = {};
         let rsiChart;
         let macdChart;
@@ -983,6 +994,8 @@
             SP500: 5150.44,
             DOW: 38800.10,
             AAPL: 187.22,
+            MNQ: 20950.00,
+            NQ: 20950.00,
             BTCUSD: 96000.00
         };
 
@@ -993,6 +1006,8 @@
             SP500: '^GSPC',
             DOW: '^DJI',
             AAPL: 'AAPL',
+            MNQ: 'MNQ=F',
+            NQ: 'NQ=F',
             BTCUSD: 'BTC-USD'
         };
 
@@ -1188,6 +1203,8 @@
             if (normalized === '^KQ11' || normalized === 'KQ11') return 'KOSDAQ';
             if (normalized === '^GSPC' || normalized === '.GSPC') return 'SP500';
             if (normalized === '^DJI') return 'DOW';
+            if (normalized === 'MNQ=F') return 'MNQ';
+            if (normalized === 'NQ=F') return 'NQ';
             return normalized || 'AAPL';
         }
 
@@ -1322,6 +1339,16 @@
                 out[i] = weighted / denom;
             }
             return out;
+        }
+
+        function compressVolumeSeries(rawVolumes) {
+            if (!Array.isArray(rawVolumes) || rawVolumes.length === 0) return [];
+            const valid = rawVolumes.filter(v => Number.isFinite(v) && v >= 0).sort((a, b) => a - b);
+            if (valid.length === 0) return rawVolumes.map(() => 0);
+            const idx = Math.floor((valid.length - 1) * 0.90);
+            const p95 = valid[Math.max(0, Math.min(valid.length - 1, idx))] || 0;
+            const cap = Math.max(1, p95 * 1.10);
+            return rawVolumes.map(v => Math.min(Math.max(0, Number(v) || 0), cap));
         }
 
         function calcStd(source, period) {
@@ -1589,21 +1616,6 @@
             indicatorSeriesMap.bbUpper = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1, lineStyle: 2 });
             indicatorSeriesMap.bbMid = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1 });
             indicatorSeriesMap.bbLower = addLineSeriesCompat({ color: '#6366f1', lineWidth: 1, lineStyle: 2 });
-            indicatorSeriesMap.volumeHist = addHistogramSeriesCompat(lwChart, {
-                priceFormat: { type: 'volume' },
-                priceScaleId: '',
-                scaleMargins: { top: 0.948, bottom: 0 },
-                lastValueVisible: false,
-                priceLineVisible: false
-            });
-            indicatorSeriesMap.volumeMa = addLineSeriesCompat({
-                color: '#475569',
-                lineWidth: 1,
-                priceScaleId: '',
-                scaleMargins: { top: 0.948, bottom: 0 },
-                lastValueVisible: false,
-                priceLineVisible: false
-            });
         }
 
         let lastIndicatorValues = {};
@@ -1655,7 +1667,9 @@
             const bbUpper = bbMid.map((v, idx) => (v == null || std[idx] == null) ? null : (v + (2 * std[idx])));
             const bbLower = bbMid.map((v, idx) => (v == null || std[idx] == null) ? null : (v - (2 * std[idx])));
             const volumes = lwMainData.map(x => Number(x.volume || 0));
+            const volumeCompressed = compressVolumeSeries(volumes);
             const volumeMa = calcSma(indicatorSettings.volumeMaPeriod, volumes);
+            const volumeMaCompressed = calcSma(indicatorSettings.volumeMaPeriod, volumeCompressed);
 
             const bindSeries = (key, values) => {
                 const series = indicatorSeriesMap[key];
@@ -1673,22 +1687,22 @@
             indicatorSeriesMap.bbUpper?.setData(indicatorEnabled.bbands ? toLineData(bbUpper) : []);
             indicatorSeriesMap.bbMid?.setData(indicatorEnabled.bbands ? toLineData(bbMid) : []);
             indicatorSeriesMap.bbLower?.setData(indicatorEnabled.bbands ? toLineData(bbLower) : []);
-            if (indicatorSeriesMap.volumeHist) {
-                indicatorSeriesMap.volumeHist.setData(indicatorEnabled.volume
+            if (volumeHistSeries) {
+                volumeHistSeries.setData(indicatorEnabled.volume
                     ? lwMainData.map((point, idx) => {
                         const prev = idx === 0 ? point.value : lwMainData[idx - 1].value;
                         return {
                             time: point.time,
-                            value: Number(point.volume || 0),
+                            value: Number(volumeCompressed[idx] || 0),
                             color: point.value >= prev ? 'rgba(22,163,74,0.65)' : 'rgba(220,38,38,0.65)'
                         };
                     })
                     : []);
             }
-            if (indicatorSeriesMap.volumeMa) {
-                indicatorSeriesMap.volumeMa.setData(indicatorEnabled.volume
+            if (volumeMaSeries) {
+                volumeMaSeries.setData(indicatorEnabled.volume
                     ? lwMainData.map((point, idx) => {
-                        const value = volumeMa[idx];
+                        const value = volumeMaCompressed[idx];
                         if (value == null) return null;
                         return { time: point.time, value: Number(value) };
                     }).filter(Boolean)
@@ -2120,6 +2134,35 @@
                 }
             });
 
+            const volumeRoot = document.getElementById('volumeChart');
+            if (volumeRoot) {
+                volumeChart = LightweightCharts.createChart(volumeRoot, {
+                    width: volumeRoot.clientWidth,
+                    height: 78,
+                    layout: {
+                        background: { color: '#ffffff' },
+                        textColor: '#94a3b8'
+                    },
+                    grid: {
+                        vertLines: { color: '#f1f5f9' },
+                        horzLines: { color: '#f1f5f9' }
+                    },
+                    rightPriceScale: { borderColor: '#e2e8f0' },
+                    timeScale: { borderColor: '#e2e8f0' }
+                });
+                volumeHistSeries = addHistogramSeriesCompat(volumeChart, {
+                    priceFormat: { type: 'volume' },
+                    lastValueVisible: false,
+                    priceLineVisible: false
+                });
+                volumeMaSeries = addLineSeriesForChart(volumeChart, {
+                    color: '#475569',
+                    lineWidth: 1,
+                    lastValueVisible: false,
+                    priceLineVisible: false
+                });
+            }
+
             lwSeries = createPrimarySeries(currentSymbol);
             if (!lwSeries) {
                 document.getElementById('lightweightSource').textContent = 'Chart load failed: Lightweight Charts version compatibility issue.';
@@ -2136,6 +2179,10 @@
             window.addEventListener('resize', () => {
                 lwChart.applyOptions({ width: root.clientWidth });
                 const width = root.clientWidth;
+                if (volumeChart) {
+                    const volumeRootEl = document.getElementById('volumeChart');
+                    volumeChart.applyOptions({ width: volumeRootEl ? volumeRootEl.clientWidth : width });
+                }
                 if (rsiChart) rsiChart.applyOptions({ width });
                 if (macdChart) macdChart.applyOptions({ width });
                 if (stochChart) stochChart.applyOptions({ width });
