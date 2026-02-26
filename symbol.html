@@ -910,6 +910,7 @@
         const RESET_CLICK_COUNT_KEY = 'prop_reset_click_count_v1';
         const RESET_AD_GRANT_KEY = 'prop_reset_ad_grant_v1';
         const DISQUS_SHORTNAME_KEY = 'disqus_shortname_v1';
+        const DISQUS_SHORTNAME_DEFAULT = 'chan-8';
         const INDICATOR_SETTINGS_KEY = 'symbol_indicator_settings_v1';
         const SUPABASE_URL_KEY = 'supabase_url';
         const SUPABASE_ANON_KEY = 'supabase_anon_key';
@@ -2596,9 +2597,12 @@
 
         function getDisqusShortname() {
             try {
-                return (localStorage.getItem(DISQUS_SHORTNAME_KEY) || '').trim();
+                const stored = (localStorage.getItem(DISQUS_SHORTNAME_KEY) || '').trim();
+                if (stored) return stored;
+                localStorage.setItem(DISQUS_SHORTNAME_KEY, DISQUS_SHORTNAME_DEFAULT);
+                return DISQUS_SHORTNAME_DEFAULT;
             } catch {
-                return '';
+                return DISQUS_SHORTNAME_DEFAULT;
             }
         }
 
