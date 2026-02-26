@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://si-tip.com/sitemap.xml
+LLMS: https://si-tip.com/llms.txt

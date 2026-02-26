@@ -1,0 +1,26 @@
+# Smart Investment Tips
+
+Smart Investment Tips provides educational content for trading and investing.
+The site focuses on beginner-friendly guides, market dashboards, symbol analysis, journaling workflows, and simulation practice.
+
+## Preferred canonical domain
+https://si-tip.com
+
+## Primary pages
+- Home: https://si-tip.com/
+- Market Dashboard: https://si-tip.com/market.html
+- Symbol Board: https://si-tip.com/symbol.html
+- Trading Journal: https://si-tip.com/journal.html
+- Simulator: https://si-tip.com/simulator.html
+- News: https://si-tip.com/news.html
+
+## Editorial intent
+- Education-first content (not investment advice)
+- Practical risk management and trading process improvement
+- Clear Q&A, step-based explanations, and scenario-driven guidance
+
+## Content freshness
+- Pages are updated periodically; use on-page "Last content update" where provided.
+
+## Contact
+https://si-tip.com/contact.html
