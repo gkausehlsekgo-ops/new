@@ -887,12 +887,12 @@
 
         <div class="panel" id="disqusPanel">
             <h2>Public Live Chat &amp; Disqus Discussion</h2>
-            <p class="desc">공개 실시간 채팅(전체 공유) + 심볼별 Disqus 댓글</p>
+            <p class="desc">Shared real-time public chat + symbol-specific Disqus comments.</p>
             <div class="chat-wrap">
                 <div id="liveChatStatus" class="helper">Public live chat is connecting...</div>
                 <div id="liveChatMessages" class="chat-messages"></div>
                 <div class="chat-form">
-                    <input id="liveChatInput" type="text" maxlength="300" placeholder="메시지를 입력하세요 (최대 300자)" />
+                    <input id="liveChatInput" type="text" maxlength="300" placeholder="Type a message (max 300 chars)" />
                     <button id="liveChatSendBtn" class="primary" type="button">Send</button>
                 </div>
             </div>
@@ -1049,6 +1049,7 @@
         let disqusLoadedForIdentifier = '';
         let liveChatClient = null;
         let liveChatChannel = null;
+        let liveChatConnected = false;
         let liveChatRenderedKeys = new Set();
         let indicatorSettings = {
             maFast: 5,
@@ -2682,13 +2683,14 @@
                 }
                 liveChatChannel = null;
             }
+            liveChatConnected = false;
             box.innerHTML = '';
             liveChatRenderedKeys = new Set();
 
             const supabaseUrl = localStorage.getItem(SUPABASE_URL_KEY) || '';
             const supabaseAnonKey = localStorage.getItem(SUPABASE_ANON_KEY) || '';
             if (!supabaseUrl || !supabaseAnonKey || !window.supabase) {
-                status.textContent = 'Live chat off: set Supabase URL/Anon key in auth page to activate realtime.';
+                status.textContent = 'Live chat is off. Set Supabase URL/Anon key in the auth page first.';
                 return;
             }
 
@@ -2704,7 +2706,7 @@
                     .limit(LIVE_CHAT_HISTORY_MAX);
 
                 if (recentError) {
-                    status.textContent = `Live chat load failed: ${recentError.message}`;
+                    status.textContent = `Live chat load failed: ${recentError.message}. Run supabase_schema.sql in Supabase SQL Editor.`;
                     return;
                 }
 
@@ -2728,6 +2730,7 @@
                         if (msg) renderLiveChatMessage(msg);
                     })
                     .subscribe((state) => {
+                        liveChatConnected = state === 'SUBSCRIBED';
                         status.textContent = state === 'SUBSCRIBED'
                             ? 'Public live chat connected.'
                             : `Live chat status: ${state}`;
@@ -2743,8 +2746,11 @@
             if (!input) return;
             const text = (input.value || '').trim();
             if (!text) return;
-            if (!liveChatChannel) {
-                if (status) status.textContent = 'Live chat is not connected.';
+            if (!liveChatChannel || !liveChatConnected) {
+                await initLiveChat();
+            }
+            if (!liveChatClient || !liveChatChannel || !liveChatConnected) {
+                if (status) status.textContent = 'Live chat is not connected yet. Please wait 1-2 seconds and try again.';
                 return;
             }
 
