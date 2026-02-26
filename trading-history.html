@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Trading History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{primary:"#137fec","background-light":"#f6f7f8","background-dark":"#101922",success:"#10b981",danger:"#ef4444"},fontFamily:{display:["Inter"]}}}}</script>
+<style>body{font-family:'Inter',sans-serif;min-height:max(884px,100dvh)}</style>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3"><link rel="shortcut icon" href="/favicon.ico?v=3">
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex min-h-screen w-full max-w-[430px] mx-auto flex-col bg-background-light dark:bg-background-dark overflow-x-hidden shadow-2xl">
+<div class="sticky top-0 z-20 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
+<div class="flex items-center p-4 pb-2 justify-between"><a class="text-slate-900 dark:text-slate-100 flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-slate-800" href="./futures-dashboard.html"><span class="material-symbols-outlined">chevron_left</span></a><h2 class="text-lg font-bold flex-1 text-center">Trading History</h2><div class="w-10"></div></div>
+<div class="px-4 py-3"><label class="flex flex-col min-w-40 h-11 w-full"><div class="flex w-full flex-1 items-stretch rounded-xl h-full overflow-hidden bg-slate-200 dark:bg-slate-800/50"><div class="text-slate-500 flex items-center justify-center pl-4"><span class="material-symbols-outlined text-[20px]">search</span></div><input class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:outline-0 focus:ring-0 h-full placeholder:text-slate-500 px-3 text-sm" placeholder="Search trades, symbols, or notes"/></div></label></div>
+</div>
+<div class="flex-1 px-4 pb-24">
+<div class="mb-6"><h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Today</h3><div class="space-y-3"><div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 shadow-sm"><div class="flex-1 min-w-0"><div class="flex justify-between items-start"><h4 class="font-bold truncate">NQ Z3 (Nasdaq)</h4><span class="text-success font-bold text-sm">+$420.00</span></div><div class="flex justify-between items-center mt-1"><span class="text-xs text-slate-500">14:22 • Long</span><span class="text-success text-xs font-medium">+1.2%</span></div></div></div><div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 shadow-sm"><div class="flex-1 min-w-0"><div class="flex justify-between items-start"><h4 class="font-bold truncate">ES Z3 (S&amp;P 500)</h4><span class="text-danger font-bold text-sm">-$150.00</span></div><div class="flex justify-between items-center mt-1"><span class="text-xs text-slate-500">11:05 • Short</span><span class="text-danger text-xs font-medium">-0.4%</span></div></div></div></div></div>
+<div class="mb-6"><h3 class="text-slate-500 text-xs font-bold uppercase tracking-wider mb-3">Yesterday</h3><div class="space-y-3"><div class="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 shadow-sm"><div class="flex-1 min-w-0"><div class="flex justify-between items-start"><h4 class="font-bold truncate">CL V3 (Crude Oil)</h4><span class="text-success font-bold text-sm">+$890.00</span></div><div class="flex justify-between items-center mt-1"><span class="text-xs text-slate-500">15:45 • Long</span><span class="text-success text-xs font-medium">+2.8%</span></div></div></div></div></div>
+</div>
+</div>
+<script src="./analytics.js"></script><script src="./legal-consent.js"></script><script src="./assistant-widget.js"></script><script src="./userback.js"></script>
+</body></html>

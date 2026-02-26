@@ -119,6 +119,48 @@
         .refresh-btn:hover {
             transform: translateY(-2px);
         }
+
+        .design-hub {
+            margin: 18px 0 24px;
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid #e5e7eb;
+        }
+
+        body.dark-mode .design-hub {
+            background: #1a1a2e;
+            border-color: #2a2a40;
+        }
+
+        .design-hub h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .design-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .design-link {
+            display: block;
+            text-decoration: none;
+            color: #0f172a;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-weight: 600;
+        }
+
+        body.dark-mode .design-link {
+            color: #e2e8f0;
+            background: #111827;
+            border-color: #334155;
+        }
         
         .markets-grid {
             display: grid;
@@ -725,6 +767,7 @@
                 <a href="./index.html">Home</a> ·
                 <a href="./market.html">Markets</a> ·
                 <a href="./journal.html">Journal</a> ·
+                <a href="./futures-dashboard.html">Mobile UI</a> ·
                 <a href="./prop.html">Prop</a> ·
                 <a href="./advertise.html">Advertise</a> ·
                 <a href="./contact.html">Contact</a> ·
@@ -739,6 +782,18 @@
                 <h1>Market Dashboard</h1>
                 <p>Real-time market data for major indices and stocks</p>
                 <button class="refresh-btn" onclick="refreshData()">?봽 Refresh Data</button>
+            </div>
+
+            <div class="design-hub">
+                <h3>New Mobile Design Pages</h3>
+                <p>Applied from your uploaded design set. Open each screen directly:</p>
+                <div class="design-links">
+                    <a class="design-link" href="./futures-dashboard.html">Futures Dashboard</a>
+                    <a class="design-link" href="./new-trade-entry.html">New Trade Entry</a>
+                    <a class="design-link" href="./performance-analytics.html">Performance Analytics</a>
+                    <a class="design-link" href="./trading-history.html">Trading History</a>
+                    <a class="design-link" href="./account-settings.html">Account Settings</a>
+                </div>
             </div>
             
             <div class="info-box">

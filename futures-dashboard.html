@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Futures Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#137fec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+  <link rel="shortcut icon" href="/favicon.ico?v=3">
+  </head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden pb-20">
+<header class="flex items-center justify-between p-4 sticky top-0 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md z-10 border-b border-slate-200 dark:border-slate-800">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4pnpafDfn4tphrPFDWmvoD-hqe_6Pyx2LX-pUFpjL6tU7Rxwn2htkb0Arte9MmHdBFIaxWBRxwU340cpmXzK6vB_WnQDbI516W6FjjDIXllLwWxShVUZAMf7Tj-9e0S5Bzw74K3W6z2ScAVFWGz75d2ZOcPevNepB32_7y1jwqDjsecsUsMtM3mafEVK-4bGt8lf3eX-R_A_Csmqwr1CJKo3-XUj5zQgErnfdCxRQkiTGA5fz2ssLLyvAmk9jAsSr1Po0TRkFx6-r"/>
+</div>
+<div>
+<h1 class="text-sm font-medium text-slate-500 dark:text-slate-400">Welcome back</h1>
+<p class="text-lg font-bold leading-tight tracking-tight">Alex Trader</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="size-10 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+</button>
+</div>
+</header>
+<main class="flex flex-col gap-6 p-4">
+<div class="grid grid-cols-2 gap-4">
+<div class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">account_balance_wallet</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Demo Balance</p>
+</div>
+<p class="text-2xl font-bold tracking-tight">$124,500.00</p>
+<div class="h-1 w-full bg-slate-100 dark:bg-slate-700 rounded-full mt-1"><div class="h-1 bg-primary w-3/4 rounded-full"></div></div>
+</div>
+<div class="flex flex-col gap-2 rounded-xl p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-500 text-sm">trending_up</span>
+<p class="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">Daily P/L</p>
+</div>
+<p class="text-2xl font-bold tracking-tight text-emerald-500">+$1,250.40</p>
+<p class="text-emerald-500/80 text-xs font-bold leading-none">+1.02% today</p>
+</div>
+</div>
+<section class="flex flex-col gap-4 rounded-xl p-5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-lg font-bold leading-tight">Equity Curve</h2>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Performance over last 30 days</p>
+</div>
+<div class="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold">+12.4%</div>
+</div>
+<div class="relative h-[180px] w-full">
+<svg class="overflow-visible" fill="none" height="100%" preserveaspectratio="none" viewbox="0 0 480 150" width="100%" xmlns="http://www.w3.org/2000/svg">
+<path d="M0 120C20 120 40 40 60 40C80 40 100 60 120 60C140 60 160 110 180 110C200 110 220 50 240 50C260 50 280 120 300 120C320 120 340 70 360 70C380 70 400 30 420 30C440 30 460 10 480 10V150H0V120Z" fill="url(#equityGradient)"></path>
+<path d="M0 120C20 120 40 40 60 40C80 40 100 60 120 60C140 60 160 110 180 110C200 110 220 50 240 50C260 50 280 120 300 120C320 120 340 70 360 70C380 70 400 30 420 30C440 30 460 10 480 10" stroke="#137fec" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<defs><lineargradient gradientunits="userSpaceOnUse" id="equityGradient" x1="240" x2="240" y1="0" y2="150"><stop offset="0%" stop-color="#137fec" stop-opacity="0.3"></stop><stop offset="100%" stop-color="#137fec" stop-opacity="0"></stop></lineargradient></defs>
+</svg>
+</div>
+</section>
+<section class="flex flex-col gap-3">
+<div class="flex items-center justify-between px-1"><h2 class="text-lg font-bold leading-tight">Market Watch</h2><button class="text-primary text-xs font-bold uppercase tracking-wider">See All</button></div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><div><p class="font-bold">Nasdaq 100</p><p class="text-xs text-slate-500 dark:text-slate-400">NQ Future</p></div><div class="text-right"><p class="font-bold">18,245.25</p><p class="text-xs font-bold text-emerald-500">+0.85%</p></div></div>
+<div class="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><div><p class="font-bold">Crude Oil</p><p class="text-xs text-slate-500 dark:text-slate-400">CL Future</p></div><div class="text-right"><p class="font-bold">78.42</p><p class="text-xs font-bold text-rose-500">-1.24%</p></div></div>
+<div class="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700"><div><p class="font-bold">Gold</p><p class="text-xs text-slate-500 dark:text-slate-400">GC Future</p></div><div class="text-right"><p class="font-bold">2,154.80</p><p class="text-xs font-bold text-emerald-500">+0.32%</p></div></div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 right-0 border-t border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur-lg px-6 pb-6 pt-3 flex justify-between items-center z-50">
+<a class="flex flex-col items-center gap-1 text-primary" href="./futures-dashboard.html"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">dashboard</span><span class="text-[10px] font-bold uppercase tracking-tighter">Home</span></a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="./trading-history.html"><span class="material-symbols-outlined">menu_book</span><span class="text-[10px] font-bold uppercase tracking-tighter">History</span></a>
+<div class="relative -top-8"><a class="size-14 bg-primary text-white rounded-full shadow-lg shadow-primary/40 flex items-center justify-center border-4 border-background-light dark:border-background-dark" href="./new-trade-entry.html"><span class="material-symbols-outlined text-[32px]">add</span></a></div>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="./performance-analytics.html"><span class="material-symbols-outlined">bar_chart</span><span class="text-[10px] font-bold uppercase tracking-tighter">Stats</span></a>
+<a class="flex flex-col items-center gap-1 text-slate-400" href="./account-settings.html"><span class="material-symbols-outlined">person</span><span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span></a>
+</nav>
+</div>
+<script src="./analytics.js"></script>
+<script src="./legal-consent.js"></script>
+<script src="./assistant-widget.js"></script>
+<script src="./userback.js"></script>
+</body></html>
