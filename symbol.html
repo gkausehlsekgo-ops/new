@@ -886,8 +886,16 @@
         </div>
 
         <div class="panel" id="disqusPanel">
-            <h2>Disqus Discussion</h2>
-            <p class="desc">Leave comments in the symbol-specific Disqus thread.</p>
+            <h2>Public Live Chat &amp; Disqus Discussion</h2>
+            <p class="desc">공개 실시간 채팅(전체 공유) + 심볼별 Disqus 댓글</p>
+            <div class="chat-wrap">
+                <div id="liveChatStatus" class="helper">Public live chat is connecting...</div>
+                <div id="liveChatMessages" class="chat-messages"></div>
+                <div class="chat-form">
+                    <input id="liveChatInput" type="text" maxlength="300" placeholder="메시지를 입력하세요 (최대 300자)" />
+                    <button id="liveChatSendBtn" class="primary" type="button">Send</button>
+                </div>
+            </div>
             <div id="disqusThreadStatus" class="helper">Disqus is loading...</div>
             <div id="disqus_thread"></div>
         </div>
@@ -2619,9 +2627,10 @@
             const box = document.getElementById('liveChatMessages');
             if (!box) return;
             const at = msg?.ts ? new Date(msg.ts) : new Date();
+            const symbolTag = normalizeSymbol(msg?.symbol || currentSymbol);
             const item = document.createElement('div');
             item.className = 'chat-item';
-            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
+            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} · ${escapeHtml(symbolTag)} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
             box.appendChild(item);
             while (box.children.length > 120) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
@@ -2652,7 +2661,7 @@
                 if (!liveChatClient) {
                     liveChatClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
                 }
-                const room = `symbol-chat-${normalizeSymbol(currentSymbol).toLowerCase()}`;
+                const room = 'public-live-chat-v1';
                 liveChatChannel = liveChatClient
                     .channel(room)
                     .on('broadcast', { event: 'message' }, ({ payload }) => {
@@ -2660,7 +2669,7 @@
                     })
                     .subscribe((state) => {
                         status.textContent = state === 'SUBSCRIBED'
-                            ? `Live chat connected: ${normalizeSymbol(currentSymbol)}`
+                            ? 'Public live chat connected.'
                             : `Live chat status: ${state}`;
                     });
             } catch (err) {
@@ -3429,6 +3438,22 @@
             setSymbol(symbol);
         });
 
+        const liveChatSendBtn = document.getElementById('liveChatSendBtn');
+        const liveChatInput = document.getElementById('liveChatInput');
+        if (liveChatSendBtn) {
+            liveChatSendBtn.addEventListener('click', () => {
+                sendLiveChatMessage();
+            });
+        }
+        if (liveChatInput) {
+            liveChatInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    sendLiveChatMessage();
+                }
+            });
+        }
+
         document.getElementById('exportPosts').addEventListener('click', () => {
             const blob = new Blob([JSON.stringify(posts, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -3495,6 +3520,7 @@
         initLightweightChart();
         renderCategories();
         initFromQuery();
+        initLiveChat();
         initDisqusThread();
         consumeAdResetRequest();
         consumeReadResetRequest();
