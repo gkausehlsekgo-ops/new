@@ -581,7 +581,7 @@
 <body>
     <nav>
         <div class="container">
-            <div class="logo">?뮥 Smart Investment Tips</div>
+            <div class="logo">Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -622,7 +622,7 @@
             <h2>Category</h2>
             <p class="desc">Choose a category to write or view posts.</p>
             <div class="tabs" id="categoryTabs"></div>
-            <div class="helper">Categories: Trading Journal 쨌 Free Board</div>
+            <div class="helper">Categories: Trading Journal · Free Board</div>
         </div>
 
         <div class="panel" id="chartPanel">
@@ -635,12 +635,12 @@
             <div class="chart-wrap" style="margin-top:8px;">
                 <div id="volumeChart"></div>
             </div>
-            <div class="chart-meta" id="lightweightSource">This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts??by TradingView.</div>
+            <div class="chart-meta" id="lightweightSource">This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts by TradingView.</div>
             <div class="chart-meta" id="chartStatusMessage"></div>
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
-                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA 쨌 VWAP 쨌 Bollinger 쨌 RSI 쨌 MACD 쨌 Stochastic 쨌 ATR 쨌 ROC 쨌 CCI 쨌 Volume</div>
+                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA · VWAP · Bollinger · RSI · MACD · Stochastic · ATR · ROC · CCI · Volume</div>
                 <div class="indicator-list" id="indicatorToggleList"></div>
                 <div class="indicator-settings" id="indicatorSettingsPanel">
                     <div>
@@ -2004,7 +2004,7 @@
 
                 const source = document.getElementById('lightweightSource');
                 if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
-                    source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts??by TradingView (delayed history unavailable; only current delayed quote shown).';
+                    source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts by TradingView (delayed history unavailable; only current delayed quote shown).';
                 }
 
                 renderEntryPriceLine();
@@ -2230,7 +2230,7 @@
             if (lwSeries) applyMainSeriesData(symbol);
             const source = document.getElementById('lightweightSource');
             if (source) {
-                source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts??by TradingView (candlestick mode for all symbols, delayed quotes preferred).';
+                source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts by TradingView (candlestick mode for all symbols, delayed quotes preferred).';
             }
             renderEntryPriceLine();
             renderTradeMarkers();
@@ -2581,8 +2581,8 @@
             const drawdownBase = propRules.mode === 'tmdd' ? propPeakEquity : simBaseCash;
             const drawdownPct = drawdownBase > 0 ? ((drawdownBase - equity) / drawdownBase) * 100 : 0;
             const tradesToday = getTodayTradeCount();
-            const failTag = propAccountFailedReason ? ` 쨌 FAILED (${propAccountFailedReason})` : '';
-            status.textContent = `Mode ${propRules.mode.toUpperCase()} 쨌 Account $${format(simBaseCash)} 쨌 DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% 쨌 Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% 쨌 Trades ${tradesToday}/${propRules.maxTradesPerDay} 쨌 MaxPos ${propRules.maxOpenPositions} 쨌 MaxQty ${propRules.maxQtyPerOrder} 쨌 PosCap ${propRules.maxPositionPct}% 쨌 Consistency ${propRules.consistencyPct}%${failTag}`;
+            const failTag = propAccountFailedReason ? ` · FAILED (${propAccountFailedReason})` : '';
+            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · PosCap ${propRules.maxPositionPct}% · Consistency ${propRules.consistencyPct}%${failTag}`;
             if (failBadge) {
                 if (propAccountFailedReason) {
                     failBadge.style.display = '';
@@ -2625,7 +2625,7 @@
             const at = msg?.ts ? new Date(msg.ts) : new Date();
             const item = document.createElement('div');
             item.className = 'chat-item';
-            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} 쨌 ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
+            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
             box.appendChild(item);
             while (box.children.length > 120) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
@@ -2802,7 +2802,7 @@
             if (!silent && !fromAdWatch) {
                 resetCount = bumpManualResetClickCount();
                 if (resetCount >= 3 && !consumeResetAdGrant()) {
-                    alert('3踰덉㎏ 由ъ뀑遺?곕뒗 愿묎퀬 ?쒖껌 ??吏꾪뻾?⑸땲?? 愿묎퀬瑜?蹂????먮룞?쇰줈 由ъ뀑?⑸땲??');
+                    alert('From the 3rd reset, ad watch is required before reset. You will be redirected now.');
                     const nextUrl = `./symbol.html?symbol=${encodeURIComponent(currentSymbol)}&ad_reset=1`;
                     location.href = `./advertise.html?flow=reset-ad&next=${encodeURIComponent(nextUrl)}`;
                     return;
@@ -2837,9 +2837,9 @@
             refreshRealtimeValuation();
             if (!silent) {
                 if (resetCount >= 2) {
-                    alert('由ъ뀑? 寃곗젣 ?놁씠 ?댁쁺?⑸땲?? 援먯쑁 湲???쎌뼱二쇱떆怨? 3?뚯감遺?곕뒗 愿묎퀬 ?쒖껌 ??由ъ뀑??吏꾪뻾?⑸땲??');
+                    alert('Reset completed. From the 3rd attempt, ad watch is required before reset.');
                 } else {
-                    alert('誘멸뎅??議고겕: 寃곗젣???놁뼱???쁽 ?곕え 援먯쑁?댁옏?꾩슂, ?붿씠??');
+                    alert('Reset completed successfully.');
                 }
             }
         }
@@ -2942,7 +2942,7 @@
                 const persistenceText = isPersistentSimSession()
                     ? 'Logged-in mode: balance and trades are saved.'
                     : 'Guest mode: trading is available, but balance changes are not saved.';
-                hint.textContent = `Order symbol: ${currentSymbol} 쨌 Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} 쨌 ${sourceText} 쨌 ${persistenceText}`;
+                hint.textContent = `Order symbol: ${currentSymbol} · Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText} · ${persistenceText}`;
             }
             cashEl.textContent = '$' + format(simCash);
             if (currentPriceEl) currentPriceEl.textContent = currentPrice == null ? 'N/A' : '$' + format(currentPrice);
@@ -3234,7 +3234,7 @@
                 card.className = 'post';
                 card.innerHTML = `
                     <h3>${escapeHtml(post.title)}</h3>
-                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} 쨌 ${escapeHtml(post.date)}</div>
+                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} · ${escapeHtml(post.date)}</div>
                     <p>${escapeHtml(post.body)}</p>
                     <div class="actions">
                         <button class="ghost" data-index="${index}">Delete</button>
