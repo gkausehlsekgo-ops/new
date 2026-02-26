@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -622,7 +622,7 @@
             <h2>Category</h2>
             <p class="desc">Choose a category to write or view posts.</p>
             <div class="tabs" id="categoryTabs"></div>
-            <div class="helper">Categories: Trading Journal · Free Board</div>
+            <div class="helper">Categories: Trading Journal 쨌 Free Board</div>
         </div>
 
         <div class="panel" id="chartPanel">
@@ -640,7 +640,7 @@
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
-                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA · VWAP · Bollinger · RSI · MACD · Stochastic · ATR · ROC · CCI · Volume</div>
+                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA 쨌 VWAP 쨌 Bollinger 쨌 RSI 쨌 MACD 쨌 Stochastic 쨌 ATR 쨌 ROC 쨌 CCI 쨌 Volume</div>
                 <div class="indicator-list" id="indicatorToggleList"></div>
                 <div class="indicator-settings" id="indicatorSettingsPanel">
                     <div>
@@ -1788,7 +1788,7 @@
                 return;
             }
 
-            lwMainData = nextData;
+            lwMainData = alignHistoryToLatestQuote(symbol, nextData);
             if (statusEl) statusEl.textContent = '';
             if (lwSeries) {
                 if (lwSeriesType === 'candlestick') {
@@ -1807,6 +1807,29 @@
                 }
             }
             renderIndicators();
+        }
+
+        function alignHistoryToLatestQuote(symbol, history) {
+            if (!Array.isArray(history) || history.length === 0) return history || [];
+            const quote = delayedQuotes[symbol];
+            const quotePrice = Number(quote?.price);
+            if (!Number.isFinite(quotePrice)) return history;
+
+            const lastIndex = history.length - 1;
+            const last = history[lastIndex];
+            if (!last || !Number.isFinite(Number(last.value))) return history;
+
+            const currentLast = Number(last.value);
+            if (Math.abs(currentLast - quotePrice) < 0.000001) return history;
+
+            const patched = history.slice();
+            patched[lastIndex] = {
+                ...last,
+                value: quotePrice,
+                high: Number.isFinite(Number(last.high)) ? Math.max(Number(last.high), quotePrice) : quotePrice,
+                low: Number.isFinite(Number(last.low)) ? Math.min(Number(last.low), quotePrice) : quotePrice
+            };
+            return patched;
         }
 
         function getDemoPrice(symbol) {
@@ -2588,8 +2611,8 @@
             const drawdownBase = propRules.mode === 'tmdd' ? propPeakEquity : simBaseCash;
             const drawdownPct = drawdownBase > 0 ? ((drawdownBase - equity) / drawdownBase) * 100 : 0;
             const tradesToday = getTodayTradeCount();
-            const failTag = propAccountFailedReason ? ` · FAILED (${propAccountFailedReason})` : '';
-            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · PosCap ${propRules.maxPositionPct}% · Consistency ${propRules.consistencyPct}%${failTag}`;
+            const failTag = propAccountFailedReason ? ` 쨌 FAILED (${propAccountFailedReason})` : '';
+            status.textContent = `Mode ${propRules.mode.toUpperCase()} 쨌 Account $${format(simBaseCash)} 쨌 DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% 쨌 Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% 쨌 Trades ${tradesToday}/${propRules.maxTradesPerDay} 쨌 MaxPos ${propRules.maxOpenPositions} 쨌 MaxQty ${propRules.maxQtyPerOrder} 쨌 PosCap ${propRules.maxPositionPct}% 쨌 Consistency ${propRules.consistencyPct}%${failTag}`;
             if (failBadge) {
                 if (propAccountFailedReason) {
                     failBadge.style.display = '';
@@ -2667,7 +2690,7 @@
             const at = new Date(normalized.ts);
             const item = document.createElement('div');
             item.className = 'chat-item';
-            item.innerHTML = `<div class="chat-meta">${escapeHtml(normalized.nickname)} · ${escapeHtml(normalized.symbol)} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(normalized.text)}</div>`;
+            item.innerHTML = `<div class="chat-meta">${escapeHtml(normalized.nickname)} 쨌 ${escapeHtml(normalized.symbol)} 쨌 ${at.toLocaleTimeString()}</div><div>${escapeHtml(normalized.text)}</div>`;
             box.appendChild(item);
             while (box.children.length > LIVE_CHAT_HISTORY_MAX) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
@@ -2780,7 +2803,7 @@
 
             const shortname = getDisqusShortname();
             if (!shortname) {
-                statusEl.textContent = 'Disqus shortname이 설정되지 않았습니다. localStorage key(disqus_shortname_v1)에 shortname을 저장하면 댓글 기능이 활성화됩니다.';
+                statusEl.textContent = 'Disqus shortname???ㅼ젙?섏? ?딆븯?듬땲?? localStorage key(disqus_shortname_v1)??shortname????ν븯硫??볤? 湲곕뒫???쒖꽦?붾맗?덈떎.';
                 return;
             }
 
@@ -2942,7 +2965,7 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            alert(`Rule breach detected: ${reason}\n怨꾩쥖媛 利됱떆 醫낅즺?섏뿀?듬땲?? Reset Account濡??ㅼ떆 ?쒖옉?섏꽭??`);
+            alert(`Rule breach detected: ${reason}\n?④쑴伊뽩첎? 筌앸맩???ル굝利??뤿???щ빍?? Reset Account嚥???쇰뻻 ??뽰삂??뤾쉭??`);
         }
 
         function consumeReadResetRequest() {
@@ -3018,7 +3041,7 @@
                 const persistenceText = isPersistentSimSession()
                     ? 'Logged-in mode: balance and trades are saved.'
                     : 'Guest mode: trading is available, but balance changes are not saved.';
-                hint.textContent = `Order symbol: ${currentSymbol} · Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText} · ${persistenceText}`;
+                hint.textContent = `Order symbol: ${currentSymbol} 쨌 Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} 쨌 ${sourceText} 쨌 ${persistenceText}`;
             }
             cashEl.textContent = '$' + format(simCash);
             if (currentPriceEl) currentPriceEl.textContent = currentPrice == null ? 'N/A' : '$' + format(currentPrice);
@@ -3077,7 +3100,7 @@
 
         function executeSimTrade(orderType, side) {
             if (propAccountFailedReason) {
-                alert(`怨꾩쥖媛 ?대? 醫낅즺?섏뿀?듬땲?? ${propAccountFailedReason}\nReset Account濡??ъ떆?묓븯?몄슂.`);
+                alert(`?④쑴伊뽩첎? ??? ?ル굝利??뤿???щ빍?? ${propAccountFailedReason}\nReset Account嚥?????臾볥릭?紐꾩뒄.`);
                 return;
             }
             const qty = parseInt(document.getElementById('simQtyInput').value, 10);
@@ -3199,7 +3222,7 @@
 
         async function closeAllPositions() {
             if (propAccountFailedReason) {
-                alert(`怨꾩쥖媛 ?대? 醫낅즺?섏뿀?듬땲?? ${propAccountFailedReason}\nReset Account濡??ъ떆?묓븯?몄슂.`);
+                alert(`?④쑴伊뽩첎? ??? ?ル굝利??뤿???щ빍?? ${propAccountFailedReason}\nReset Account嚥?????臾볥릭?紐꾩뒄.`);
                 return;
             }
             const symbols = Object.keys(simPortfolio);
@@ -3309,7 +3332,7 @@
                 card.className = 'post';
                 card.innerHTML = `
                     <h3>${escapeHtml(post.title)}</h3>
-                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} · ${escapeHtml(post.date)}</div>
+                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} 쨌 ${escapeHtml(post.date)}</div>
                     <p>${escapeHtml(post.body)}</p>
                     <div class="actions">
                         <button class="ghost" data-index="${index}">Delete</button>
@@ -3602,6 +3625,7 @@
     <script src="./legal-consent.js"></script>
     <script src="./assistant-widget.js"></script>
     <script src="./userback.js"></script>
+    <script src="./global-theme.js"></script>
 </body>
 </html>
 

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -130,12 +130,26 @@
         }
         
         nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             font-size: 24px;
             font-weight: bold;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            white-space: nowrap;
+        }
+
+        .logo-mark {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            object-fit: cover;
+            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
+            background: #fff;
+            padding: 2px;
         }
         
         nav ul {
@@ -431,7 +445,7 @@
     <!-- Navigation -->
     <nav>
         <div class="container">
-            <div class="logo">Smart Investment Tips</div>
+            <div class="logo"><img class="logo-mark" src="./favicon.ico" alt="Smart logo">Smart Investment Tips</div>
             <ul>
                 <li><a href="./market.html">Markets</a></li>
                 <li><a href="./journal.html">Journal</a></li>
@@ -484,62 +498,62 @@
             <h2 class="section-title">Featured Stories</h2>
             <div class="blog-grid">
                 <a href="./post-1.html" class="blog-card">
-                    <div class="blog-thumbnail">📈</div>
+                    <div class="blog-thumbnail">?뱢</div>
                     <div class="blog-content">
                         <span class="blog-category">TRADING BASICS</span>
                         <h3 class="blog-title">Beginner's Guide to Stock Trading</h3>
                         <p class="blog-excerpt">Learn the fundamental concepts of stock trading, from opening an account to placing your first trade.</p>
-                        <p class="blog-meta">5 min read · Feb 24, 2026</p>
+                        <p class="blog-meta">5 min read 쨌 Feb 24, 2026</p>
                     </div>
                 </a>
                 
                 <a href="./post-2.html" class="blog-card">
-                    <div class="blog-thumbnail">📊</div>
+                    <div class="blog-thumbnail">?뱤</div>
                     <div class="blog-content">
                         <span class="blog-category">STRATEGY</span>
                         <h3 class="blog-title">5 Golden Rules of Smart Investing</h3>
                         <p class="blog-excerpt">Discover the essential principles that separate successful investors from the rest. Master these rules to build wealth.</p>
-                        <p class="blog-meta">7 min read · Feb 24, 2026</p>
+                        <p class="blog-meta">7 min read 쨌 Feb 24, 2026</p>
                     </div>
                 </a>
                 
                 <a href="./post-3.html" class="blog-card">
-                    <div class="blog-thumbnail">🛡️</div>
+                    <div class="blog-thumbnail">?썳截?/div>
                     <div class="blog-content">
                         <span class="blog-category">RISK MANAGEMENT</span>
                         <h3 class="blog-title">How to Manage Investment Risk</h3>
                         <p class="blog-excerpt">Understand portfolio diversification, stop-loss strategies, and risk management techniques that protect your capital.</p>
-                        <p class="blog-meta">6 min read · Feb 24, 2026</p>
+                        <p class="blog-meta">6 min read 쨌 Feb 24, 2026</p>
                     </div>
                 </a>
                 
                 <a href="./post-4.html" class="blog-card">
-                    <div class="blog-thumbnail">📉</div>
+                    <div class="blog-thumbnail">?뱣</div>
                     <div class="blog-content">
                         <span class="blog-category">ANALYSIS</span>
                         <h3 class="blog-title">Technical Analysis for Beginners</h3>
                         <p class="blog-excerpt">Learn how to read charts, identify trends, and make informed trading decisions using technical analysis.</p>
-                        <p class="blog-meta">8 min read · Feb 24, 2026</p>
+                        <p class="blog-meta">8 min read 쨌 Feb 24, 2026</p>
                     </div>
                 </a>
                 
                 <a href="./post-5.html" class="blog-card">
-                    <div class="blog-thumbnail">🧭</div>
+                    <div class="blog-thumbnail">?㎛</div>
                     <div class="blog-content">
                         <span class="blog-category">SUCCESS STORIES</span>
                         <h3 class="blog-title">Common Trading Mistakes & How to Avoid Them</h3>
                         <p class="blog-excerpt">Learn from the most common pitfalls that traders face and discover proven strategies to sidestep these errors.</p>
-                        <p class="blog-meta">6 min read · Feb 24, 2026</p>
+                        <p class="blog-meta">6 min read 쨌 Feb 24, 2026</p>
                     </div>
                 </a>
                 
                 <a href="./post-6.html" class="blog-card">
-                    <div class="blog-thumbnail">🧠</div>
+                    <div class="blog-thumbnail">?쭬</div>
                     <div class="blog-content">
                         <span class="blog-category">PSYCHOLOGY</span>
                         <h3 class="blog-title">The Psychology of Winning Traders</h3>
                         <p class="blog-excerpt">Master the mental game of trading. Learn emotional control, discipline, and the mindset of successful investors.</p>
-                        <p class="blog-meta">7 min read · Feb 24, 2026</p>
+                        <p class="blog-meta">7 min read 쨌 Feb 24, 2026</p>
                     </div>
                 </a>
             </div>
@@ -587,7 +601,7 @@
             <p>&copy; 2026 Smart Investment Tips. All rights reserved. | <a href="./contact.html">Contact Us</a> | <a href="./advertise.html">Advertise</a> | <a href="./privacy.html">Privacy Policy</a> | <a href="./terms.html">Terms</a></p>
             <p style="margin-top:8px; font-size:12px; opacity:.8;">Ad disclosure: This site may display third-party ads, including Google AdSense.</p>
             <p style="margin-top: 15px; font-size: 12px;">
-                <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
+                <button id="themeToggle" class="theme-toggle">?뙔 Dark Mode</button>
             </p>
         </div>
     </footer>
@@ -600,18 +614,18 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '☀️ Light Mode';
+            themeToggle.textContent = '?截?Light Mode';
         }
         
         themeToggle.addEventListener('click', function() {
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '🌙 Dark Mode';
+                themeToggle.textContent = '?뙔 Dark Mode';
             } else {
                 body.classList.add('dark-mode');
                 localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '☀️ Light Mode';
+                themeToggle.textContent = '?截?Light Mode';
             }
         });
     </script>
@@ -619,6 +633,7 @@
     <script src="./legal-consent.js"></script>
     <script src="./assistant-widget.js"></script>
     <script src="./userback.js"></script>
+    <script src="./global-theme.js"></script>
 </body>
 </html>
 

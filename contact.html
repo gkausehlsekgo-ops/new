@@ -355,7 +355,7 @@
 
             root.innerHTML = items.map((item) => `
                 <article class="request-item">
-                    <div class="meta">${escapeHtml(item.type)} · ${escapeHtml(new Date(item.createdAt).toLocaleString())} · ${escapeHtml(item.source || 'contact')}</div>
+                    <div class="meta">${escapeHtml(item.type)} 夷?${escapeHtml(new Date(item.createdAt).toLocaleString())} 夷?${escapeHtml(item.source || 'contact')}</div>
                     <div style="font-weight:700; margin-bottom:4px;">${escapeHtml(item.title || '(No subject)')}</div>
                     <div style="font-size:13px; color:#334155; margin-bottom:4px;">${escapeHtml(item.message || '')}</div>
                     <div class="meta">${escapeHtml(item.email || 'No email provided')}</div>
@@ -459,6 +459,7 @@
     <script src="./legal-consent.js"></script>
     <script src="./assistant-widget.js"></script>
     <script src="./userback.js"></script>
+    <script src="./global-theme.js"></script>
 </body>
 </html>
 

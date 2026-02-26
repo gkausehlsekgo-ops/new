@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -205,7 +205,7 @@
     <link rel="shortcut icon" href="/favicon.ico?v=3">
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle">🌙</button>
+    <button class="theme-toggle" id="themeToggle">?뙔</button>
     
     <div class="container">
         <h1>Partnership Inquiry</h1>
@@ -260,7 +260,7 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '☀️';
+            themeToggle.textContent = '?截?;
         }
         
         // Theme toggle event
@@ -268,11 +268,11 @@
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '🌙';
+                themeToggle.textContent = '?뙔';
             } else {
                 body.classList.add('dark-mode');
                 localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '☀️';
+                themeToggle.textContent = '?截?;
             }
         });
         
@@ -299,6 +299,7 @@
     <script src="./analytics.js"></script>
     <script src="./legal-consent.js"></script>
     <script src="./userback.js"></script>
+    <script src="./global-theme.js"></script>
 </body>
 </html>
 
