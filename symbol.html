@@ -914,6 +914,8 @@
         const INDICATOR_SETTINGS_KEY = 'symbol_indicator_settings_v1';
         const SUPABASE_URL_KEY = 'supabase_url';
         const SUPABASE_ANON_KEY = 'supabase_anon_key';
+        const LIVE_CHAT_HISTORY_KEY = 'public_live_chat_history_v1';
+        const LIVE_CHAT_HISTORY_MAX = 50;
 
         const boardTitle = document.getElementById('boardTitle');
         const symbolInput = document.getElementById('symbolInput');
@@ -2623,17 +2625,51 @@
             return user?.nickname || session.split('@')[0] || 'Member';
         }
 
-        function renderLiveChatMessage(msg) {
+        function normalizeLiveChatMessage(msg) {
+            const text = String(msg?.text || '').trim().slice(0, 300);
+            if (!text) return null;
+            return {
+                nickname: String(msg?.nickname || 'Guest').trim() || 'Guest',
+                text,
+                ts: Number(msg?.ts) || Date.now(),
+                symbol: normalizeSymbol(msg?.symbol || currentSymbol)
+            };
+        }
+
+        function loadLiveChatHistory() {
+            try {
+                const raw = JSON.parse(localStorage.getItem(LIVE_CHAT_HISTORY_KEY) || '[]');
+                if (!Array.isArray(raw)) return [];
+                return raw.map(normalizeLiveChatMessage).filter(Boolean).slice(-LIVE_CHAT_HISTORY_MAX);
+            } catch {
+                return [];
+            }
+        }
+
+        function saveLiveChatHistory(messages) {
+            try {
+                localStorage.setItem(LIVE_CHAT_HISTORY_KEY, JSON.stringify(messages.slice(-LIVE_CHAT_HISTORY_MAX)));
+            } catch {
+            }
+        }
+
+        function renderLiveChatMessage(msg, persist = true) {
             const box = document.getElementById('liveChatMessages');
             if (!box) return;
-            const at = msg?.ts ? new Date(msg.ts) : new Date();
-            const symbolTag = normalizeSymbol(msg?.symbol || currentSymbol);
+            const normalized = normalizeLiveChatMessage(msg);
+            if (!normalized) return;
+            const at = new Date(normalized.ts);
             const item = document.createElement('div');
             item.className = 'chat-item';
-            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} · ${escapeHtml(symbolTag)} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
+            item.innerHTML = `<div class="chat-meta">${escapeHtml(normalized.nickname)} · ${escapeHtml(normalized.symbol)} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(normalized.text)}</div>`;
             box.appendChild(item);
-            while (box.children.length > 120) box.removeChild(box.firstChild);
+            while (box.children.length > LIVE_CHAT_HISTORY_MAX) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
+
+            if (!persist) return;
+            const history = loadLiveChatHistory();
+            history.push(normalized);
+            saveLiveChatHistory(history);
         }
 
         async function initLiveChat() {
@@ -2649,6 +2685,7 @@
                 liveChatChannel = null;
             }
             box.innerHTML = '';
+            loadLiveChatHistory().forEach(entry => renderLiveChatMessage(entry, false));
 
             const supabaseUrl = localStorage.getItem(SUPABASE_URL_KEY) || '';
             const supabaseAnonKey = localStorage.getItem(SUPABASE_ANON_KEY) || '';
