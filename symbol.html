@@ -262,6 +262,14 @@
             margin-top: 8px;
         }
 
+        .market-gap {
+            margin-top: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #f8fafc;
+        }
+
         .indicator-toolbar {
             margin-top: 10px;
             padding: 10px;
@@ -637,6 +645,7 @@
             </div>
             <div class="chart-meta" id="lightweightSource">This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts by TradingView.</div>
             <div class="chart-meta" id="chartStatusMessage"></div>
+            <div class="chart-meta market-gap" id="marketGapMessage">Market gap check: waiting for quote...</div>
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
@@ -1793,6 +1802,7 @@
 
             if (!nextData.length) {
                 if (statusEl) statusEl.textContent = 'Failed to receive chart data: no delayed quote response. This may be due to network/CORS limits or provider latency.';
+                updateMarketGapMessage(symbol);
                 renderIndicators();
                 return;
             }
@@ -1816,6 +1826,7 @@
                 }
             }
             renderIndicators();
+            updateMarketGapMessage(symbol);
         }
 
         function alignHistoryToLatestQuote(symbol, history) {
@@ -3044,6 +3055,58 @@
             return null;
         }
 
+        function estimateGapPercentRange(symbol) {
+            const quote = delayedQuotes[symbol];
+            if (!quote || typeof quote.price !== 'number') return null;
+
+            const quoteTime = quote.time instanceof Date ? quote.time : new Date();
+            const lagMinutes = Math.max(0, (Date.now() - quoteTime.getTime()) / 60000);
+
+            const history = delayedHistoryBySymbol[symbol] || [];
+            let avgAbsMove = 0.004; // 0.4% baseline
+            if (history.length >= 12) {
+                let sum = 0;
+                let count = 0;
+                for (let i = Math.max(1, history.length - 48); i < history.length; i++) {
+                    const prev = Number(history[i - 1]?.value);
+                    const cur = Number(history[i]?.value);
+                    if (!Number.isFinite(prev) || !Number.isFinite(cur) || prev === 0) continue;
+                    sum += Math.abs((cur - prev) / prev);
+                    count += 1;
+                }
+                if (count > 0) avgAbsMove = sum / count;
+            }
+
+            const lagFactor = lagMinutes <= 2 ? 0.8 : lagMinutes <= 5 ? 1.15 : lagMinutes <= 15 ? 1.7 : 2.4;
+            const basePct = Math.max(0.15, avgAbsMove * 100 * lagFactor);
+            return {
+                lagMinutes,
+                minPct: Math.min(25, basePct * 0.55),
+                maxPct: Math.min(40, basePct * 1.6)
+            };
+        }
+
+        function updateMarketGapMessage(symbol) {
+            const el = document.getElementById('marketGapMessage');
+            if (!el) return;
+
+            const quote = delayedQuotes[symbol];
+            if (!quote || typeof quote.price !== 'number') {
+                el.textContent = 'Market gap check: quote unavailable.';
+                return;
+            }
+
+            const estimate = estimateGapPercentRange(symbol);
+            if (!estimate) {
+                el.textContent = 'Market gap check: estimate unavailable.';
+                return;
+            }
+
+            const lagText = `${estimate.lagMinutes.toFixed(1)}m lag`;
+            const rangeText = `${estimate.minPct.toFixed(2)}% - ${estimate.maxPct.toFixed(2)}%`;
+            el.textContent = `Market gap check (estimated): ${lagText}, likely gap ${rangeText}. This is a delay/volatility estimate, not a direct broker comparison.`;
+        }
+
         function renderSimState() {
             const cashEl = document.getElementById('simCashDisplay');
             const totalEl = document.getElementById('simPortfolioDisplay');
@@ -3056,6 +3119,7 @@
             const delayed = delayedQuotes[currentSymbol];
             const sourceText = delayed ? `Delayed quote ${delayed.time.toLocaleTimeString()}` : 'Demo quote';
             const currentPrice = getCurrentDemoPrice(currentSymbol);
+            updateMarketGapMessage(currentSymbol);
             if (hint) {
                 const persistenceText = isPersistentSimSession()
                     ? 'Logged-in mode: balance and trades are saved.'
