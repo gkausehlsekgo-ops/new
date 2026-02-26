@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fabicin.cio/sitemap.xml
+Sitemap: https://si-tip.com/sitemap.xml
