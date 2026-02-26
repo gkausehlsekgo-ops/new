@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -549,11 +549,13 @@
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "vmylxac7pb");
 </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
 </head>
 <body>
     <nav>
         <div class="container">
-            <div class="logo">💰 Smart Investment Tips</div>
+            <div class="logo">?뮥 Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -594,7 +596,7 @@
             <h2>Category</h2>
             <p class="desc">Choose a category to write or view posts.</p>
             <div class="tabs" id="categoryTabs"></div>
-            <div class="helper">Categories: Trading Journal · Free Board</div>
+            <div class="helper">Categories: Trading Journal 쨌 Free Board</div>
         </div>
 
         <div class="panel" id="chartPanel">
@@ -607,12 +609,12 @@
             <div class="chart-wrap" style="margin-top:8px;">
                 <div id="volumeChart"></div>
             </div>
-            <div class="chart-meta" id="lightweightSource">This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts™ by TradingView.</div>
+            <div class="chart-meta" id="lightweightSource">This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts??by TradingView.</div>
             <div class="chart-meta" id="chartStatusMessage"></div>
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
-                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA · VWAP · Bollinger · RSI · MACD · Stochastic · ATR · ROC · CCI · Volume</div>
+                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA 쨌 VWAP 쨌 Bollinger 쨌 RSI 쨌 MACD 쨌 Stochastic 쨌 ATR 쨌 ROC 쨌 CCI 쨌 Volume</div>
                 <div class="indicator-list" id="indicatorToggleList"></div>
                 <div class="indicator-settings" id="indicatorSettingsPanel">
                     <div>
@@ -1974,7 +1976,7 @@
 
                 const source = document.getElementById('lightweightSource');
                 if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
-                    source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts™ by TradingView (delayed history unavailable; only current delayed quote shown).';
+                    source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts??by TradingView (delayed history unavailable; only current delayed quote shown).';
                 }
 
                 renderEntryPriceLine();
@@ -2200,7 +2202,7 @@
             if (lwSeries) applyMainSeriesData(symbol);
             const source = document.getElementById('lightweightSource');
             if (source) {
-                source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts™ by TradingView (candlestick mode for all symbols, delayed quotes preferred).';
+                source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts??by TradingView (candlestick mode for all symbols, delayed quotes preferred).';
             }
             renderEntryPriceLine();
             renderTradeMarkers();
@@ -2551,12 +2553,12 @@
             const drawdownBase = propRules.mode === 'tmdd' ? propPeakEquity : simBaseCash;
             const drawdownPct = drawdownBase > 0 ? ((drawdownBase - equity) / drawdownBase) * 100 : 0;
             const tradesToday = getTodayTradeCount();
-            const failTag = propAccountFailedReason ? ` · FAILED (${propAccountFailedReason})` : '';
-            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · PosCap ${propRules.maxPositionPct}% · Consistency ${propRules.consistencyPct}%${failTag}`;
+            const failTag = propAccountFailedReason ? ` 쨌 FAILED (${propAccountFailedReason})` : '';
+            status.textContent = `Mode ${propRules.mode.toUpperCase()} 쨌 Account $${format(simBaseCash)} 쨌 DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% 쨌 Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% 쨌 Trades ${tradesToday}/${propRules.maxTradesPerDay} 쨌 MaxPos ${propRules.maxOpenPositions} 쨌 MaxQty ${propRules.maxQtyPerOrder} 쨌 PosCap ${propRules.maxPositionPct}% 쨌 Consistency ${propRules.consistencyPct}%${failTag}`;
             if (failBadge) {
                 if (propAccountFailedReason) {
                     failBadge.style.display = '';
-                    failBadge.textContent = `실격 규칙: ${propAccountFailedReason}`;
+                    failBadge.textContent = `?ㅺ꺽 洹쒖튃: ${propAccountFailedReason}`;
                 } else {
                     failBadge.style.display = 'none';
                     failBadge.textContent = '';
@@ -2595,7 +2597,7 @@
             const at = msg?.ts ? new Date(msg.ts) : new Date();
             const item = document.createElement('div');
             item.className = 'chat-item';
-            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
+            item.innerHTML = `<div class="chat-meta">${escapeHtml(msg?.nickname || 'Guest')} 쨌 ${at.toLocaleTimeString()}</div><div>${escapeHtml(msg?.text || '')}</div>`;
             box.appendChild(item);
             while (box.children.length > 120) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
@@ -2674,7 +2676,7 @@
 
             const shortname = getDisqusShortname();
             if (!shortname) {
-                statusEl.textContent = 'Disqus shortname이 설정되지 않았습니다. localStorage key(disqus_shortname_v1)에 shortname을 저장하면 댓글 기능이 활성화됩니다.';
+                statusEl.textContent = 'Disqus shortname???ㅼ젙?섏? ?딆븯?듬땲?? localStorage key(disqus_shortname_v1)??shortname????ν븯硫??볤? 湲곕뒫???쒖꽦?붾맗?덈떎.';
                 return;
             }
 
@@ -2772,7 +2774,7 @@
             if (!silent && !fromAdWatch) {
                 resetCount = bumpManualResetClickCount();
                 if (resetCount >= 3 && !consumeResetAdGrant()) {
-                    alert('3번째 리셋부터는 광고 시청 후 진행됩니다. 광고를 본 뒤 자동으로 리셋됩니다.');
+                    alert('3踰덉㎏ 由ъ뀑遺?곕뒗 愿묎퀬 ?쒖껌 ??吏꾪뻾?⑸땲?? 愿묎퀬瑜?蹂????먮룞?쇰줈 由ъ뀑?⑸땲??');
                     const nextUrl = `./symbol.html?symbol=${encodeURIComponent(currentSymbol)}&ad_reset=1`;
                     location.href = `./advertise.html?flow=reset-ad&next=${encodeURIComponent(nextUrl)}`;
                     return;
@@ -2807,9 +2809,9 @@
             refreshRealtimeValuation();
             if (!silent) {
                 if (resetCount >= 2) {
-                    alert('리셋은 결제 없이 운영됩니다. 교육 글을 읽어주시고, 3회차부터는 광고 시청 후 리셋이 진행됩니다.');
+                    alert('由ъ뀑? 寃곗젣 ?놁씠 ?댁쁺?⑸땲?? 援먯쑁 湲???쎌뼱二쇱떆怨? 3?뚯감遺?곕뒗 愿묎퀬 ?쒖껌 ??由ъ뀑??吏꾪뻾?⑸땲??');
                 } else {
-                    alert('미국식 조크: 결제는 없어요 😄 데모 교육이잖아요, 화이팅!');
+                    alert('誘멸뎅??議고겕: 寃곗젣???놁뼱???쁽 ?곕え 援먯쑁?댁옏?꾩슂, ?붿씠??');
                 }
             }
         }
@@ -2836,7 +2838,7 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            alert(`Rule breach detected: ${reason}\n계좌가 즉시 종료되었습니다. Reset Account로 다시 시작하세요.`);
+            alert(`Rule breach detected: ${reason}\n怨꾩쥖媛 利됱떆 醫낅즺?섏뿀?듬땲?? Reset Account濡??ㅼ떆 ?쒖옉?섏꽭??`);
         }
 
         function consumeReadResetRequest() {
@@ -2853,7 +2855,7 @@
 
             if (!requested) return;
             resetPropAccount({ skipAuthCheck: true, silent: true });
-            alert('다읽었습니다 확인 완료: 데모 계좌를 초기화했습니다.');
+            alert('?ㅼ씫?덉뒿?덈떎 ?뺤씤 ?꾨즺: ?곕え 怨꾩쥖瑜?珥덇린?뷀뻽?듬땲??');
         }
 
         function consumeAdResetRequest() {
@@ -2912,7 +2914,7 @@
                 const persistenceText = isPersistentSimSession()
                     ? 'Logged-in mode: balance and trades are saved.'
                     : 'Guest mode: trading is available, but balance changes are not saved.';
-                hint.textContent = `Order symbol: ${currentSymbol} · Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText} · ${persistenceText}`;
+                hint.textContent = `Order symbol: ${currentSymbol} 쨌 Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} 쨌 ${sourceText} 쨌 ${persistenceText}`;
             }
             cashEl.textContent = '$' + format(simCash);
             if (currentPriceEl) currentPriceEl.textContent = currentPrice == null ? 'N/A' : '$' + format(currentPrice);
@@ -2971,7 +2973,7 @@
 
         function executeSimTrade(orderType, side) {
             if (propAccountFailedReason) {
-                alert(`계좌가 이미 종료되었습니다: ${propAccountFailedReason}\nReset Account로 재시작하세요.`);
+                alert(`怨꾩쥖媛 ?대? 醫낅즺?섏뿀?듬땲?? ${propAccountFailedReason}\nReset Account濡??ъ떆?묓븯?몄슂.`);
                 return;
             }
             const qty = parseInt(document.getElementById('simQtyInput').value, 10);
@@ -3093,7 +3095,7 @@
 
         async function closeAllPositions() {
             if (propAccountFailedReason) {
-                alert(`계좌가 이미 종료되었습니다: ${propAccountFailedReason}\nReset Account로 재시작하세요.`);
+                alert(`怨꾩쥖媛 ?대? 醫낅즺?섏뿀?듬땲?? ${propAccountFailedReason}\nReset Account濡??ъ떆?묓븯?몄슂.`);
                 return;
             }
             const symbols = Object.keys(simPortfolio);
@@ -3204,7 +3206,7 @@
                 card.className = 'post';
                 card.innerHTML = `
                     <h3>${escapeHtml(post.title)}</h3>
-                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} · ${escapeHtml(post.date)}</div>
+                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} 쨌 ${escapeHtml(post.date)}</div>
                     <p>${escapeHtml(post.body)}</p>
                     <div class="actions">
                         <button class="ghost" data-index="${index}">Delete</button>
@@ -3489,3 +3491,4 @@
     <script src="./assistant-widget.js"></script>
 </body>
 </html>
+

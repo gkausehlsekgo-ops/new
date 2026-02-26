@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -29,15 +29,17 @@
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "vmylxac7pb");
 </script>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
+    <link rel="shortcut icon" href="/favicon.ico?v=3">
 </head>
 <body>
     <div class="wrap">
         <div class="card watch-card" id="resetAdWatchCard">
             <h1 style="font-size:24px;">Reset Account Ad Watch</h1>
-            <p>3번째 리셋부터는 광고 시청 후 리셋이 진행됩니다. 아래 카운트가 끝나면 완료 버튼을 눌러 돌아가세요.</p>
-            <div class="watch-status" id="resetAdWatchStatus">광고 시청 준비 중...</div>
-            <button id="resetAdWatchDoneBtn" class="watch-btn" type="button" disabled>광고 시청 완료 후 돌아가기</button>
-            <p class="small">완료 시 데모 리셋 권한이 1회 부여됩니다.</p>
+            <p>3踰덉㎏ 由ъ뀑遺?곕뒗 愿묎퀬 ?쒖껌 ??由ъ뀑??吏꾪뻾?⑸땲?? ?꾨옒 移댁슫?멸? ?앸굹硫??꾨즺 踰꾪듉???뚮윭 ?뚯븘媛?몄슂.</p>
+            <div class="watch-status" id="resetAdWatchStatus">愿묎퀬 ?쒖껌 以鍮?以?..</div>
+            <button id="resetAdWatchDoneBtn" class="watch-btn" type="button" disabled>愿묎퀬 ?쒖껌 ?꾨즺 ???뚯븘媛湲?/button>
+            <p class="small">?꾨즺 ???곕え 由ъ뀑 沅뚰븳??1??遺?щ맗?덈떎.</p>
         </div>
 
         <div class="card">
@@ -79,16 +81,16 @@
             card.style.display = 'block';
 
             let remain = 8;
-            status.textContent = `광고 시청 중... ${remain}초`;
+            status.textContent = `愿묎퀬 ?쒖껌 以?.. ${remain}珥?;
             const timer = setInterval(() => {
                 remain -= 1;
                 if (remain <= 0) {
                     clearInterval(timer);
-                    status.textContent = '시청 완료! 아래 버튼으로 돌아가세요.';
+                    status.textContent = '?쒖껌 ?꾨즺! ?꾨옒 踰꾪듉?쇰줈 ?뚯븘媛?몄슂.';
                     doneBtn.disabled = false;
                     return;
                 }
-                status.textContent = `광고 시청 중... ${remain}초`;
+                status.textContent = `愿묎퀬 ?쒖껌 以?.. ${remain}珥?;
             }, 1000);
 
             doneBtn.addEventListener('click', () => {
@@ -108,3 +110,4 @@
     <script src="./legal-consent.js"></script>
 </body>
 </html>
+
