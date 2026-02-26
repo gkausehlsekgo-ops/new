@@ -914,8 +914,8 @@
         const INDICATOR_SETTINGS_KEY = 'symbol_indicator_settings_v1';
         const SUPABASE_URL_KEY = 'supabase_url';
         const SUPABASE_ANON_KEY = 'supabase_anon_key';
-        const LIVE_CHAT_HISTORY_KEY = 'public_live_chat_history_v1';
         const LIVE_CHAT_HISTORY_MAX = 50;
+        const LIVE_CHAT_TABLE = 'public_live_chat_messages';
 
         const boardTitle = document.getElementById('boardTitle');
         const symbolInput = document.getElementById('symbolInput');
@@ -1049,6 +1049,7 @@
         let disqusLoadedForIdentifier = '';
         let liveChatClient = null;
         let liveChatChannel = null;
+        let liveChatRenderedKeys = new Set();
         let indicatorSettings = {
             maFast: 5,
             maMid: 20,
@@ -2629,6 +2630,7 @@
             const text = String(msg?.text || '').trim().slice(0, 300);
             if (!text) return null;
             return {
+                id: msg?.id ?? null,
                 nickname: String(msg?.nickname || 'Guest').trim() || 'Guest',
                 text,
                 ts: Number(msg?.ts) || Date.now(),
@@ -2636,28 +2638,29 @@
             };
         }
 
-        function loadLiveChatHistory() {
-            try {
-                const raw = JSON.parse(localStorage.getItem(LIVE_CHAT_HISTORY_KEY) || '[]');
-                if (!Array.isArray(raw)) return [];
-                return raw.map(normalizeLiveChatMessage).filter(Boolean).slice(-LIVE_CHAT_HISTORY_MAX);
-            } catch {
-                return [];
-            }
+        function mapLiveChatRowToMessage(row) {
+            return normalizeLiveChatMessage({
+                id: row?.id,
+                nickname: row?.nickname,
+                text: row?.text,
+                symbol: row?.symbol,
+                ts: row?.created_at ? Date.parse(row.created_at) : Date.now()
+            });
         }
 
-        function saveLiveChatHistory(messages) {
-            try {
-                localStorage.setItem(LIVE_CHAT_HISTORY_KEY, JSON.stringify(messages.slice(-LIVE_CHAT_HISTORY_MAX)));
-            } catch {
-            }
+        function getLiveChatMessageKey(msg) {
+            if (msg?.id != null) return `id:${msg.id}`;
+            return `fallback:${msg?.nickname || 'Guest'}|${msg?.symbol || ''}|${msg?.ts || 0}|${msg?.text || ''}`;
         }
 
-        function renderLiveChatMessage(msg, persist = true) {
+        function renderLiveChatMessage(msg) {
             const box = document.getElementById('liveChatMessages');
             if (!box) return;
             const normalized = normalizeLiveChatMessage(msg);
             if (!normalized) return;
+            const key = getLiveChatMessageKey(normalized);
+            if (liveChatRenderedKeys.has(key)) return;
+            liveChatRenderedKeys.add(key);
             const at = new Date(normalized.ts);
             const item = document.createElement('div');
             item.className = 'chat-item';
@@ -2665,11 +2668,6 @@
             box.appendChild(item);
             while (box.children.length > LIVE_CHAT_HISTORY_MAX) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
-
-            if (!persist) return;
-            const history = loadLiveChatHistory();
-            history.push(normalized);
-            saveLiveChatHistory(history);
         }
 
         async function initLiveChat() {
@@ -2685,7 +2683,7 @@
                 liveChatChannel = null;
             }
             box.innerHTML = '';
-            loadLiveChatHistory().forEach(entry => renderLiveChatMessage(entry, false));
+            liveChatRenderedKeys = new Set();
 
             const supabaseUrl = localStorage.getItem(SUPABASE_URL_KEY) || '';
             const supabaseAnonKey = localStorage.getItem(SUPABASE_ANON_KEY) || '';
@@ -2698,11 +2696,36 @@
                 if (!liveChatClient) {
                     liveChatClient = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
                 }
+
+                const { data: recentRows, error: recentError } = await liveChatClient
+                    .from(LIVE_CHAT_TABLE)
+                    .select('id, nickname, text, symbol, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(LIVE_CHAT_HISTORY_MAX);
+
+                if (recentError) {
+                    status.textContent = `Live chat load failed: ${recentError.message}`;
+                    return;
+                }
+
+                (recentRows || [])
+                    .slice()
+                    .reverse()
+                    .forEach(row => {
+                        const msg = mapLiveChatRowToMessage(row);
+                        if (msg) renderLiveChatMessage(msg);
+                    });
+
                 const room = 'public-live-chat-v1';
                 liveChatChannel = liveChatClient
                     .channel(room)
-                    .on('broadcast', { event: 'message' }, ({ payload }) => {
-                        if (payload && payload.text) renderLiveChatMessage(payload);
+                    .on('postgres_changes', {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: LIVE_CHAT_TABLE
+                    }, (payload) => {
+                        const msg = mapLiveChatRowToMessage(payload?.new || {});
+                        if (msg) renderLiveChatMessage(msg);
                     })
                     .subscribe((state) => {
                         status.textContent = state === 'SUBSCRIBED'
@@ -2728,10 +2751,13 @@
             const payload = {
                 nickname: getLiveChatNickname(),
                 text: text.slice(0, 300),
-                ts: Date.now(),
                 symbol: normalizeSymbol(currentSymbol)
             };
-            const { error } = await liveChatChannel.send({ type: 'broadcast', event: 'message', payload });
+
+            const { error } = await liveChatClient
+                .from(LIVE_CHAT_TABLE)
+                .insert(payload);
+
             if (error && status) {
                 status.textContent = `Send failed: ${error.message}`;
                 return;

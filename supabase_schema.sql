@@ -44,3 +44,28 @@ drop policy if exists "virtual_trades_insert_own" on public.virtual_trades;
 create policy "virtual_trades_insert_own"
   on public.virtual_trades for insert
   with check (auth.uid() = user_id);
+
+create table if not exists public.public_live_chat_messages (
+  id bigint generated always as identity primary key,
+  nickname text not null,
+  text text not null check (char_length(text) between 1 and 300),
+  symbol text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_public_live_chat_messages_created_at
+  on public.public_live_chat_messages (created_at desc);
+
+alter table public.public_live_chat_messages enable row level security;
+
+drop policy if exists "public_live_chat_select_all" on public.public_live_chat_messages;
+create policy "public_live_chat_select_all"
+  on public.public_live_chat_messages for select
+  using (true);
+
+drop policy if exists "public_live_chat_insert_all" on public.public_live_chat_messages;
+create policy "public_live_chat_insert_all"
+  on public.public_live_chat_messages for insert
+  with check (true);
+
+alter publication supabase_realtime add table public.public_live_chat_messages;
