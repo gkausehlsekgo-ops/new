@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A comprehensive beginner's guide to stock trading. Learn how to open an account, analyze stocks, and place your first trade.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <link rel="canonical" href="https://si-tip.com/post-1.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Beginner's Guide to Stock Trading - Smart Investment Tips">
+    <meta property="og:description" content="A comprehensive beginner's guide to stock trading. Learn how to open an account, analyze stocks, and place your first trade.">
+    <meta property="og:url" content="https://si-tip.com/post-1.html">
+    <meta property="og:site_name" content="Smart Investment Tips">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Beginner's Guide to Stock Trading - Smart Investment Tips">
+    <meta name="twitter:description" content="A comprehensive beginner's guide to stock trading. Learn how to open an account, analyze stocks, and place your first trade.">
     <title>Beginner's Guide to Stock Trading - Smart Investment Tips</title>
     <style>
         * {
@@ -338,7 +348,7 @@
         <div class="container">
             <p style="opacity: 0.7; font-size: 14px;">&copy; 2026 Smart Investment Tips</p>
             <p style="margin-top: 10px;">
-                <button id="themeToggle" class="theme-toggle">?뙔 Dark Mode</button>
+                <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
             </p>
         </div>
     </footer>
@@ -350,14 +360,14 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '?截?;
+            themeToggle.textContent = '☀️ Light Mode';
         }
         
         themeToggle.addEventListener('click', function() {
             body.classList.toggle('dark-mode');
             const isDark = body.classList.contains('dark-mode');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            themeToggle.textContent = isDark ? '?截? : '?뙔';
+            themeToggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
         });
 
         document.getElementById('postReadDoneBtn')?.addEventListener('click', () => {
