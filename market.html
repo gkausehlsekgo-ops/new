@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Real-time market data and price tracking for stocks, indices and more.">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <link rel="canonical" href="https://si-tip.com/market.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Market Dashboard - Smart Investment Tips">
+    <meta property="og:description" content="Track stocks and indices with a live market dashboard and quick quote lookup.">
+    <meta property="og:url" content="https://si-tip.com/market.html">
+    <meta property="og:site_name" content="Smart Investment Tips">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Market Dashboard - Smart Investment Tips">
+    <meta name="twitter:description" content="Track stocks and indices with a live market dashboard and quick quote lookup.">
     <title>Market Dashboard - Smart Investment Tips</title>
     <style>
         * {
@@ -743,7 +753,7 @@
                     <div class="market-price" id="sp500-price">-</div>
                     <div class="market-change change-positive" id="sp500-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="sp500-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=SP500">Symbol Board ??/a>
+                    <a class="board-link" href="./symbol.html?symbol=SP500">Symbol Board</a>
                     <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: SP:SPX</div>
                 </div>
 
@@ -753,7 +763,7 @@
                     <div class="market-price" id="nasdaq-price">-</div>
                     <div class="market-change change-positive" id="nasdaq-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="nasdaq-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=NASDAQ">Symbol Board ??/a>
+                    <a class="board-link" href="./symbol.html?symbol=NASDAQ">Symbol Board</a>
                     <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: NASDAQ:IXIC</div>
                 </div>
 
@@ -763,7 +773,7 @@
                     <div class="market-price" id="dow-price">-</div>
                     <div class="market-change change-positive" id="dow-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="dow-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=DOW">Symbol Board ??/a>
+                    <a class="board-link" href="./symbol.html?symbol=DOW">Symbol Board</a>
                     <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: DJ:DJI</div>
                 </div>
 
@@ -773,7 +783,7 @@
                     <div class="market-price" id="kospi-price">-</div>
                     <div class="market-change change-positive" id="kospi-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="kospi-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=KOSPI">Symbol Board ??/a>
+                    <a class="board-link" href="./symbol.html?symbol=KOSPI">Symbol Board</a>
                     <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: TVC:KOSPI</div>
                 </div>
                 
@@ -783,7 +793,7 @@
                     <div class="market-price" id="kosdaq-price">-</div>
                     <div class="market-change change-positive" id="kosdaq-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="kosdaq-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=KOSDAQ">Symbol Board ??/a>
+                    <a class="board-link" href="./symbol.html?symbol=KOSDAQ">Symbol Board</a>
                     <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: KRX:KQ11</div>
                 </div>
 
@@ -793,7 +803,7 @@
                     <div class="market-price" id="aapl-price">-</div>
                     <div class="market-change change-positive" id="aapl-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="aapl-time">-</span></div>
-                    <a class="board-link" href="./symbol.html?symbol=AAPL">Symbol Board ??/a>
+                    <a class="board-link" href="./symbol.html?symbol=AAPL">Symbol Board</a>
                     <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: NASDAQ:AAPL</div>
                 </div>
             </div>
@@ -1185,7 +1195,7 @@
                         <div class="dividend-rank">Rank #${index + 1}</div>
                         <div class="dividend-symbol">${escapeHtml(item.symbol)}</div>
                         <div class="dividend-name">${escapeHtml(item.name)}</div>
-                        <div class="dividend-meta">Dividend payer${regionText} 쨌 <a class="board-link" href="./symbol.html?symbol=${encodeURIComponent(boardSymbol)}">Symbol Board ??/a></div>
+                        <div class="dividend-meta">Dividend payer${regionText} 쨌 <a class="board-link" href="./symbol.html?symbol=${encodeURIComponent(boardSymbol)}">Symbol Board</a></div>
                         <div class="dividend-live">
                             <span class="dividend-badge">Price ${priceText}</span>
                             <span class="dividend-badge">Change ${changeText}</span>

@@ -16,6 +16,20 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Smart Investment Tips - Trading & Investment Guides">
     <meta name="twitter:description" content="US-focused trading and investing guides with market dashboards and educational content.">
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Smart Investment Tips",
+            "url": "https://si-tip.com/",
+            "inLanguage": "en",
+            "publisher": {
+                "@type": "Organization",
+                "name": "Smart Investment Tips",
+                "url": "https://si-tip.com/"
+            }
+        }
+        </script>
     <title>Smart Investment Tips - Trading & Investment Guides</title>
     <style>
         * {
@@ -402,7 +416,7 @@
         <div class="container">
             <h1>This is the first step to improve your trading skills</h1>
             <p>Track your trades, refine your strategy, and build a better routine.</p>
-            <a href="./journal.html" class="cta-button">Write Trading Journal ??/a>
+            <a href="./journal.html" class="cta-button">Write Trading Journal</a>
         </div>
     </section>
     
@@ -529,7 +543,7 @@
             <p>&copy; 2026 Smart Investment Tips. All rights reserved. | <a href="./contact.html">Contact Us</a> | <a href="./advertise.html">Advertise</a> | <a href="./privacy.html">Privacy Policy</a> | <a href="./terms.html">Terms</a></p>
             <p style="margin-top:8px; font-size:12px; opacity:.8;">Ad disclosure: This site may display third-party ads, including Google AdSense.</p>
             <p style="margin-top: 15px; font-size: 12px;">
-                <button id="themeToggle" class="theme-toggle">?뙔 Dark Mode</button>
+                <button id="themeToggle" class="theme-toggle">🌙 Dark Mode</button>
             </p>
         </div>
     </footer>
@@ -542,18 +556,18 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '?截?;
+            themeToggle.textContent = '☀️ Light Mode';
         }
         
         themeToggle.addEventListener('click', function() {
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '?뙔';
+                themeToggle.textContent = '🌙 Dark Mode';
             } else {
                 body.classList.add('dark-mode');
                 localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '?截?;
+                themeToggle.textContent = '☀️ Light Mode';
             }
         });
     </script>

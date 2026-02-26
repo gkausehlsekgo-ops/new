@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Advertise With Us - Smart Investment Tips</title>
     <meta name="description" content="Advertise with Smart Investment Tips. Reach traders and investors interested in US market education and tools." />
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <link rel="canonical" href="https://si-tip.com/advertise.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Advertise With Us - Smart Investment Tips">
+    <meta property="og:description" content="Advertise with Smart Investment Tips. Reach traders and investors interested in US market education and tools.">
+    <meta property="og:url" content="https://si-tip.com/advertise.html">
+    <meta property="og:site_name" content="Smart Investment Tips">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Advertise With Us - Smart Investment Tips">
+    <meta name="twitter:description" content="Advertise with Smart Investment Tips. Reach traders and investors interested in US market education and tools.">
     <style>
         * { box-sizing: border-box; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif; background: #f6f7fb; color: #111827; }
@@ -38,7 +48,7 @@
             <h1 style="font-size:24px;">Reset Account Ad Watch</h1>
             <p>3踰덉㎏ 由ъ뀑遺?곕뒗 愿묎퀬 ?쒖껌 ??由ъ뀑??吏꾪뻾?⑸땲?? ?꾨옒 移댁슫?멸? ?앸굹硫??꾨즺 踰꾪듉???뚮윭 ?뚯븘媛?몄슂.</p>
             <div class="watch-status" id="resetAdWatchStatus">愿묎퀬 ?쒖껌 以鍮?以?..</div>
-            <button id="resetAdWatchDoneBtn" class="watch-btn" type="button" disabled>愿묎퀬 ?쒖껌 ?꾨즺 ???뚯븘媛湲?/button>
+            <button id="resetAdWatchDoneBtn" class="watch-btn" type="button" disabled>광고 시청 완료 후 돌아가기</button>
             <p class="small">?꾨즺 ???곕え 由ъ뀑 沅뚰븳??1??遺?щ맗?덈떎.</p>
         </div>
 
@@ -81,16 +91,16 @@
             card.style.display = 'block';
 
             let remain = 8;
-            status.textContent = `愿묎퀬 ?쒖껌 以?.. ${remain}珥?;
+            status.textContent = `Watching ad... ${remain}s`;
             const timer = setInterval(() => {
                 remain -= 1;
                 if (remain <= 0) {
                     clearInterval(timer);
-                    status.textContent = '?쒖껌 ?꾨즺! ?꾨옒 踰꾪듉?쇰줈 ?뚯븘媛?몄슂.';
+                    status.textContent = 'Watch complete! Use the button below to return.';
                     doneBtn.disabled = false;
                     return;
                 }
-                status.textContent = `愿묎퀬 ?쒖껌 以?.. ${remain}珥?;
+                status.textContent = `Watching ad... ${remain}s`;
             }, 1000);
 
             doneBtn.addEventListener('click', () => {
