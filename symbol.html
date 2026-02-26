@@ -1021,6 +1021,8 @@
         const QUOTE_CACHE_PREFIX = 'delayed_quote_v1';
         const FAST_RENDER_DEADLINE_MS = 1200;
         const FETCH_TIMEOUT_MS = 2200;
+        const DIRECT_FETCH_TIMEOUT_MS = 900;
+        const HISTORY_REFRESH_MIN_INTERVAL_MS = 45000;
 
         const DEMO_BASE_PRICE = {
             KOSPI: 2580.12,
@@ -1048,6 +1050,7 @@
 
         let delayedQuotes = {};
         let delayedHistoryBySymbol = {};
+        let historyFetchAtByKey = {};
         let disqusLoadedForIdentifier = '';
         let liveChatClient = null;
         let liveChatChannel = null;
@@ -1186,15 +1189,9 @@
         }
 
         async function fetchJsonWithFallback(url) {
-            const targets = [
-                url,
-                `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-            ];
-
-            const jobs = targets.map(target => (async () => {
+            const fetchWithTimeout = async (target, timeoutMs) => {
                 const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
                 try {
                     const res = await fetch(target, { cache: 'no-store', signal: controller.signal });
                     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1202,10 +1199,22 @@
                 } finally {
                     clearTimeout(timer);
                 }
-            })());
+            };
 
             try {
-                return await Promise.any(jobs);
+                return await fetchWithTimeout(url, DIRECT_FETCH_TIMEOUT_MS);
+            } catch {
+                // fall through to proxy race
+            }
+
+            const proxyTargets = [
+                `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+            ];
+
+            const proxyJobs = proxyTargets.map(target => fetchWithTimeout(target, FETCH_TIMEOUT_MS));
+            try {
+                return await Promise.any(proxyJobs);
             } catch (err) {
                 throw err || new Error('Delayed data fetch failed');
             }
@@ -1227,7 +1236,7 @@
                     renderFrameButtons();
                     const statusEl = document.getElementById('chartStatusMessage');
                     if (statusEl) statusEl.textContent = 'Loading selected timeframe data...';
-                    await refreshHistoryForSymbols([currentSymbol]);
+                    await refreshHistoryForSymbols([currentSymbol], true);
                     applyMainSeriesData(currentSymbol);
                 });
                 root.appendChild(btn);
@@ -1997,13 +2006,18 @@
             }));
         }
 
-        async function refreshHistoryForSymbols(symbols) {
+        async function refreshHistoryForSymbols(symbols, force = false) {
             const uniqueSymbols = Array.from(new Set(symbols.filter(Boolean)));
             if (uniqueSymbols.length === 0) return;
 
             await Promise.allSettled(uniqueSymbols.map(async (symbol) => {
+                const key = `${normalizeSymbol(symbol)}:${currentFrame}`;
+                const lastAt = Number(historyFetchAtByKey[key] || 0);
+                const hasData = Array.isArray(delayedHistoryBySymbol[symbol]) && delayedHistoryBySymbol[symbol].length > 0;
+                if (!force && hasData && Date.now() - lastAt < HISTORY_REFRESH_MIN_INTERVAL_MS) return;
                 try {
                     await fetchDelayedHistory(symbol);
+                    historyFetchAtByKey[key] = Date.now();
                 } catch (err) {
                     // keep last successful/cached history to avoid blank chart flicker
                 }
@@ -2017,6 +2031,9 @@
             const portfolioSymbols = Object.keys(simPortfolio);
             warmStartSymbolData(currentSymbol);
             try {
+                // Render immediately from cache/last-known data to avoid blank or delayed first paint.
+                if (lwSeries) applyMainSeriesData(currentSymbol);
+
                 const quotePromise = refreshQuotesForSymbols([currentSymbol, ...portfolioSymbols]);
                 const historyPromise = refreshHistoryForSymbols([currentSymbol]);
 
@@ -2035,6 +2052,8 @@
                 const source = document.getElementById('lightweightSource');
                 if (source && (!delayedHistoryBySymbol[currentSymbol] || delayedHistoryBySymbol[currentSymbol].length === 0)) {
                     source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts by TradingView (delayed history unavailable; only current delayed quote shown).';
+                } else if (source) {
+                    source.textContent = 'This educational chart is delayed by approximately 15 minutes. Source: Lightweight Charts by TradingView.';
                 }
 
                 renderEntryPriceLine();
