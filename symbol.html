@@ -17,28 +17,31 @@
     <title>Symbol Board - Smart Investment Tips</title>
     <style>
         :root {
+            --navy: #0e2a47;
+            --navy2: #1f4f82;
             --ink: #0f172a;
             --muted: #64748b;
             --panel: #ffffff;
-            --bg: #f5f7fb;
-            --accent: #2563eb;
-            --accent-soft: #dbeafe;
+            --bg: #ffffff;
+            --accent: #1f4f82;
+            --accent-soft: #e8eef6;
             --line: #e2e8f0;
-            --shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+            --shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", sans-serif;
-            background: radial-gradient(circle at top, #eef2ff, #f5f7fb 60%);
+            background: radial-gradient(circle at top, #f8fbff, #ffffff 62%);
             color: var(--ink);
             line-height: 1.6;
         }
 
         nav {
             background: var(--panel);
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+            border-bottom: 1px solid var(--line);
             position: sticky;
             top: 0;
             z-index: 10;
@@ -56,15 +59,17 @@
         nav .logo {
             font-size: 20px;
             font-weight: 700;
-            color: var(--accent);
+            color: var(--navy);
         }
 
         nav a {
             text-decoration: none;
-            color: var(--ink);
+            color: #334155;
             font-weight: 600;
             margin-left: 16px;
         }
+
+        nav a:hover { color: var(--accent); }
 
         .hero {
             max-width: 1200px;
@@ -73,11 +78,12 @@
         }
 
         .hero-card {
-            background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+            background: linear-gradient(135deg, var(--navy), var(--navy2));
             color: #fff;
             border-radius: 18px;
             padding: 30px;
             box-shadow: var(--shadow);
+            border: 1px solid rgba(255, 255, 255, 0.12);
         }
 
         .hero-card h1 {
@@ -100,12 +106,14 @@
             background: var(--panel);
             border-radius: 16px;
             padding: 22px;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+            border: 1px solid var(--line);
         }
 
         .panel h2 {
             font-size: 20px;
             margin-bottom: 6px;
+            color: var(--navy);
         }
 
         .panel p.desc {
@@ -135,24 +143,31 @@
             padding: 10px 12px;
             font-size: 14px;
             font-family: inherit;
+            background: #fff;
         }
 
         textarea { min-height: 110px; resize: vertical; }
 
         button.primary {
-            background: var(--accent);
+            background: var(--navy);
             color: #fff;
             border: none;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
+
+        button.primary:hover { background: var(--navy2); }
 
         button.ghost {
             background: transparent;
             border: 1px solid var(--line);
             color: var(--ink);
             cursor: pointer;
+            transition: all 0.2s ease;
         }
+
+        button.ghost:hover { background: #f8fafc; }
 
         .tabs {
             display: flex;
@@ -224,19 +239,21 @@
 
         .chart-wrap {
             border: 1px solid var(--line);
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
-            background: #fff;
+            background: #f8fafc;
         }
 
         #lightweightChart {
             width: 100%;
             height: 340px;
+            background: #fff;
         }
 
         #volumeChart {
             width: 100%;
             height: 78px;
+            background: #fff;
         }
 
         .chart-meta {
