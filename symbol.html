@@ -914,6 +914,8 @@
         const INDICATOR_SETTINGS_KEY = 'symbol_indicator_settings_v1';
         const SUPABASE_URL_KEY = 'supabase_url';
         const SUPABASE_ANON_KEY = 'supabase_anon_key';
+        const DEFAULT_SUPABASE_URL = 'https://rljivieiiphngslqzszl.supabase.co';
+        const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_yFcac3vwVsSbn1exsSr_JA_ig5fjCk6';
         const LIVE_CHAT_HISTORY_MAX = 50;
         const LIVE_CHAT_TABLE = 'public_live_chat_messages';
 
@@ -2687,8 +2689,8 @@
             box.innerHTML = '';
             liveChatRenderedKeys = new Set();
 
-            const supabaseUrl = localStorage.getItem(SUPABASE_URL_KEY) || '';
-            const supabaseAnonKey = localStorage.getItem(SUPABASE_ANON_KEY) || '';
+            const supabaseUrl = (localStorage.getItem(SUPABASE_URL_KEY) || '').trim() || DEFAULT_SUPABASE_URL;
+            const supabaseAnonKey = (localStorage.getItem(SUPABASE_ANON_KEY) || '').trim() || DEFAULT_SUPABASE_ANON_KEY;
             if (!supabaseUrl || !supabaseAnonKey || !window.supabase) {
                 status.textContent = 'Live chat is off. Set Supabase URL/Anon key in the auth page first.';
                 return;

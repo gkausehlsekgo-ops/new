@@ -118,6 +118,17 @@
         const loginStatus = document.getElementById('loginStatus');
         const LOCAL_USERS_KEY = 'local_auth_users_v1';
         const LOCAL_SESSION_KEY = 'local_auth_session_v1';
+        const DEFAULT_SUPABASE_URL = 'https://rljivieiiphngslqzszl.supabase.co';
+        const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_yFcac3vwVsSbn1exsSr_JA_ig5fjCk6';
+
+        function ensureSupabaseDefaults() {
+            const storedUrl = (localStorage.getItem('supabase_url') || '').trim();
+            const storedKey = (localStorage.getItem('supabase_anon_key') || '').trim();
+            if (!storedUrl) localStorage.setItem('supabase_url', DEFAULT_SUPABASE_URL);
+            if (!storedKey) localStorage.setItem('supabase_anon_key', DEFAULT_SUPABASE_ANON_KEY);
+        }
+
+        ensureSupabaseDefaults();
 
         if (urlInput) urlInput.value = localStorage.getItem('supabase_url') || '';
         if (keyInput) keyInput.value = localStorage.getItem('supabase_anon_key') || '';

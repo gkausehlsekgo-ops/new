@@ -136,10 +136,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const initialCash = 100000;
+        const DEFAULT_SUPABASE_URL = 'https://rljivieiiphngslqzszl.supabase.co';
+        const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_yFcac3vwVsSbn1exsSr_JA_ig5fjCk6';
 
         const authStatus = document.getElementById('authStatus');
-        const supabaseUrl = localStorage.getItem('supabase_url');
-        const supabaseAnonKey = localStorage.getItem('supabase_anon_key');
+        const supabaseUrl = (localStorage.getItem('supabase_url') || '').trim() || DEFAULT_SUPABASE_URL;
+        const supabaseAnonKey = (localStorage.getItem('supabase_anon_key') || '').trim() || DEFAULT_SUPABASE_ANON_KEY;
         const LOCAL_SESSION_KEY = 'local_auth_session_v1';
         const supabaseClient = (supabaseUrl && supabaseAnonKey)
             ? window.supabase.createClient(supabaseUrl, supabaseAnonKey)
