@@ -886,16 +886,8 @@
         </div>
 
         <div class="panel" id="disqusPanel">
-            <h2>Live Discussion</h2>
-            <p class="desc">Realtime chat room (by symbol) + Disqus thread.</p>
-            <div class="chat-wrap">
-                <div id="liveChatStatus" class="helper">Live chat connecting...</div>
-                <div id="liveChatMessages" class="chat-messages"></div>
-                <div class="chat-form">
-                    <input id="liveChatInput" type="text" maxlength="300" placeholder="Type message (max 300)" />
-                    <button id="liveChatSendBtn" class="primary" type="button">Send</button>
-                </div>
-            </div>
+            <h2>Disqus Discussion</h2>
+            <p class="desc">Leave comments in the symbol-specific Disqus thread.</p>
             <div id="disqusThreadStatus" class="helper">Disqus is loading...</div>
             <div id="disqus_thread"></div>
         </div>
@@ -3200,7 +3192,6 @@
             renderPosts();
             updateChartsForSymbol(currentSymbol);
             initDisqusThread();
-            initLiveChat();
         }
 
         function setCategory(category) {
@@ -3488,13 +3479,6 @@
         document.getElementById('simLimitBuyBtn').addEventListener('click', () => executeSimTrade('limit', 'buy'));
         document.getElementById('simLimitSellBtn').addEventListener('click', () => executeSimTrade('limit', 'sell'));
         document.getElementById('simCloseAllBtn').addEventListener('click', closeAllPositions);
-        document.getElementById('liveChatSendBtn')?.addEventListener('click', sendLiveChatMessage);
-        document.getElementById('liveChatInput')?.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendLiveChatMessage();
-            }
-        });
         document.getElementById('propPresetCustomBtn').addEventListener('click', () => {
             applyPropPreset('custom');
         });
@@ -3512,7 +3496,6 @@
         renderCategories();
         initFromQuery();
         initDisqusThread();
-        initLiveChat();
         consumeAdResetRequest();
         consumeReadResetRequest();
         if (realtimeQuoteTimer) clearInterval(realtimeQuoteTimer);
