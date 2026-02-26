@@ -119,48 +119,6 @@
         .refresh-btn:hover {
             transform: translateY(-2px);
         }
-
-        .design-hub {
-            margin: 18px 0 24px;
-            background: white;
-            border-radius: 12px;
-            padding: 18px;
-            border: 1px solid #e5e7eb;
-        }
-
-        body.dark-mode .design-hub {
-            background: #1a1a2e;
-            border-color: #2a2a40;
-        }
-
-        .design-hub h3 {
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .design-links {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 10px;
-            margin-top: 12px;
-        }
-
-        .design-link {
-            display: block;
-            text-decoration: none;
-            color: #0f172a;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-weight: 600;
-        }
-
-        body.dark-mode .design-link {
-            color: #e2e8f0;
-            background: #111827;
-            border-color: #334155;
-        }
         
         .markets-grid {
             display: grid;
@@ -767,7 +725,6 @@
                 <a href="./index.html">Home</a> ·
                 <a href="./market.html">Markets</a> ·
                 <a href="./journal.html">Journal</a> ·
-                <a href="./futures-dashboard.html">Mobile UI</a> ·
                 <a href="./prop.html">Prop</a> ·
                 <a href="./advertise.html">Advertise</a> ·
                 <a href="./contact.html">Contact</a> ·
@@ -781,23 +738,11 @@
             <div class="dashboard-header">
                 <h1>Market Dashboard</h1>
                 <p>Real-time market data for major indices and stocks</p>
-                <button class="refresh-btn" onclick="refreshData()">?봽 Refresh Data</button>
-            </div>
-
-            <div class="design-hub">
-                <h3>New Mobile Design Pages</h3>
-                <p>Applied from your uploaded design set. Open each screen directly:</p>
-                <div class="design-links">
-                    <a class="design-link" href="./futures-dashboard.html">Futures Dashboard</a>
-                    <a class="design-link" href="./new-trade-entry.html">New Trade Entry</a>
-                    <a class="design-link" href="./performance-analytics.html">Performance Analytics</a>
-                    <a class="design-link" href="./trading-history.html">Trading History</a>
-                    <a class="design-link" href="./account-settings.html">Account Settings</a>
-                </div>
+                <button class="refresh-btn" onclick="refreshData()">🔄 Refresh Data</button>
             </div>
             
             <div class="info-box">
-                <strong>?뱦 Note:</strong> This dashboard uses delayed quotes first, and falls back to demo values if quote fetch fails.
+                <strong>📌 Note:</strong> This dashboard uses delayed quotes first, and falls back to demo values if quote fetch fails.
                 For trading decisions, always verify current prices on your broker's platform.
             </div>
             
@@ -873,7 +818,7 @@
                         <button class="dividend-sort-btn" id="sortTurnoverBtn" type="button" data-sort="turnover_desc">Highest Turnover</button>
                     </div>
                 </div>
-                <p id="dividendCriteriaText" style="font-size:13px; opacity:0.75; margin-top:8px;">?대윭??湲곗??쇰줈 ?곗텧????겕?낅땲?? Highest Market Cap.</p>
+                <p id="dividendCriteriaText" style="font-size:13px; opacity:0.75; margin-top:8px;">Stocks are sorted by Highest Market Cap.</p>
                 <div class="dividend-tabs">
                     <button class="dividend-tab-btn active" id="dividendWorldBtn" type="button">World Top 50</button>
                     <button class="dividend-tab-btn" id="dividendUsBtn" type="button">US Top 50</button>
@@ -915,7 +860,7 @@
             </div>
 
             <div class="setup-guide">
-                <h3>?뵩 Schedule Guide</h3>
+                <h3>📅 Schedule Guide</h3>
                 <p style="margin-bottom: 20px;">This calendar shows expected release dates for key U.S. indicators in a monthly view.</p>
                 <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
                     Priority is given to high-impact items such as jobs data, CPI/PPI, retail sales, FOMC, GDP, and PCE.
@@ -1206,7 +1151,7 @@
                 dividend_amount_desc: 'Highest Dividend Amount',
                 turnover_desc: 'Highest Turnover'
             };
-            criteriaEl.textContent = `?대윭??湲곗??쇰줈 ?곗텧????겕?낅땲?? ${map[currentDividendSort] || 'Highest Market Cap'}.`;
+            criteriaEl.textContent = `Stocks are sorted by ${map[currentDividendSort] || 'Highest Market Cap'}.`;
         }
 
         function syncDividendSortButtons() {
