@@ -2586,7 +2586,7 @@
             if (failBadge) {
                 if (propAccountFailedReason) {
                     failBadge.style.display = '';
-                    failBadge.textContent = `?ㅺ꺽 洹쒖튃: ${propAccountFailedReason}`;
+                    failBadge.textContent = `Rule breach: ${propAccountFailedReason}`;
                 } else {
                     failBadge.style.display = 'none';
                     failBadge.textContent = '';
@@ -2883,7 +2883,7 @@
 
             if (!requested) return;
             resetPropAccount({ skipAuthCheck: true, silent: true });
-            alert('?ㅼ씫?덉뒿?덈떎 ?뺤씤 ?꾨즺: ?곕え 怨꾩쥖瑜?珥덇린?뷀뻽?듬땲??');
+            alert('Read confirmation complete: demo account has been reset.');
         }
 
         function consumeAdResetRequest() {
