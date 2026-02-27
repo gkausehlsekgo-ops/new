@@ -2726,7 +2726,7 @@
             if (failBadge) {
                 if (propAccountFailedReason) {
                     failBadge.style.display = '';
-                    failBadge.textContent = `Rule breach: ${propAccountFailedReason}`;
+                    failBadge.textContent = `\u26A0\uFE0F Trading suspended \u2014 ${propAccountFailedReason}`;
                 } else {
                     failBadge.style.display = 'none';
                     failBadge.textContent = '';
@@ -3057,8 +3057,7 @@
                 return;
             }
             propAccountFailedReason = reason;
-            simCash = 0;
-            simPortfolio = {};
+            // Cash and positions are preserved — trading is suspended, not wiped
             simTxs.unshift({
                 date: new Date().toLocaleString(),
                 ts: Date.now(),
@@ -3074,7 +3073,6 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            alert(`Rule breach detected: ${reason}`);
         }
 
         function consumeReadResetRequest() {
@@ -3262,7 +3260,7 @@
 
         function executeSimTrade(orderType, side) {
             if (propAccountFailedReason) {
-            alert(`Account blown: ${propAccountFailedReason}`);
+                renderPropRuleStatus();
                 return;
             }
             const qty = parseInt(document.getElementById('simQtyInput').value, 10);
@@ -3384,7 +3382,7 @@
 
         async function closeAllPositions() {
             if (propAccountFailedReason) {
-            alert(`Account blown: ${propAccountFailedReason}`);
+                renderPropRuleStatus();
                 return;
             }
             const symbols = Object.keys(simPortfolio);
