@@ -74,7 +74,7 @@ export async function onRequestGet({ request, env }) {
     .filter(Boolean);
 
   return json({ quoteResponse: { result, error: null } }, 200, {
-    "Cache-Control": "s-maxage=10, max-age=10",
+    "Cache-Control": "s-maxage=30, max-age=30",
   });
 }
 
@@ -118,46 +118,48 @@ async function fetchOne(yahooSym, key) {
 }
 
 // Fetch current price from Yahoo Finance chart meta (used for indices & futures)
+// Tries query1 first, then query2 as fallback (one may be blocked while the other isn't)
 async function fetchYahooQuote(symbol) {
-  try {
-    const target = new URL(
-      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}`
-    );
-    target.searchParams.set("range", "1d");
-    target.searchParams.set("interval", "1m");
-    target.searchParams.set("includePrePost", "false");
+  const hosts = ["query1", "query2"];
+  for (const host of hosts) {
+    try {
+      const url =
+        `https://${host}.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
+        `?range=1d&interval=1m&includePrePost=false`;
 
-    const res = await fetch(target.toString(), {
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-        "Accept":     "application/json,text/plain,*/*",
-      },
-    });
-    if (!res.ok) return null;
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Accept":     "application/json,text/plain,*/*",
+        },
+      });
+      if (!res.ok) continue;
 
-    const data = await res.json();
-    const meta = data?.chart?.result?.[0]?.meta;
-    if (!meta || typeof meta.regularMarketPrice !== "number") return null;
+      const data = await res.json();
+      const meta = data?.chart?.result?.[0]?.meta;
+      if (!meta || typeof meta.regularMarketPrice !== "number") continue;
 
-    const price = meta.regularMarketPrice;
-    const prev  = meta.chartPreviousClose ?? null;
+      const price = meta.regularMarketPrice;
+      const prev  = meta.chartPreviousClose ?? null;
 
-    return {
-      symbol,
-      regularMarketPrice:          price,
-      regularMarketPreviousClose:  prev,
-      regularMarketChangePercent:  (price && prev) ? ((price - prev) / prev) * 100 : null,
-      regularMarketChange:         (price && prev) ? price - prev : null,
-      regularMarketOpen:           null,
-      regularMarketDayHigh:        meta.regularMarketDayHigh  ?? null,
-      regularMarketDayLow:         meta.regularMarketDayLow   ?? null,
-      regularMarketTime:           meta.regularMarketTime      ?? null,
-      regularMarketVolume:         null,
-      marketCap:                   MARKET_CAP_EST[symbol] ?? null,
-      trailingAnnualDividendYield: null,
-      trailingAnnualDividendRate:  null,
-    };
-  } catch { return null; }
+      return {
+        symbol,
+        regularMarketPrice:          price,
+        regularMarketPreviousClose:  prev,
+        regularMarketChangePercent:  (price && prev) ? ((price - prev) / prev) * 100 : null,
+        regularMarketChange:         (price && prev) ? price - prev : null,
+        regularMarketOpen:           null,
+        regularMarketDayHigh:        meta.regularMarketDayHigh ?? null,
+        regularMarketDayLow:         meta.regularMarketDayLow  ?? null,
+        regularMarketTime:           meta.regularMarketTime     ?? null,
+        regularMarketVolume:         null,
+        marketCap:                   MARKET_CAP_EST[symbol] ?? null,
+        trailingAnnualDividendYield: null,
+        trailingAnnualDividendRate:  null,
+      };
+    } catch { continue; }
+  }
+  return null;
 }
 
 function json(body, status = 200, extra = {}) {

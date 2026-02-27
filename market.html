@@ -1550,7 +1550,7 @@
         };
 
         let delayedQuotes = {};
-        const MARKET_CACHE_KEY = 'market_quote_cache_v1';
+        const MARKET_CACHE_KEY = 'market_quote_cache_v3'; // bumped: clear stale Finnhub index prices
 
         function loadMarketCache() {
             try {
