@@ -366,11 +366,7 @@
         const NEWS_MAX_BACKOFF_MS = 30 * 60 * 1000;
         const NEWS_FETCH_TIMEOUT_MS = 10 * 1000;
 
-        const FEEDS = [
-            { source: 'Reuters Business', url: 'https://feeds.reuters.com/reuters/businessNews' },
-            { source: 'BBC Business', url: 'http://feeds.bbci.co.uk/news/business/rss.xml' },
-            { source: 'Yahoo Finance', url: 'https://finance.yahoo.com/news/rssindex' }
-        ];
+        // All news fetched from Finnhub API (no RSS scraping, no third-party proxies)
 
         function escapeHtml(text) {
             return String(text || '')
@@ -475,28 +471,14 @@
             `).join('');
         }
 
-        async function fetchFeed(feed) {
-            const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(feed.url)}`;
+        async function fetchFinnhubNews() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), NEWS_FETCH_TIMEOUT_MS);
-            const response = await fetch(proxied, { cache: 'no-store', signal: controller.signal });
+            const response = await fetch('/api/news?category=general', { cache: 'no-store', signal: controller.signal });
             clearTimeout(timeoutId);
-            if (!response.ok) throw new Error(`${feed.source} HTTP ${response.status}`);
-            const xml = await response.text();
-            const doc = new DOMParser().parseFromString(xml, 'text/xml');
-            const nodes = Array.from(doc.querySelectorAll('item')).slice(0, 15);
-
-            return nodes.map((node) => {
-                const title = node.querySelector('title')?.textContent?.trim() || 'Untitled';
-                const link = node.querySelector('link')?.textContent?.trim() || 'Untitled';
-                const pubDate = node.querySelector('pubDate')?.textContent?.trim() || new Date().toISOString();
-                return {
-                    title,
-                    link,
-                    source: feed.source,
-                    publishedAt: pubDate
-                };
-            });
+            if (!response.ok) throw new Error(`News API HTTP ${response.status}`);
+            const data = await response.json();
+            return Array.isArray(data.items) ? data.items : [];
         }
 
         function dedupeAndSort(items) {
@@ -540,16 +522,13 @@
             }
 
             setLastFetchAt(now);
-            setStatus('Fetching latest feeds...');
+            setStatus('Fetching latest news...');
 
-            const merged = [];
-            for (const feed of FEEDS) {
-                try {
-                    const items = await fetchFeed(feed);
-                    merged.push(...items);
-                } catch {
-                    // Continue with remaining feeds
-                }
+            let merged = [];
+            try {
+                merged = await fetchFinnhubNews();
+            } catch {
+                // API call failed
             }
 
             const finalNews = dedupeAndSort(merged);

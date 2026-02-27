@@ -1284,34 +1284,14 @@
         }
 
         async function fetchJsonWithFallback(url) {
-            const fetchWithTimeout = async (target, timeoutMs) => {
-                const controller = new AbortController();
-                const timer = setTimeout(() => controller.abort(), timeoutMs);
-                try {
-                    const res = await fetch(target, { cache: 'no-store', signal: controller.signal });
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    return await res.json();
-                } finally {
-                    clearTimeout(timer);
-                }
-            };
-
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
             try {
-                return await fetchWithTimeout(url, DIRECT_FETCH_TIMEOUT_MS);
-            } catch {
-                // fall through to proxy race
-            }
-
-            const proxyTargets = [
-                `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-            ];
-
-            const proxyJobs = proxyTargets.map(target => fetchWithTimeout(target, FETCH_TIMEOUT_MS));
-            try {
-                return await Promise.any(proxyJobs);
-            } catch (err) {
-                throw err || new Error('Delayed data fetch failed');
+                const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } finally {
+                clearTimeout(timer);
             }
         }
 
