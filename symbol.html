@@ -827,10 +827,6 @@
                         <input id="propMaxDrawdownPct" type="number" min="0.1" max="90" step="0.1" value="10" />
                     </div>
                     <div>
-                        <label for="propConsistencyPct">Consistency Cap (% of equity per order)</label>
-                        <input id="propConsistencyPct" type="number" min="1" max="100" step="1" value="35" />
-                    </div>
-                    <div>
                         <label for="propMaxTradesPerDay">Max Trades per Day</label>
                         <input id="propMaxTradesPerDay" type="number" min="1" max="500" step="1" value="30" />
                     </div>
@@ -843,8 +839,8 @@
                         <input id="propMaxQtyPerOrder" type="number" min="1" max="1000000" step="1" value="500" />
                     </div>
                     <div>
-                        <label for="propMaxPositionPct">Max Position Notional (% of equity)</label>
-                        <input id="propMaxPositionPct" type="number" min="1" max="100" step="1" value="60" />
+                        <label for="propMaxContractsPerSymbol">Max Contracts per Symbol</label>
+                        <input id="propMaxContractsPerSymbol" type="number" min="1" max="1000" step="1" value="6" />
                     </div>
                 </div>
 
@@ -957,11 +953,10 @@
             startingBalance: 100000,
             dailyLossPct: 5,
             maxDrawdownPct: 10,
-            consistencyPct: 35,
             maxTradesPerDay: 30,
             maxOpenPositions: 5,
             maxQtyPerOrder: 500,
-            maxPositionPct: 60
+            maxContractsPerSymbol: 6
         };
         const PROP_PRESETS_DEFAULT = {
             custom: { ...PROP_RULES_DEFAULT, mode: 'custom' },
@@ -970,22 +965,20 @@
                 mode: 'eod',
                 dailyLossPct: 5,
                 maxDrawdownPct: 10,
-                consistencyPct: 35,
                 maxTradesPerDay: 30,
                 maxOpenPositions: 5,
                 maxQtyPerOrder: 500,
-                maxPositionPct: 60
+                maxContractsPerSymbol: 6
             },
             tmdd: {
                 ...PROP_RULES_DEFAULT,
                 mode: 'tmdd',
                 dailyLossPct: 5,
                 maxDrawdownPct: 6,
-                consistencyPct: 35,
                 maxTradesPerDay: 20,
                 maxOpenPositions: 4,
                 maxQtyPerOrder: 300,
-                maxPositionPct: 45
+                maxContractsPerSymbol: 4
             }
         };
         const MODERATION_STATE_KEY = 'community_moderation_state_v1';
@@ -2468,11 +2461,10 @@
                 startingBalance: [25000, 50000, 100000].includes(Number(raw?.startingBalance)) ? Number(raw.startingBalance) : 100000,
                 dailyLossPct: Math.min(50, Math.max(0.1, Number(raw?.dailyLossPct) || 5)),
                 maxDrawdownPct: Math.min(90, Math.max(0.1, Number(raw?.maxDrawdownPct) || 10)),
-                consistencyPct: Math.min(100, Math.max(1, Number(raw?.consistencyPct) || 35)),
                 maxTradesPerDay: Math.min(500, Math.max(1, Number(raw?.maxTradesPerDay) || 30)),
                 maxOpenPositions: Math.min(100, Math.max(1, Number(raw?.maxOpenPositions) || 5)),
                 maxQtyPerOrder: Math.min(1000000, Math.max(1, Number(raw?.maxQtyPerOrder) || 500)),
-                maxPositionPct: Math.min(100, Math.max(1, Number(raw?.maxPositionPct) || 60))
+                maxContractsPerSymbol: Math.min(1000, Math.max(1, Number(raw?.maxContractsPerSymbol) || 6))
             };
         }
 
@@ -2628,11 +2620,8 @@
                 if (nextPositions > propRules.maxOpenPositions) {
                     return { code: 'MAX_POSITIONS', message: `Max open positions breached (${nextPositions} > ${propRules.maxOpenPositions}).` };
                 }
-
-                const positionNotional = Math.abs(projectedQty) * price;
-                const positionCap = equity * (propRules.maxPositionPct / 100);
-                if (positionNotional > positionCap) {
-                    return { code: 'POSITION_CAP', message: `Max position notional breached (${propRules.maxPositionPct}% cap).` };
+                if (Math.abs(projectedQty) > propRules.maxContractsPerSymbol) {
+                    return { code: 'POSITION_CAP', message: `Max contracts per symbol breached (${Math.abs(projectedQty)} > ${propRules.maxContractsPerSymbol}).` };
                 }
             }
 
@@ -2644,18 +2633,8 @@
                 if (nextPositions > propRules.maxOpenPositions) {
                     return { code: 'MAX_POSITIONS', message: `Max open positions breached (${nextPositions} > ${propRules.maxOpenPositions}).` };
                 }
-
-                const positionNotional = Math.abs(projectedQty) * price;
-                const positionCap = equity * (propRules.maxPositionPct / 100);
-                if (positionNotional > positionCap) {
-                    return { code: 'POSITION_CAP', message: `Max position notional breached (${propRules.maxPositionPct}% cap).` };
-                }
-            }
-
-            if (orderNotional > 0) {
-                const cap = equity * (propRules.consistencyPct / 100);
-                if (orderNotional > cap) {
-                    return { code: 'CONSISTENCY', message: `Consistency rule breached (order > ${propRules.consistencyPct}% of equity).` };
+                if (Math.abs(projectedQty) > propRules.maxContractsPerSymbol) {
+                    return { code: 'POSITION_CAP', message: `Max contracts per symbol breached (${Math.abs(projectedQty)} > ${propRules.maxContractsPerSymbol}).` };
                 }
             }
 
@@ -2701,24 +2680,22 @@
             const account = document.getElementById('propAccountSize');
             const daily = document.getElementById('propDailyLossPct');
             const drawdown = document.getElementById('propMaxDrawdownPct');
-            const consistency = document.getElementById('propConsistencyPct');
             const maxTradesPerDay = document.getElementById('propMaxTradesPerDay');
             const maxOpenPositions = document.getElementById('propMaxOpenPositions');
             const maxQtyPerOrder = document.getElementById('propMaxQtyPerOrder');
-            const maxPositionPct = document.getElementById('propMaxPositionPct');
+            const maxContractsPerSymbol = document.getElementById('propMaxContractsPerSymbol');
             const applyBtn = document.getElementById('propApplyRulesBtn');
             const resetBtn = document.getElementById('propResetAccountBtn');
             const memberNote = document.getElementById('propRuleMemberNote');
-            const controls = [account, daily, drawdown, consistency, maxTradesPerDay, maxOpenPositions, maxQtyPerOrder, maxPositionPct, applyBtn, resetBtn, document.getElementById('propPresetCustomBtn'), document.getElementById('propPresetEodBtn'), document.getElementById('propPresetTmddBtn')];
+            const controls = [account, daily, drawdown, maxTradesPerDay, maxOpenPositions, maxQtyPerOrder, maxContractsPerSymbol, applyBtn, resetBtn, document.getElementById('propPresetCustomBtn'), document.getElementById('propPresetEodBtn'), document.getElementById('propPresetTmddBtn')];
 
             if (account) account.value = String(propRules.startingBalance);
             if (daily) daily.value = String(propRules.dailyLossPct);
             if (drawdown) drawdown.value = String(propRules.maxDrawdownPct);
-            if (consistency) consistency.value = String(propRules.consistencyPct);
             if (maxTradesPerDay) maxTradesPerDay.value = String(propRules.maxTradesPerDay);
             if (maxOpenPositions) maxOpenPositions.value = String(propRules.maxOpenPositions);
             if (maxQtyPerOrder) maxQtyPerOrder.value = String(propRules.maxQtyPerOrder);
-            if (maxPositionPct) maxPositionPct.value = String(propRules.maxPositionPct);
+            if (maxContractsPerSymbol) maxContractsPerSymbol.value = String(propRules.maxContractsPerSymbol);
             setActivePresetButton(propRules.mode);
 
             const canEdit = isPersistentSimSession();
@@ -2745,7 +2722,7 @@
             const drawdownPct = drawdownBase > 0 ? ((drawdownBase - equity) / drawdownBase) * 100 : 0;
             const tradesToday = getTodayTradeCount();
             const failTag = propAccountFailedReason ? ` · FAILED (${propAccountFailedReason})` : '';
-            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · PosCap ${propRules.maxPositionPct}% · Consistency ${propRules.consistencyPct}%${failTag}`;
+            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · MaxContracts/Symbol ${propRules.maxContractsPerSymbol}${failTag}`;
             if (failBadge) {
                 if (propAccountFailedReason) {
                     failBadge.style.display = '';
@@ -2988,11 +2965,10 @@
                 startingBalance: Number(document.getElementById('propAccountSize')?.value || 100000),
                 dailyLossPct: Number(document.getElementById('propDailyLossPct')?.value || 5),
                 maxDrawdownPct: Number(document.getElementById('propMaxDrawdownPct')?.value || 10),
-                consistencyPct: Number(document.getElementById('propConsistencyPct')?.value || 35),
                 maxTradesPerDay: Number(document.getElementById('propMaxTradesPerDay')?.value || 30),
                 maxOpenPositions: Number(document.getElementById('propMaxOpenPositions')?.value || 5),
                 maxQtyPerOrder: Number(document.getElementById('propMaxQtyPerOrder')?.value || 500),
-                maxPositionPct: Number(document.getElementById('propMaxPositionPct')?.value || 60)
+                maxContractsPerSymbol: Number(document.getElementById('propMaxContractsPerSymbol')?.value || 6)
             }, targetMode);
         }
 
