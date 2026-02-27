@@ -1003,9 +1003,11 @@
         let lwMainData = [];
 
         // Fake realtime state
+        let wiggleTimer = null;
+        let pollTimer = null;
         let lastBar = null;
         let targetClose = null;
-        let _realtimeIntervals = [];
+        let lastTargetClose = null;
         let volumeChart;
         let volumeHistSeries;
         let volumeMaSeries;
@@ -1846,7 +1848,7 @@
                     if (candleData.length > 0) {
                         lastBar = candleData[candleData.length - 1];
                         targetClose = lastBar.close;
-                        startFakeRealtime(symbol);
+                        startFakeRealtime({ candleSeries: lwSeries, symbol });
                     }
                 } else {
                     lwSeries.setData(lwMainData.map(x => ({ time: x.time, value: x.value })));
@@ -1884,48 +1886,64 @@
         }
 
         function stopFakeRealtime() {
-            _realtimeIntervals.forEach(id => clearInterval(id));
-            _realtimeIntervals = [];
+            if (wiggleTimer) clearInterval(wiggleTimer);
+            if (pollTimer) clearInterval(pollTimer);
+            wiggleTimer = null;
+            pollTimer = null;
+            lastBar = null;
+            targetClose = null;
+            lastTargetClose = null;
         }
 
-        async function fetchLatestCloseForSymbol(symbol) {
-            const yahooSymbols = resolveYahooSymbols(symbol);
-            if (!yahooSymbols.length) return null;
+        function lastValidNumber(arr) {
+            for (let i = arr.length - 1; i >= 0; i--) {
+                const v = arr[i];
+                if (typeof v === 'number' && Number.isFinite(v)) return v;
+            }
+            return null;
+        }
+
+        async function fetchLatestClose(symbol) {
             try {
+                const yahooSymbols = resolveYahooSymbols(symbol);
+                if (!yahooSymbols.length) return null;
                 const r = await fetch(`/api/chart?symbol=${encodeURIComponent(yahooSymbols[0])}&range=1d&interval=1m`);
                 if (!r.ok) return null;
                 const j = await r.json();
-                const c = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
-                if (!Array.isArray(c)) return null;
-                for (let i = c.length - 1; i >= 0; i--) {
-                    if (c[i] != null) return c[i];
-                }
-                return null;
+                const closes = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+                if (!Array.isArray(closes)) return null;
+                return lastValidNumber(closes);
             } catch { return null; }
         }
 
-        function startFakeRealtime(symbol) {
+        function computeMicro(close) {
+            if (targetClose == null || lastTargetClose == null) return 0;
+            const delta = Math.abs(targetClose - lastTargetClose);
+            const quiet = delta <= Math.abs(close) * 0.00001;
+            if (quiet) return 0;
+            return (Math.random() - 0.5) * Math.abs(close) * 0.00005;
+        }
+
+        function startFakeRealtime({ candleSeries, symbol }) {
             stopFakeRealtime();
             if (!lastBar) return;
 
-            // 250ms micro-wiggle: "살아있는 느낌"
-            const wiggleId = setInterval(() => {
-                if (!lastBar || targetClose == null || !lwSeries) return;
-                const micro = (Math.random() - 0.5) * Math.abs(lastBar.close) * 0.00005;
+            wiggleTimer = setInterval(() => {
+                if (!lastBar || targetClose == null) return;
+                const micro = computeMicro(lastBar.close);
                 const close = lastBar.close + (targetClose - lastBar.close) * 0.08 + micro;
                 const high = Math.max(lastBar.high, close, lastBar.open);
                 const low  = Math.min(lastBar.low,  close, lastBar.open);
                 lastBar = { ...lastBar, close, high, low };
-                try { lwSeries.update(lastBar); } catch {}
+                try { candleSeries.update(lastBar); } catch {}
             }, 250);
 
-            // 15s마다 실제 최신 close 갱신
-            const refreshId = setInterval(async () => {
-                const latest = await fetchLatestCloseForSymbol(symbol);
-                if (latest != null) targetClose = latest;
+            pollTimer = setInterval(async () => {
+                const latest = await fetchLatestClose(symbol);
+                if (latest == null) return;
+                lastTargetClose = targetClose;
+                targetClose = latest;
             }, 15000);
-
-            _realtimeIntervals = [wiggleId, refreshId];
         }
 
         async function fetchDelayedQuote(symbol) {
