@@ -1,12 +1,8 @@
 /**
- * /api/quote  — Finnhub-based quote proxy with Yahoo Finance fallback
+ * /api/quote  — Finnhub-only quote proxy
  *
  * Cloudflare Pages Function.
  * Requires environment variable: FINNHUB_API_KEY
- *
- * Priority:
- *   1. Finnhub /api/v1/quote  (stocks, crypto)
- *   2. Yahoo Finance chart meta (indices & symbols Finnhub free tier doesn't support)
  *
  * Returns response shaped like Yahoo Finance quoteResponse
  * so frontend code needs no changes.
@@ -18,14 +14,13 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Yahoo Finance symbol → Finnhub symbol
-// null = Finnhub free tier doesn't support → fall back to Yahoo Finance chart meta
+// Input symbol → Finnhub symbol (null = not supported, returns no data)
 const SYMBOL_MAP = {
-  "^GSPC":   null,                // S&P 500  — Finnhub free returns wrong price
-  "^IXIC":   null,                // NASDAQ   — same
-  "^DJI":    null,                // Dow Jones — same
-  "^KS11":   null,                // KOSPI    — not on Finnhub free
-  "^KQ11":   null,                // KOSDAQ   — not on Finnhub free
+  "^GSPC":   "^GSPC",             // S&P 500
+  "^IXIC":   "^IXIC",             // NASDAQ Composite
+  "^DJI":    "^DJI",              // Dow Jones
+  "^KS11":   null,                // KOSPI  — not on Finnhub free
+  "^KQ11":   null,                // KOSDAQ — not on Finnhub free
   "BTC-USD": "COINBASE:BTC-USD",  // Bitcoin
   "ETH-USD": "COINBASE:ETH-USD",  // Ethereum
   "MNQ=F":   null,                // Micro NQ futures
@@ -86,9 +81,7 @@ export async function onRequestOptions() {
 
 async function fetchOne(yahooSym, key) {
   const finnhubSym = yahooSym in SYMBOL_MAP ? SYMBOL_MAP[yahooSym] : yahooSym;
-
-  // null → Finnhub doesn't support this symbol → fall back to Yahoo Finance
-  if (!finnhubSym) return fetchYahooQuote(yahooSym);
+  if (!finnhubSym) return null; // not supported
 
   const res = await fetch(
     `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(finnhubSym)}&token=${key}`,
@@ -97,7 +90,6 @@ async function fetchOne(yahooSym, key) {
   if (!res.ok) return null;
 
   const d = await res.json();
-  // Finnhub returns c=0 for unknown / unsupported symbols
   if (typeof d.c !== "number" || d.c === 0) return null;
 
   return {
@@ -115,51 +107,6 @@ async function fetchOne(yahooSym, key) {
     trailingAnnualDividendYield: null,
     trailingAnnualDividendRate:  null,
   };
-}
-
-// Fetch current price from Yahoo Finance chart meta (used for indices & futures)
-// Tries query1 first, then query2 as fallback (one may be blocked while the other isn't)
-async function fetchYahooQuote(symbol) {
-  const hosts = ["query1", "query2"];
-  for (const host of hosts) {
-    try {
-      const url =
-        `https://${host}.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
-        `?range=1d&interval=1m&includePrePost=false`;
-
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent": "Mozilla/5.0",
-          "Accept":     "application/json,text/plain,*/*",
-        },
-      });
-      if (!res.ok) continue;
-
-      const data = await res.json();
-      const meta = data?.chart?.result?.[0]?.meta;
-      if (!meta || typeof meta.regularMarketPrice !== "number") continue;
-
-      const price = meta.regularMarketPrice;
-      const prev  = meta.chartPreviousClose ?? null;
-
-      return {
-        symbol,
-        regularMarketPrice:          price,
-        regularMarketPreviousClose:  prev,
-        regularMarketChangePercent:  (price && prev) ? ((price - prev) / prev) * 100 : null,
-        regularMarketChange:         (price && prev) ? price - prev : null,
-        regularMarketOpen:           null,
-        regularMarketDayHigh:        meta.regularMarketDayHigh ?? null,
-        regularMarketDayLow:         meta.regularMarketDayLow  ?? null,
-        regularMarketTime:           meta.regularMarketTime     ?? null,
-        regularMarketVolume:         null,
-        marketCap:                   MARKET_CAP_EST[symbol] ?? null,
-        trailingAnnualDividendYield: null,
-        trailingAnnualDividendRate:  null,
-      };
-    } catch { continue; }
-  }
-  return null;
 }
 
 function json(body, status = 200, extra = {}) {

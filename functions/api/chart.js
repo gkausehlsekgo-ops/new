@@ -1,13 +1,8 @@
 /**
- * /api/chart  — Finnhub-based chart proxy with Yahoo Finance fallback
+ * /api/chart  — Finnhub-only chart proxy
  *
  * Cloudflare Pages Function.
  * Requires environment variable: FINNHUB_API_KEY
- * Set it in Cloudflare Pages → Settings → Environment variables.
- *
- * - If FINNHUB_API_KEY is set:   tries Finnhub /stock/candle (or /crypto/candle)
- *   Falls back to Yahoo Finance if Finnhub returns no data (e.g. index symbols).
- * - If FINNHUB_API_KEY is not set: proxies Yahoo Finance directly (legacy behavior).
  *
  * Returns response shaped like Yahoo Finance v8 chart API
  * so frontend code needs no changes.
@@ -19,18 +14,17 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Yahoo Finance symbol → Finnhub symbol
-// null = not on Finnhub free tier → Yahoo Finance fallback
+// Input symbol → Finnhub symbol (null = not supported)
 const SYMBOL_MAP = {
-  "^GSPC":   "^GSPC",             // S&P 500  (may fall back if unsupported)
+  "^GSPC":   "^GSPC",             // S&P 500
   "^IXIC":   "^IXIC",             // NASDAQ Composite
   "^DJI":    "^DJI",              // Dow Jones
-  "^KS11":   null,                // KOSPI  → Yahoo fallback
-  "^KQ11":   null,                // KOSDAQ → Yahoo fallback
+  "^KS11":   null,                // KOSPI  — not on Finnhub free
+  "^KQ11":   null,                // KOSDAQ — not on Finnhub free
   "BTC-USD": "COINBASE:BTC-USD",  // Bitcoin
   "ETH-USD": "COINBASE:ETH-USD",  // Ethereum
-  "MNQ=F":   null,                // Micro NQ futures → Yahoo fallback
-  "NQ=F":    null,                // NQ futures → Yahoo fallback
+  "MNQ=F":   null,                // Micro NQ futures
+  "NQ=F":    null,                // NQ futures
 };
 
 // Yahoo Finance interval → Finnhub resolution
@@ -66,29 +60,22 @@ const RANGE_SECS = {
 
 export async function onRequestGet({ request, env }) {
   const url      = new URL(request.url);
-  const yahooSym = url.searchParams.get("symbol")   || "AAPL";
-  const range    = url.searchParams.get("range")     || "1d";
-  const interval = url.searchParams.get("interval")  || "1m";
+  const yahooSym = url.searchParams.get("symbol")  || "AAPL";
+  const range    = url.searchParams.get("range")    || "1d";
+  const interval = url.searchParams.get("interval") || "1m";
 
   const KEY = env.FINNHUB_API_KEY || "";
-
-  // No key → legacy Yahoo Finance proxy
-  if (!KEY) return proxyYahoo(yahooSym, range, interval);
+  if (!KEY) return emptyChart(yahooSym, "FINNHUB_API_KEY not set");
 
   const finnhubSym = yahooSym in SYMBOL_MAP ? SYMBOL_MAP[yahooSym] : yahooSym;
-
-  // null means symbol not supported on Finnhub → Yahoo fallback
-  if (!finnhubSym) return proxyYahoo(yahooSym, range, interval);
+  if (!finnhubSym) return emptyChart(yahooSym, "Symbol not supported");
 
   const resolution = INTERVAL_TO_RES[interval] || "D";
+  const now  = Math.floor(Date.now() / 1000);
+  const from = range === "ytd"
+    ? Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000)
+    : now - (RANGE_SECS[range] ?? 86_400);
 
-  const now = Math.floor(Date.now() / 1000);
-  const from =
-    range === "ytd"
-      ? Math.floor(new Date(new Date().getFullYear(), 0, 1).getTime() / 1000)
-      : now - (RANGE_SECS[range] ?? 86_400);
-
-  // Crypto symbols contain ":" (e.g. COINBASE:BTC-USD)
   const isCrypto = finnhubSym.includes(":");
   const endpoint = isCrypto ? "crypto/candle" : "stock/candle";
 
@@ -101,39 +88,26 @@ export async function onRequestGet({ request, env }) {
 
   try {
     const res = await fetch(apiUrl, { headers: { Accept: "application/json" } });
-    if (!res.ok) throw new Error(`Finnhub HTTP ${res.status}`);
+    if (!res.ok) return emptyChart(yahooSym, `Finnhub HTTP ${res.status}`);
 
     const d = await res.json();
-
-    // s !== "ok" or empty timestamps → Finnhub has no data for this symbol/range
     if (d.s !== "ok" || !Array.isArray(d.t) || d.t.length === 0) {
-      return proxyYahoo(yahooSym, range, interval);
+      return emptyChart(yahooSym, "No candle data");
     }
 
-    // Transform Finnhub candle → Yahoo Finance v8 chart shape
     const body = JSON.stringify({
       chart: {
-        result: [
-          {
-            meta: {
-              symbol:               yahooSym,
-              regularMarketPrice:   d.c.at(-1),
-              chartPreviousClose:   d.o[0],
-            },
-            timestamp:  d.t,
-            indicators: {
-              quote: [
-                {
-                  open:   d.o,
-                  high:   d.h,
-                  low:    d.l,
-                  close:  d.c,
-                  volume: d.v,
-                },
-              ],
-            },
+        result: [{
+          meta: {
+            symbol:             yahooSym,
+            regularMarketPrice: d.c.at(-1),
+            chartPreviousClose: d.o[0],
           },
-        ],
+          timestamp:  d.t,
+          indicators: {
+            quote: [{ open: d.o, high: d.h, low: d.l, close: d.c, volume: d.v }],
+          },
+        }],
         error: null,
       },
     });
@@ -146,9 +120,8 @@ export async function onRequestGet({ request, env }) {
         "Cache-Control": "s-maxage=30, max-age=30",
       },
     });
-  } catch {
-    // Any fetch/parse error → fall back to Yahoo Finance
-    return proxyYahoo(yahooSym, range, interval);
+  } catch (e) {
+    return emptyChart(yahooSym, String(e));
   }
 }
 
@@ -156,31 +129,24 @@ export async function onRequestOptions() {
   return new Response(null, { status: 204, headers: CORS });
 }
 
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-async function proxyYahoo(symbol, range, interval) {
-  const target = new URL(
-    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}`
-  );
-  target.searchParams.set("range",          range);
-  target.searchParams.set("interval",       interval);
-  target.searchParams.set("includePrePost", "false");
-  target.searchParams.set("events",         "div,splits");
-
-  const res = await fetch(target.toString(), {
-    headers: {
-      "User-Agent": "Mozilla/5.0",
-      "Accept":     "application/json,text/plain,*/*",
+// Returns a valid but empty chart response so the frontend degrades gracefully
+function emptyChart(symbol, reason) {
+  const body = JSON.stringify({
+    chart: {
+      result: [{
+        meta: { symbol, regularMarketPrice: null, chartPreviousClose: null },
+        timestamp: [],
+        indicators: { quote: [{ open: [], high: [], low: [], close: [], volume: [] }] },
+      }],
+      error: { code: "NO_DATA", description: reason },
     },
   });
-
-  const text = await res.text();
-  return new Response(text, {
-    status: res.status,
+  return new Response(body, {
+    status: 200,
     headers: {
       ...CORS,
       "Content-Type":  "application/json; charset=utf-8",
-      "Cache-Control": "s-maxage=10, max-age=10",
+      "Cache-Control": "no-store",
     },
   });
 }
