@@ -7,131 +7,333 @@
     <link rel="canonical" href="https://si-tip.com/auth.html">
     <title>Login / Sign Up - Smart Investment Tips</title>
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif; background: #f6f7fb; color: #111827; }
-        .wrap { max-width: 520px; margin: 48px auto; padding: 0 16px; }
-        .card { background: #fff; border-radius: 14px; padding: 20px; box-shadow: 0 10px 22px rgba(15, 23, 42, .08); margin-bottom: 14px; }
-        h1 { margin: 0 0 8px; font-size: 26px; }
-        p { margin: 0 0 14px; color: #6b7280; font-size: 14px; }
-        label { display: block; font-size: 13px; color: #6b7280; margin: 10px 0 6px; }
-        input, button { width: 100%; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; font-size: 14px; }
-        button { background: #2563eb; color: #fff; border: none; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .ghost { background: #fff; color: #111827; border: 1px solid #d1d5db; }
-        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .helper { font-size: 12px; color: #6b7280; margin-top: 8px; }
-        .status { font-size: 13px; margin-top: 10px; color: #1d4ed8; }
-        a { color: #2563eb; text-decoration: none; }
-        .agree-wrap { margin-top: 10px; padding: 10px; border: 1px solid #e5e7eb; border-radius: 10px; background: #f9fafb; }
-        .agree-row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; color: #374151; }
-        .agree-row input { width: auto; margin-top: 2px; }
-        #supabaseConfigPanel { display: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
+            background: #f0f4ff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 16px;
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 24px;
+            font-size: 13px;
+            color: #6b7280;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.15s;
+        }
+        .back-link:hover { color: #111827; }
+
+        .auth-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 4px 24px rgba(15, 23, 42, .10);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+        .brand img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+        }
+        .brand-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            letter-spacing: -0.3px;
+        }
+
+        .auth-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+        .auth-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 28px;
+        }
+
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        .field input {
+            width: 100%;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 14px;
+            color: #111827;
+            background: #f9fafb;
+            outline: none;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .field input:focus {
+            border-color: #3b82f6;
+            background: #fff;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 13px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .btn-primary:hover { background: #1d4ed8; }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-ghost {
+            width: 100%;
+            background: #fff;
+            color: #374151;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: border-color 0.15s, background 0.15s;
+        }
+        .btn-ghost:hover { border-color: #3b82f6; background: #f0f4ff; }
+
+        .btn-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .btn-row .btn-primary,
+        .btn-row .btn-ghost {
+            margin-top: 0;
+        }
+
+        .switch-row {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+        .switch-row a {
+            color: #2563eb;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .switch-row a:hover { text-decoration: underline; }
+
+        .status {
+            font-size: 13px;
+            color: #1d4ed8;
+            margin-top: 12px;
+            min-height: 18px;
+            line-height: 1.4;
+        }
+        .status.error { color: #dc2626; }
+
+        .helper {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .agree-wrap {
+            margin: 14px 0;
+            padding: 12px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .agree-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.4;
+        }
+        .agree-row input[type="checkbox"] {
+            width: auto;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .agree-row a { color: #2563eb; text-decoration: none; }
+        .agree-row a:hover { text-decoration: underline; }
+
+        .divider {
+            border: none;
+            border-top: 1.5px solid #f3f4f6;
+            margin: 20px 0;
+        }
+
+        #signupView { display: none; }
     </style>
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "vmylxac7pb");
-</script>
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "vmylxac7pb");
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
     <link rel="shortcut icon" href="/favicon.ico?v=3">
 </head>
 <body>
-    <div class="wrap">
-        <div class="card" id="supabaseConfigPanel">
-            <h1>Login / Sign Up</h1>
-            <p>An account is required to save your personal virtual portfolio and trade history.</p>
-            <div class="helper">Configured URL/keys are stored in your browser.</div>
+    <a class="back-link" href="./index.html">&#8592; Back to Home</a>
 
-            <label for="supabaseUrl">Supabase URL</label>
-            <input id="supabaseUrl" placeholder="https://xxxx.supabase.co" />
-
-            <label for="supabaseAnonKey">Supabase Anon Key</label>
-            <input id="supabaseAnonKey" placeholder="eyJ..." />
-
-            <button id="saveConfigBtn" class="ghost">Save Supabase Settings</button>
-            <div id="configStatus" class="status"></div>
+    <!-- Login View -->
+    <div class="auth-card" id="loginView">
+        <div class="brand">
+            <img src="./favicon.svg" alt="SI">
+            <span class="brand-name">Smart Investment Tips</span>
         </div>
 
-        <div class="card">
-            <h1 style="font-size:22px; margin-bottom:8px;">Sign Up</h1>
-            <p>Create a new account with email verification.</p>
+        <h1 class="auth-title">Log In</h1>
+        <p class="auth-subtitle">Welcome back. Please sign in to continue.</p>
 
+        <div class="field">
+            <label for="liEmail">Email</label>
+            <input id="liEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+        </div>
+
+        <div class="field">
+            <label for="liPassword">Password</label>
+            <input id="liPassword" type="password" placeholder="Your password" autocomplete="current-password" />
+        </div>
+
+        <button id="signInBtn" class="btn-primary">Log In</button>
+        <div id="loginStatus" class="status"></div>
+
+        <div class="switch-row">
+            Don't have an account? <a id="goSignUp">Sign Up</a>
+        </div>
+    </div>
+
+    <!-- Sign Up View -->
+    <div class="auth-card" id="signupView">
+        <div class="brand">
+            <img src="./favicon.svg" alt="SI">
+            <span class="brand-name">Smart Investment Tips</span>
+        </div>
+
+        <h1 class="auth-title">Create Account</h1>
+        <p class="auth-subtitle">Sign up with email verification.</p>
+
+        <div class="field">
             <label for="suEmail">Email</label>
-            <input id="suEmail" type="email" placeholder="you@example.com" />
+            <input id="suEmail" type="email" placeholder="you@example.com" autocomplete="email" />
+        </div>
 
+        <div class="field">
             <label for="suNickname">Nickname</label>
-            <input id="suNickname" type="text" placeholder="Nickname (2-20 chars)" />
+            <input id="suNickname" type="text" placeholder="Nickname (2–20 chars)" />
+        </div>
 
+        <div class="field">
             <label for="suBirthDate">Date of Birth</label>
             <input id="suBirthDate" type="date" />
-
-            <label for="suPassword">Password</label>
-            <input id="suPassword" type="password" placeholder="At least 8 characters" />
-
-            <label for="suVerifyCode">Verification Code</label>
-            <input id="suVerifyCode" type="text" placeholder="8-digit code from your email" />
-
-            <button id="sendCodeBtn" class="ghost">Send Verification Code</button>
-
-            <div class="agree-wrap">
-                <label class="agree-row" for="agreeRequired" style="margin:0;">
-                    <input id="agreeRequired" type="checkbox" />
-                    <span>[Required] I agree to the <a href="./privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="./terms.html" target="_blank" rel="noopener">Terms of Service</a>.</span>
-                </label>
-                <label class="agree-row" for="agreeCommunity" style="margin:8px 0 0 0;">
-                    <input id="agreeCommunity" type="checkbox" />
-                    <span>[Required] I agree to the <a href="./community-rules.html" target="_blank" rel="noopener">Community Rules</a> (no personal ads/sexual content; violations may result in a ban).</span>
-                </label>
-            </div>
-            <div class="row">
-                <button id="signUpBtn">Verify Code & Sign Up</button>
-                <button id="resendBtn" class="ghost">Resend Verification Email</button>
-            </div>
-            <div id="signUpStatus" class="status"></div>
-            <div class="helper">Sign-up flow: send code ??enter code ??check required agreements ??click sign-up.</div>
-            <div class="helper">Only users aged 14 or older can sign up.</div>
         </div>
 
-        <div class="card">
-            <h1 style="font-size:22px; margin-bottom:8px;">Login</h1>
-            <p>Use your existing account credentials.</p>
+        <div class="field">
+            <label for="suPassword">Password</label>
+            <input id="suPassword" type="password" placeholder="At least 8 characters" autocomplete="new-password" />
+        </div>
 
-            <label for="liEmail">Email</label>
-            <input id="liEmail" type="email" placeholder="you@example.com" />
+        <div class="field">
+            <label for="suVerifyCode">Verification Code</label>
+            <input id="suVerifyCode" type="text" placeholder="8-digit code from your email" />
+        </div>
 
-            <label for="liPassword">Password</label>
-            <input id="liPassword" type="password" placeholder="Your password" />
+        <button id="sendCodeBtn" class="btn-ghost">Send Verification Code</button>
 
-            <button id="signInBtn" class="ghost">Login</button>
-            <div id="loginStatus" class="status"></div>
-            <div class="helper"><a href="./index.html">Back to Home</a> 쨌 <a href="./contact.html">Contact</a></div>
+        <div class="agree-wrap">
+            <label class="agree-row">
+                <input id="agreeRequired" type="checkbox" />
+                <span>[Required] I agree to the <a href="./privacy.html" target="_blank" rel="noopener">Privacy Policy</a> and <a href="./terms.html" target="_blank" rel="noopener">Terms of Service</a>.</span>
+            </label>
+            <label class="agree-row">
+                <input id="agreeCommunity" type="checkbox" />
+                <span>[Required] I agree to the <a href="./community-rules.html" target="_blank" rel="noopener">Community Rules</a> (no personal ads/sexual content; violations may result in a ban).</span>
+            </label>
+        </div>
+
+        <div class="btn-row">
+            <button id="signUpBtn" class="btn-primary">Verify &amp; Sign Up</button>
+            <button id="resendBtn" class="btn-ghost">Resend Code</button>
+        </div>
+
+        <div id="signUpStatus" class="status"></div>
+        <p class="helper">Flow: send code &rarr; enter code &rarr; check agreements &rarr; sign up.<br>Only users aged 14 or older may sign up.</p>
+
+        <div class="switch-row">
+            Already have an account? <a id="goLogin">Log In</a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        const urlInput = document.getElementById('supabaseUrl');
-        const keyInput = document.getElementById('supabaseAnonKey');
-        const configStatus = document.getElementById('configStatus');
         const signUpStatus = document.getElementById('signUpStatus');
         const loginStatus = document.getElementById('loginStatus');
-        const LOCAL_USERS_KEY = 'local_auth_users_v1';
-        const LOCAL_SESSION_KEY = 'local_auth_session_v1';
         const DEFAULT_SUPABASE_URL = 'https://rljivieiiphngslqzszl.supabase.co';
         const DEFAULT_SUPABASE_ANON_KEY = 'sb_publishable_yFcac3vwVsSbn1exsSr_JA_ig5fjCk6';
+        const LOCAL_USERS_KEY = 'local_auth_users_v1';
+        const LOCAL_SESSION_KEY = 'local_auth_session_v1';
+
+        // View toggle
+        const loginView = document.getElementById('loginView');
+        const signupView = document.getElementById('signupView');
+
+        document.getElementById('goSignUp').addEventListener('click', () => {
+            loginView.style.display = 'none';
+            signupView.style.display = 'block';
+        });
+
+        document.getElementById('goLogin').addEventListener('click', () => {
+            signupView.style.display = 'none';
+            loginView.style.display = 'block';
+        });
 
         function ensureSupabaseDefaults() {
-            const storedUrl = (localStorage.getItem('supabase_url') || '').trim();
-            const storedKey = (localStorage.getItem('supabase_anon_key') || '').trim();
-            if (!storedUrl) localStorage.setItem('supabase_url', DEFAULT_SUPABASE_URL);
-            if (!storedKey) localStorage.setItem('supabase_anon_key', DEFAULT_SUPABASE_ANON_KEY);
+            if (!(localStorage.getItem('supabase_url') || '').trim()) localStorage.setItem('supabase_url', DEFAULT_SUPABASE_URL);
+            if (!(localStorage.getItem('supabase_anon_key') || '').trim()) localStorage.setItem('supabase_anon_key', DEFAULT_SUPABASE_ANON_KEY);
         }
 
         ensureSupabaseDefaults();
-
-        if (urlInput) urlInput.value = localStorage.getItem('supabase_url') || '';
-        if (keyInput) keyInput.value = localStorage.getItem('supabase_anon_key') || '';
 
         function getClient() {
             const supabaseUrl = localStorage.getItem('supabase_url');
@@ -144,56 +346,24 @@
             return JSON.parse(localStorage.getItem(LOCAL_USERS_KEY) || '[]');
         }
 
-        function setLocalUsers(users) {
-            localStorage.setItem(LOCAL_USERS_KEY, JSON.stringify(users));
-        }
-
         function calculateAgeFromBirthDate(birthDate) {
             const today = new Date();
             const dob = new Date(birthDate + 'T00:00:00');
             let age = today.getFullYear() - dob.getFullYear();
             const monthDiff = today.getMonth() - dob.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-                age -= 1;
-            }
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) age -= 1;
             return age;
         }
 
         async function sendSignupCode(client, email) {
-            return await client.auth.signInWithOtp({
-                email,
-                options: {
-                    shouldCreateUser: true
-                }
-            });
+            return await client.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
         }
-
-        document.getElementById('saveConfigBtn')?.addEventListener('click', () => {
-            const supabaseUrl = urlInput.value.trim();
-            const supabaseAnonKey = keyInput.value.trim();
-            if (!supabaseUrl || !supabaseAnonKey) {
-                configStatus.textContent = 'Please enter both URL and Anon Key.';
-                return;
-            }
-            localStorage.setItem('supabase_url', supabaseUrl);
-            localStorage.setItem('supabase_anon_key', supabaseAnonKey);
-            configStatus.textContent = 'Saved.';
-        });
 
         document.getElementById('sendCodeBtn').addEventListener('click', async () => {
             const client = getClient();
             const email = document.getElementById('suEmail').value.trim();
-
-            if (!email) {
-                signUpStatus.textContent = 'Please enter your email.';
-                return;
-            }
-
-            if (!client) {
-                signUpStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
-                return;
-            }
-
+            if (!email) { signUpStatus.textContent = 'Please enter your email.'; return; }
+            if (!client) { signUpStatus.textContent = 'Supabase configuration is required.'; return; }
             const { error } = await sendSignupCode(client, email);
             signUpStatus.textContent = error ? ('Code send failed: ' + error.message) : 'Verification code sent. Please check your email.';
         });
@@ -208,62 +378,19 @@
             const agreeRequired = document.getElementById('agreeRequired').checked;
             const agreeCommunity = document.getElementById('agreeCommunity').checked;
 
-            if (!email || !password || !verifyCode) {
-                signUpStatus.textContent = 'Please enter email, password, and 8-digit verification code.';
-                return;
-            }
-
-            if (!nickname || nickname.length < 2 || nickname.length > 20) {
-                signUpStatus.textContent = 'Nickname must be 2-20 characters.';
-                return;
-            }
-
-            if (!birthDate) {
-                signUpStatus.textContent = 'Please enter your date of birth.';
-                return;
-            }
-
+            if (!email || !password || !verifyCode) { signUpStatus.textContent = 'Please enter email, password, and verification code.'; return; }
+            if (!nickname || nickname.length < 2 || nickname.length > 20) { signUpStatus.textContent = 'Nickname must be 2–20 characters.'; return; }
+            if (!birthDate) { signUpStatus.textContent = 'Please enter your date of birth.'; return; }
             const age = calculateAgeFromBirthDate(birthDate);
-            if (!Number.isFinite(age) || age < 0) {
-                signUpStatus.textContent = 'Please enter a valid date of birth.';
-                return;
-            }
+            if (!Number.isFinite(age) || age < 0) { signUpStatus.textContent = 'Please enter a valid date of birth.'; return; }
+            if (age < 14) { signUpStatus.textContent = 'Only users aged 14 or older can sign up.'; return; }
+            if (!/^\d{8}$/.test(verifyCode)) { signUpStatus.textContent = 'Verification code must be 8 digits.'; return; }
+            if (!agreeRequired) { signUpStatus.textContent = 'You must agree to Privacy Policy and Terms to sign up.'; return; }
+            if (!agreeCommunity) { signUpStatus.textContent = 'You must agree to Community Rules to sign up.'; return; }
+            if (!client) { signUpStatus.textContent = 'Supabase configuration is required.'; return; }
 
-            if (age < 14) {
-                signUpStatus.textContent = 'Only users aged 14 or older can sign up.';
-                return;
-            }
-
-            if (!/^\d{8}$/.test(verifyCode)) {
-                signUpStatus.textContent = 'Verification code must be 8 digits.';
-                return;
-            }
-
-            if (!agreeRequired) {
-                signUpStatus.textContent = 'You must agree to Privacy Policy and Terms to sign up.';
-                return;
-            }
-
-            if (!agreeCommunity) {
-                signUpStatus.textContent = 'You must agree to Community Rules to sign up.';
-                return;
-            }
-
-            if (!client) {
-                signUpStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
-                return;
-            }
-
-            const { error: verifyError } = await client.auth.verifyOtp({
-                email,
-                token: verifyCode,
-                type: 'email'
-            });
-
-            if (verifyError) {
-                signUpStatus.textContent = 'Code verification failed: ' + verifyError.message;
-                return;
-            }
+            const { error: verifyError } = await client.auth.verifyOtp({ email, token: verifyCode, type: 'email' });
+            if (verifyError) { signUpStatus.textContent = 'Code verification failed: ' + verifyError.message; return; }
 
             const { error: updateError } = await client.auth.updateUser({
                 password,
@@ -277,16 +404,11 @@
                     community_rules_version: '2026-02-24'
                 }
             });
-            if (updateError) {
-                signUpStatus.textContent = 'Sign-up finalization failed: ' + updateError.message;
-                return;
-            }
+            if (updateError) { signUpStatus.textContent = 'Sign-up finalization failed: ' + updateError.message; return; }
 
             localStorage.setItem('profile_nickname', nickname);
-            signUpStatus.textContent = 'Sign-up complete. Redirecting to home...';
-            setTimeout(() => {
-                location.href = './index.html';
-            }, 800);
+            signUpStatus.textContent = 'Sign-up complete. Redirecting...';
+            setTimeout(() => { location.href = './index.html'; }, 800);
         });
 
         document.getElementById('signInBtn').addEventListener('click', async () => {
@@ -294,33 +416,22 @@
             const email = document.getElementById('liEmail').value.trim();
             const password = document.getElementById('liPassword').value;
 
-            if (!email || !password) {
-                loginStatus.textContent = 'Please enter email and password.';
-                return;
-            }
+            if (!email || !password) { loginStatus.textContent = 'Please enter email and password.'; return; }
 
             if (!client) {
                 const users = getLocalUsers();
                 const matched = users.find(u => u.email === email && u.password === password);
-                if (!matched) {
-                    loginStatus.textContent = 'Local login failed: check email/password.';
-                    return;
-                }
+                if (!matched) { loginStatus.textContent = 'Login failed: check email/password.'; return; }
                 localStorage.setItem(LOCAL_SESSION_KEY, email);
-                loginStatus.textContent = 'Local login successful (using without Supabase).';
+                loginStatus.textContent = 'Login successful.';
                 return;
             }
 
             const { data, error } = await client.auth.signInWithPassword({ email, password });
-            if (error) {
-                loginStatus.textContent = 'Login failed: ' + error.message;
-                return;
-            }
+            if (error) { loginStatus.textContent = 'Login failed: ' + error.message; return; }
 
             const loginNickname = data?.user?.user_metadata?.nickname || '';
-            if (loginNickname) {
-                localStorage.setItem('profile_nickname', loginNickname);
-            }
+            if (loginNickname) localStorage.setItem('profile_nickname', loginNickname);
 
             if (!data?.user?.email_confirmed_at) {
                 await client.auth.signOut();
@@ -328,57 +439,37 @@
                 return;
             }
 
-            loginStatus.textContent = 'Login successful.';
+            loginStatus.textContent = 'Login successful. Redirecting...';
+            setTimeout(() => { location.href = './index.html'; }, 800);
         });
 
         document.getElementById('resendBtn').addEventListener('click', async () => {
             const client = getClient();
-            if (!client) {
-                signUpStatus.textContent = 'Supabase configuration is required for code-based sign-up.';
-                return;
-            }
+            if (!client) { signUpStatus.textContent = 'Supabase configuration is required.'; return; }
             const email = document.getElementById('suEmail').value.trim();
             if (!email) { signUpStatus.textContent = 'Please enter your email.'; return; }
-
             const { error } = await sendSignupCode(client, email);
             signUpStatus.textContent = error ? ('Code resend failed: ' + error.message) : 'Verification code resent.';
         });
 
-        document.getElementById('signOutBtn')?.addEventListener('click', async () => {
-            const client = getClient();
-            if (!client) {
-                localStorage.removeItem(LOCAL_SESSION_KEY);
-                loginStatus.textContent = 'Local logout complete.';
-                return;
-            }
-            await client.auth.signOut();
-            loginStatus.textContent = 'Logout complete.';
-        });
-
+        // On load: set max birth date, check session
         (async () => {
             const birthDateInput = document.getElementById('suBirthDate');
-            if (birthDateInput) {
-                const today = new Date().toISOString().slice(0, 10);
-                birthDateInput.setAttribute('max', today);
-            }
+            if (birthDateInput) birthDateInput.setAttribute('max', new Date().toISOString().slice(0, 10));
 
             const client = getClient();
             if (!client) {
                 const email = localStorage.getItem(LOCAL_SESSION_KEY);
-                if (email) {
-                    loginStatus.textContent = 'Current local session: ' + email;
-                } else {
-                    loginStatus.textContent = 'Local mode available: sign-up/login possible without Supabase URL.';
-                }
+                if (email) loginStatus.textContent = 'Logged in as: ' + email;
                 return;
             }
 
             const { data } = await client.auth.getSession();
             if (data?.session?.user?.email) {
                 if (!data.session.user.email_confirmed_at) {
-                    loginStatus.textContent = 'Current session is unverified. Please verify email and log in again.';
+                    loginStatus.textContent = 'Session unverified. Please verify email and log in again.';
                 } else {
-                    loginStatus.textContent = 'Currently logged in: ' + data.session.user.email;
+                    loginStatus.textContent = 'Already logged in: ' + data.session.user.email;
                 }
             }
         })();
@@ -390,4 +481,3 @@
     <script src="./global-theme.js"></script>
 </body>
 </html>
-
