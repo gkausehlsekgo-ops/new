@@ -3086,8 +3086,7 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            alert(`Rule breach detected: ${reason}
-Your order has been blocked. Close open positions or use Reset Account to restart.`);
+            alert(`Rule breach detected: ${reason}`);
         }
 
         function consumeReadResetRequest() {
@@ -3275,8 +3274,7 @@ Your order has been blocked. Close open positions or use Reset Account to restar
 
         function executeSimTrade(orderType, side) {
             if (propAccountFailedReason) {
-            alert(`Account blown: ${propAccountFailedReason}
-Please use Reset Account to restart.`);
+            alert(`Account blown: ${propAccountFailedReason}`);
                 return;
             }
             const qty = parseInt(document.getElementById('simQtyInput').value, 10);
@@ -3398,8 +3396,7 @@ Please use Reset Account to restart.`);
 
         async function closeAllPositions() {
             if (propAccountFailedReason) {
-            alert(`Account blown: ${propAccountFailedReason}
-Please use Reset Account to restart.`);
+            alert(`Account blown: ${propAccountFailedReason}`);
                 return;
             }
             const symbols = Object.keys(simPortfolio);
