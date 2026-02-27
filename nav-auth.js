@@ -62,7 +62,17 @@
             if (text === 'Login' || href === 'auth.html') {
                 if (isLoggedIn()) {
                     const nick = getUserLabel();
-                    link.textContent = nick ? (nick + ' · Logout') : 'Logout';
+
+                    // Insert "My Page" link (nickname) before the login link
+                    const myLi = document.createElement('li');
+                    const myLink = document.createElement('a');
+                    myLink.href = './mypage.html';
+                    myLink.textContent = nick || 'My Page';
+                    myLi.appendChild(myLink);
+                    link.parentElement.parentElement.insertBefore(myLi, link.parentElement);
+
+                    // Turn login link into Logout
+                    link.textContent = 'Logout';
                     link.removeAttribute('href');
                     link.style.cursor = 'pointer';
                     link.addEventListener('click', function (e) {
