@@ -736,6 +736,96 @@
             gap: 10px;
         }
     </style>
+    <style>
+        /* ── New design system overrides ── */
+        *, *::before, *::after { box-sizing: border-box; }
+        :root {
+            --bg: #f8fafc; --bg-card: #ffffff; --bg-nav: rgba(255,255,255,0.96);
+            --text: #0f172a; --muted: #64748b; --border: #e2e8f0;
+            --accent: #2563eb; --accent-bg: #eff6ff;
+            --nav-h: 62px;
+            --shadow: 0 1px 4px rgba(0,0,0,.06), 0 6px 20px rgba(0,0,0,.04);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+        }
+        body.dark-mode {
+            --bg: #0f172a; --bg-card: #1e293b; --bg-nav: rgba(15,23,42,0.97);
+            --text: #f1f5f9; --muted: #94a3b8; --border: rgba(148,163,184,.15);
+            --accent-bg: rgba(37,99,235,.12);
+            --shadow: 0 1px 4px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.2);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,.4);
+        }
+        body { background: var(--bg) !important; color: var(--text) !important; }
+        /* Nav */
+        nav {
+            background: var(--bg-nav) !important;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border) !important;
+            box-shadow: none !important;
+            position: sticky; top: 0; z-index: 200;
+            transition: background .25s, border-color .25s;
+        }
+        body.dark-mode nav { background: var(--bg-nav) !important; }
+        .nav-inner {
+            max-width: 1200px; margin: 0 auto; padding: 0 20px;
+            height: var(--nav-h); display: flex; align-items: center;
+            justify-content: space-between; gap: 16px;
+        }
+        .nav-logo {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 17px; font-weight: 700; color: var(--text);
+            white-space: nowrap; text-decoration: none;
+        }
+        .nav-logo img { width: 34px; height: 34px; border-radius: 8px; }
+        .nav-links { display: flex; align-items: center; gap: 2px; list-style: none; }
+        .nav-links a {
+            padding: 6px 11px; border-radius: 7px; font-size: 14px; font-weight: 500;
+            color: var(--muted); transition: background .15s, color .15s; text-decoration: none;
+        }
+        .nav-links a:hover, .nav-links a.active { background: var(--accent-bg); color: var(--accent); }
+        #themeToggle {
+            background: none; border: 1px solid var(--border); border-radius: 7px;
+            width: 34px; height: 34px; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; font-size: 16px; color: var(--muted);
+            transition: background .15s, border-color .15s;
+        }
+        #themeToggle:hover { background: var(--accent-bg); border-color: var(--accent); }
+        /* Cards */
+        .market-card { background: var(--bg-card) !important; border: 1px solid var(--border); box-shadow: var(--shadow) !important; }
+        .market-symbol { color: var(--accent) !important; }
+        .board-link { color: var(--accent) !important; }
+        .refresh-btn { background: var(--accent) !important; }
+        .calendar-section, .dividend-section, .setup-guide { background: var(--bg-card) !important; border: 1px solid var(--border); box-shadow: var(--shadow) !important; }
+        body.dark-mode .calendar-section, body.dark-mode .dividend-section, body.dark-mode .setup-guide { background: var(--bg-card) !important; }
+        .dividend-sort-btn { background: var(--bg) !important; color: var(--text) !important; border-color: var(--border) !important; }
+        .dividend-sort-btn.active { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+        .dividend-tab-btn { background: var(--bg) !important; color: var(--text) !important; border-color: var(--border) !important; }
+        .dividend-tab-btn.active { background: var(--accent) !important; border-color: var(--accent) !important; color: #fff !important; }
+        .dividend-symbol { color: var(--accent) !important; }
+        .dividend-item { background: var(--bg) !important; border-color: var(--border) !important; }
+        .dividend-badge { background: var(--accent-bg) !important; color: var(--text) !important; }
+        .dividend-portfolio { background: var(--bg) !important; border-color: var(--border) !important; }
+        .dividend-add-btn { background: var(--accent) !important; }
+        body.dark-mode .dividend-item { background: var(--bg) !important; }
+        body.dark-mode .dividend-portfolio { background: var(--bg) !important; }
+        /* Info box */
+        .info-box { background: var(--accent-bg) !important; border-color: var(--accent) !important; color: var(--text) !important; }
+        /* Calendar */
+        .calendar-day-head { background: var(--bg) !important; border-right-color: var(--border) !important; }
+        .calendar-cell { background: var(--bg-card) !important; border-top-color: var(--border) !important; border-right-color: var(--border) !important; }
+        .calendar-cell.empty { background: var(--bg) !important; }
+        body.dark-mode .calendar-day-head { background: var(--bg) !important; }
+        body.dark-mode .calendar-cell { background: var(--bg-card) !important; }
+        body.dark-mode .calendar-cell.empty { background: var(--bg) !important; }
+        /* Footer */
+        footer { background: #0f172a !important; color: #94a3b8 !important; border-top-color: #1e293b !important; }
+        body.dark-mode footer { background: #0f172a !important; }
+        .footer-inner { max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; }
+        .footer-links { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+        .footer-links a { color: #94a3b8 !important; font-size: 13px; transition: color .15s; }
+        .footer-links a:hover { color: white !important; }
+        .footer-note { font-size: 12px; color: #475569; }
+        .footer-note-full { width: 100%; font-size: 12px; color: #475569; border-top: 1px solid #1e293b; padding-top: 14px; margin-top: 4px; }
+    </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
@@ -748,17 +838,20 @@
 </head>
 <body>
     <nav>
-        <div class="container">
-            <div class="logo"><img class="logo-mark" src="./favicon.svg" alt="SI">Smart Investment Tips</div>
-            <div>
-                <a href="./index.html">Home</a> ·
-                <a href="./market.html">Markets</a> ·
-                <a href="./journal.html">Journal</a> ·
-                <a href="./prop.html">Prop</a> ·
-                <a href="./advertise.html">Advertise</a> ·
-                <a href="./contact.html">Contact</a> ·
-                <a href="./auth.html">Login</a>
-            </div>
+        <div class="nav-inner">
+            <a href="./index.html" class="nav-logo">
+                <img src="./favicon.svg" alt="SI">
+                Smart Investment Tips
+            </a>
+            <ul class="nav-links">
+                <li><a href="./market.html" class="active">Markets</a></li>
+                <li><a href="./journal.html">Journal</a></li>
+                <li><a href="./prop.html">Prop</a></li>
+                <li><a href="./advertise.html">Advertise</a></li>
+                <li><a href="./contact.html">Contact</a></li>
+                <li><button id="themeToggle" type="button" aria-label="Toggle theme">🌙</button></li>
+                <li><a href="./auth.html">Login</a></li>
+            </ul>
         </div>
     </nav>
     
@@ -902,14 +995,16 @@
     </section>
     
     <footer>
-        <div class="container">
-            <p style="opacity: 0.7; font-size: 14px;">&copy; 2026 Smart Investment Tips. Market data with 5-15 minute delay. &nbsp;|&nbsp; <a href="./privacy.html" style="color:#667eea;text-decoration:none;">Privacy Policy</a> &nbsp;|&nbsp; <a href="./terms.html" style="color:#667eea;text-decoration:none;">Terms</a></p>
-            <p style="opacity:0.7; font-size:12px; margin-top:6px;">
-                Data source note: Symbol cards (demo feed + reference symbols), economic calendar (summary of expected U.S. releases).
-            </p>
-            <p style="margin-top: 10px;">
-                <button id="themeToggle" class="theme-toggle">&#127769; Dark Mode</button>
-            </p>
+        <div class="footer-inner">
+            <div class="footer-links">
+                <a href="./index.html">Home</a>
+                <a href="./contact.html">Contact</a>
+                <a href="./advertise.html">Advertise</a>
+                <a href="./privacy.html">Privacy Policy</a>
+                <a href="./terms.html">Terms</a>
+            </div>
+            <div class="footer-note">&copy; 2026 Smart Investment Tips</div>
+            <div class="footer-note-full">Market data with 5–15 minute delay. Symbol cards use demo feed + reference symbols. Economic calendar shows expected U.S. releases. Always verify on your broker's platform before trading.</div>
         </div>
     </footer>
     
@@ -1640,14 +1735,14 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '&#9728;&#65039; Light Mode';
+            themeToggle.textContent = '☀️';
         }
 
         themeToggle.addEventListener('click', function() {
             body.classList.toggle('dark-mode');
             const isDark = body.classList.contains('dark-mode');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            themeToggle.textContent = isDark ? '&#9728;&#65039; Light Mode' : '&#127769; Dark Mode';
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
         });
 
         window.addEventListener('load', async function() {
