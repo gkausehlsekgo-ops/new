@@ -1877,7 +1877,7 @@
             if (!candidates.length) return;
 
             const quoteRequest = (async () => {
-                const url = `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(candidates.join(','))}`;
+                const url = `/api/quote?symbols=${encodeURIComponent(candidates.join(','))}`;
                 const data = await fetchJsonWithFallback(url);
                 const results = data?.quoteResponse?.result || [];
                 const item = results.find(r => typeof r?.regularMarketPrice === 'number');
@@ -1890,7 +1890,7 @@
             })();
 
             const chartMetaRequests = candidates.map(yahooSymbol => (async () => {
-                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=5d&interval=1d`;
+                const url = `/api/chart?symbol=${encodeURIComponent(yahooSymbol)}&range=5d&interval=1d`;
                 const data = await fetchJsonWithFallback(url);
                 const result = data?.chart?.result?.[0];
                 const meta = result?.meta || {};
@@ -1956,7 +1956,7 @@
             };
 
             const requestFor = (yahooSymbol, candidate) => (async () => {
-                const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSymbol)}?range=${candidate.range}&interval=${candidate.interval}`;
+                const url = `/api/chart?symbol=${encodeURIComponent(yahooSymbol)}&range=${candidate.range}&interval=${candidate.interval}`;
                 const data = await fetchJsonWithFallback(url);
                 const history = parseHistory(data);
                 if (!history.length) throw new Error('Empty history');

@@ -1122,7 +1122,7 @@
             let fallbackCount = 0;
 
             try {
-                const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(symbols)}`);
+                const response = await fetch(`/api/quote?symbols=${encodeURIComponent(symbols)}`);
                 if (!response.ok) throw new Error('Dividend quote HTTP error');
                 const payload = await response.json();
                 const rows = Array.isArray(payload?.quoteResponse?.result) ? payload.quoteResponse.result : [];
@@ -1486,7 +1486,7 @@
         async function fetchDelayedQuotes() {
             const pairs = Object.entries(DELAYED_QUOTE_SYMBOLS);
             const yahooList = pairs.map(([, yahoo]) => yahoo).join(',');
-            const response = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${encodeURIComponent(yahooList)}`);
+            const response = await fetch(`/api/quote?symbols=${encodeURIComponent(yahooList)}`);
             if (!response.ok) throw new Error('Delayed quote HTTP error');
             const data = await response.json();
             const results = data?.quoteResponse?.result;
