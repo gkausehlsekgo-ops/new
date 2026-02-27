@@ -2390,7 +2390,19 @@
         }
 
         function getSimSessionKey() {
-            return localStorage.getItem('local_auth_session_v1') || 'guest';
+            // Legacy local session key
+            const local = localStorage.getItem('local_auth_session_v1');
+            if (local) return local;
+            // Supabase session (Google OAuth / email OTP)
+            try {
+                const raw = localStorage.getItem('sb-rljivieiiphngslqzszl-auth-token');
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    const userId = parsed && parsed.user && parsed.user.id;
+                    if (userId) return userId;
+                }
+            } catch (_) {}
+            return 'guest';
         }
 
         function isPersistentSimSession() {
