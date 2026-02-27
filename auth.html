@@ -276,7 +276,7 @@
 
         <div class="field">
             <label for="suVerifyCode">Verification Code</label>
-            <input id="suVerifyCode" type="text" placeholder="8-digit code from your email" />
+            <input id="suVerifyCode" type="text" placeholder="6-digit code from your email" inputmode="numeric" maxlength="6" />
         </div>
 
         <button id="sendCodeBtn" class="btn-ghost">Send Verification Code</button>
@@ -384,7 +384,7 @@
             const age = calculateAgeFromBirthDate(birthDate);
             if (!Number.isFinite(age) || age < 0) { signUpStatus.textContent = 'Please enter a valid date of birth.'; return; }
             if (age < 14) { signUpStatus.textContent = 'Only users aged 14 or older can sign up.'; return; }
-            if (!/^\d{8}$/.test(verifyCode)) { signUpStatus.textContent = 'Verification code must be 8 digits.'; return; }
+            if (!/^\d{6}$/.test(verifyCode)) { signUpStatus.textContent = 'Verification code must be 6 digits.'; return; }
             if (!agreeRequired) { signUpStatus.textContent = 'You must agree to Privacy Policy and Terms to sign up.'; return; }
             if (!agreeCommunity) { signUpStatus.textContent = 'You must agree to Community Rules to sign up.'; return; }
             if (!client) { signUpStatus.textContent = 'Supabase configuration is required.'; return; }
