@@ -3086,7 +3086,8 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            alert(`Rule breach detected: ${reason}\n?\u2463\uc474\u4f0a\ubf69\ucc8e? \u7b4c\uc578\ub9e9???\u30eb\uad5d\uf9dd??\ub93f???\u0449\ube4d?? Reset Account\u56a5???\uc1f0\ubefb ??\ubf70\uc082??\ub93e\uc26d??`);
+            alert(`Rule breach detected: ${reason}
+Your order has been blocked. Close open positions or use Reset Account to restart.`);
         }
 
         function consumeReadResetRequest() {
@@ -3274,7 +3275,8 @@
 
         function executeSimTrade(orderType, side) {
             if (propAccountFailedReason) {
-                alert(`?\u2463\uc474\u4f0a\ubf69\ucc8e? ??\u0080? ?\u30eb\uad5d\uf9dd??\ub93f???\u0449\ube4d?? ${propAccountFailedReason}\nReset Account\u56a5?????\u81fe\ubce5\ub9ad?\uf9cf\uafa9\ub484.`);
+            alert(`Account blown: ${propAccountFailedReason}
+Please use Reset Account to restart.`);
                 return;
             }
             const qty = parseInt(document.getElementById('simQtyInput').value, 10);
@@ -3396,7 +3398,8 @@
 
         async function closeAllPositions() {
             if (propAccountFailedReason) {
-                alert(`?\u2463\uc474\u4f0a\ubf69\ucc8e? ??\u0080? ?\u30eb\uad5d\uf9dd??\ub93f???\u0449\ube4d?? ${propAccountFailedReason}\nReset Account\u56a5?????\u81fe\ubce5\ub9ad?\uf9cf\uafa9\ub484.`);
+            alert(`Account blown: ${propAccountFailedReason}
+Please use Reset Account to restart.`);
                 return;
             }
             const symbols = Object.keys(simPortfolio);
