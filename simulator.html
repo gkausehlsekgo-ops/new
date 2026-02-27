@@ -304,6 +304,7 @@
         }
 
         const demoPrices = {};
+        const liveQuoteCache = {}; // symbol -> { price, changePercent, fetchedAt }
 
         function symbolSeed(symbol) {
             let hash = 0;
@@ -315,6 +316,15 @@
         }
 
         function getDemoPrice(symbol) {
+            // Use live quote as base if available (fetched < 5 min ago)
+            const cached = liveQuoteCache[symbol];
+            if (cached && Date.now() - cached.fetchedAt < 300000) {
+                if (!demoPrices[symbol]) demoPrices[symbol] = cached.price;
+                const drift = (Math.random() - 0.5) * (cached.price * 0.0003);
+                demoPrices[symbol] = Math.max(0.01, demoPrices[symbol] + drift);
+                return demoPrices[symbol];
+            }
+            // Fallback: seed-based random price
             if (!demoPrices[symbol]) {
                 const seed = symbolSeed(symbol);
                 demoPrices[symbol] = 10 + (seed % 490) + (seed % 97) / 100;
@@ -324,19 +334,43 @@
             return demoPrices[symbol];
         }
 
-        function lookup(symbol){
+        async function fetchLiveQuote(symbol) {
+            try {
+                const res = await fetch(`/api/quote?symbols=${encodeURIComponent(symbol)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                const result = data?.quoteResponse?.result?.[0];
+                if (!result || typeof result.regularMarketPrice !== 'number') return;
+                const prev = result.regularMarketPreviousClose;
+                const price = result.regularMarketPrice;
+                const changePercent = (typeof prev === 'number' && prev > 0)
+                    ? ((price - prev) / prev * 100)
+                    : null;
+                liveQuoteCache[symbol] = { price, changePercent, fetchedAt: Date.now() };
+                demoPrices[symbol] = price; // anchor drift to real price
+            } catch {}
+        }
+
+        async function lookup(symbol){
             const elSym = document.getElementById('qSymbol');
             const elPrice = document.getElementById('qPrice');
             const elChange = document.getElementById('qChange');
             qBox.style.display='none';
             elSym.textContent = symbol;
+            elPrice.textContent = 'Loading…';
+            elChange.textContent = '';
+            qBox.style.display='block';
+
+            await fetchLiveQuote(symbol);
 
             const price = getDemoPrice(symbol);
-            const change = ((Math.random() - 0.5) * 2).toFixed(2) + '%';
+            const cached = liveQuoteCache[symbol];
+            const changePct = cached?.changePercent ?? ((Math.random() - 0.5) * 2);
+            const changeStr = (changePct >= 0 ? '+' : '') + changePct.toFixed(2) + '%';
+            const sourceLabel = cached ? ' (delayed)' : ' (demo)';
 
-            elPrice.textContent = '$' + format(price);
-            elChange.textContent = change;
-            qBox.style.display='block';
+            elPrice.textContent = '$' + format(price) + sourceLabel;
+            elChange.textContent = changeStr;
             return {symbol, price};
         }
 
@@ -344,7 +378,7 @@
             return getDemoPrice(symbol);
         }
 
-        function applyPrefillFromQuery() {
+        async function applyPrefillFromQuery() {
             const params = new URLSearchParams(window.location.search);
             const symbol = (params.get('symbol') || '').trim().toUpperCase();
             const side = (params.get('side') || '').trim().toLowerCase();
@@ -353,7 +387,7 @@
 
             if (symbol) {
                 document.getElementById('symbolInput').value = symbol;
-                lookup(symbol);
+                await lookup(symbol);
             }
             if (qty && qty > 0) {
                 document.getElementById('qtyInput').value = qty;
@@ -526,7 +560,7 @@
                     await loadRemoteState();
                     render();
                     renderPerf();
-                    const prefill = applyPrefillFromQuery();
+                    const prefill = await applyPrefillFromQuery();
                     await maybeAutoExecuteTrade(prefill);
                     return;
                 }
@@ -546,7 +580,7 @@
             loadLocalState();
             render();
             renderPerf();
-            const prefill = applyPrefillFromQuery();
+            const prefill = await applyPrefillFromQuery();
             await maybeAutoExecuteTrade(prefill);
         }
 
