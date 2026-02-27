@@ -63,14 +63,14 @@
                 if (isLoggedIn()) {
                     const nick = getUserLabel();
 
-                    // Build dropdown wrapper
-                    const li = link.parentElement;
-                    li.style.position = 'relative';
+                    // Wrap ONLY this link — do not touch sibling nav links
+                    const wrapper = document.createElement('span');
+                    wrapper.style.cssText = 'position:relative;display:inline-flex;align-items:center;';
 
-                    // Replace link with a toggle button
+                    // Toggle button replaces the Login link
                     const btn = document.createElement('button');
                     btn.textContent = (nick || 'My Page') + ' \u25BE';
-                    btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:inherit;font-family:inherit;font-weight:500;color:inherit;padding:0;display:flex;align-items:center;gap:4px;white-space:nowrap;';
+                    btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:inherit;font-family:inherit;font-weight:500;color:inherit;padding:0;margin-left:14px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;';
 
                     // Dropdown panel
                     const panel = document.createElement('div');
@@ -95,12 +95,16 @@
 
                     panel.appendChild(myPageLink);
                     panel.appendChild(logoutBtn);
+                    wrapper.appendChild(btn);
+                    wrapper.appendChild(panel);
+
+                    // Replace just the Login <a> with the wrapper
+                    link.parentElement.replaceChild(wrapper, link);
 
                     // Toggle on button click
                     btn.addEventListener('click', function (e) {
                         e.stopPropagation();
-                        const isOpen = panel.style.display === 'block';
-                        panel.style.display = isOpen ? 'none' : 'block';
+                        panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
                     });
 
                     // Close when clicking outside
@@ -108,7 +112,7 @@
                         panel.style.display = 'none';
                     });
 
-                    // Dark mode: re-color panel on theme change
+                    // Dark mode sync
                     function applyPanelTheme() {
                         const dark = document.body.classList.contains('dark-mode');
                         panel.style.background = dark ? '#1e293b' : '#fff';
@@ -119,10 +123,6 @@
                     }
                     applyPanelTheme();
                     new MutationObserver(applyPanelTheme).observe(document.body, { attributeFilter: ['class'] });
-
-                    li.innerHTML = '';
-                    li.appendChild(btn);
-                    li.appendChild(panel);
                 }
             }
         });
