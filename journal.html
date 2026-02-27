@@ -228,6 +228,22 @@
             nav .container { padding: 1rem; }
             .hero-card { padding: 26px; }
         }
+    
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(15,23,42,0.18);
+            background: #fff;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -242,7 +258,7 @@
 <body>
     <nav>
         <div class="container">
-            <div class="logo">Smart Investment Tips</div>
+            <div class="logo"><img class="logo-mark" src="./favicon.svg" alt="SI">Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -508,7 +524,7 @@
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
-                    <h3>${escapeHtml(style.name)} 쨌 ${escapeHtml(style.type)}</h3>
+                    <h3>${escapeHtml(style.name)} · ${escapeHtml(style.type)}</h3>
                     <p>Market: ${escapeHtml(style.market)}</p>
                     <p>Timeframe: ${escapeHtml(style.timeframe)}</p>
                     <p>Risk: ${style.risk}%</p>

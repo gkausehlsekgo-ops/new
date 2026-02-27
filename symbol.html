@@ -575,6 +575,22 @@
                 grid-column: 1;
             }
         }
+    
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(15,23,42,0.18);
+            background: #fff;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -589,7 +605,7 @@
 <body>
     <nav>
         <div class="container">
-            <div class="logo">Smart Investment Tips</div>
+            <div class="logo"><img class="logo-mark" src="./favicon.svg" alt="SI">Smart Investment Tips</div>
             <div>
                 <a href="./index.html">Home</a>
                 <a href="./market.html">Markets</a>
@@ -630,7 +646,7 @@
             <h2>Category</h2>
             <p class="desc">Choose a category to write or view posts.</p>
             <div class="tabs" id="categoryTabs"></div>
-            <div class="helper">Categories: Trading Journal 쨌 Free Board</div>
+            <div class="helper">Categories: Trading Journal · Free Board</div>
         </div>
 
         <div class="panel" id="chartPanel">
@@ -649,7 +665,7 @@
 
             <div class="indicator-toolbar">
                 <div class="frame-toolbar" id="frameToolbar"></div>
-                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA 쨌 VWAP 쨌 Bollinger 쨌 RSI 쨌 MACD 쨌 Stochastic 쨌 ATR 쨌 ROC 쨌 CCI 쨌 Volume</div>
+                <div class="helper" style="margin-top:0;">Expanded indicators: configurable MA/EMA/WMA · VWAP · Bollinger · RSI · MACD · Stochastic · ATR · ROC · CCI · Volume</div>
                 <div class="indicator-list" id="indicatorToggleList"></div>
                 <div class="indicator-settings" id="indicatorSettingsPanel">
                     <div>
@@ -2641,8 +2657,8 @@
             const drawdownBase = propRules.mode === 'tmdd' ? propPeakEquity : simBaseCash;
             const drawdownPct = drawdownBase > 0 ? ((drawdownBase - equity) / drawdownBase) * 100 : 0;
             const tradesToday = getTodayTradeCount();
-            const failTag = propAccountFailedReason ? ` 쨌 FAILED (${propAccountFailedReason})` : '';
-            status.textContent = `Mode ${propRules.mode.toUpperCase()} 쨌 Account $${format(simBaseCash)} 쨌 DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% 쨌 Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% 쨌 Trades ${tradesToday}/${propRules.maxTradesPerDay} 쨌 MaxPos ${propRules.maxOpenPositions} 쨌 MaxQty ${propRules.maxQtyPerOrder} 쨌 PosCap ${propRules.maxPositionPct}% 쨌 Consistency ${propRules.consistencyPct}%${failTag}`;
+            const failTag = propAccountFailedReason ? ` · FAILED (${propAccountFailedReason})` : '';
+            status.textContent = `Mode ${propRules.mode.toUpperCase()} · Account $${format(simBaseCash)} · DailyLoss ${dailyLossPct.toFixed(2)}%/${propRules.dailyLossPct.toFixed(2)}% · Drawdown ${drawdownPct.toFixed(2)}%/${propRules.maxDrawdownPct.toFixed(2)}% · Trades ${tradesToday}/${propRules.maxTradesPerDay} · MaxPos ${propRules.maxOpenPositions} · MaxQty ${propRules.maxQtyPerOrder} · PosCap ${propRules.maxPositionPct}% · Consistency ${propRules.consistencyPct}%${failTag}`;
             if (failBadge) {
                 if (propAccountFailedReason) {
                     failBadge.style.display = '';
@@ -2720,7 +2736,7 @@
             const at = new Date(normalized.ts);
             const item = document.createElement('div');
             item.className = 'chat-item';
-            item.innerHTML = `<div class="chat-meta">${escapeHtml(normalized.nickname)} 쨌 ${escapeHtml(normalized.symbol)} 쨌 ${at.toLocaleTimeString()}</div><div>${escapeHtml(normalized.text)}</div>`;
+            item.innerHTML = `<div class="chat-meta">${escapeHtml(normalized.nickname)} · ${escapeHtml(normalized.symbol)} · ${at.toLocaleTimeString()}</div><div>${escapeHtml(normalized.text)}</div>`;
             box.appendChild(item);
             while (box.children.length > LIVE_CHAT_HISTORY_MAX) box.removeChild(box.firstChild);
             box.scrollTop = box.scrollHeight;
@@ -3124,7 +3140,7 @@
                 const persistenceText = isPersistentSimSession()
                     ? 'Logged-in mode: balance and trades are saved.'
                     : 'Guest mode: trading is available, but balance changes are not saved.';
-                hint.textContent = `Order symbol: ${currentSymbol} 쨌 Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} 쨌 ${sourceText} 쨌 ${persistenceText}`;
+                hint.textContent = `Order symbol: ${currentSymbol} · Current: ${currentPrice == null ? 'N/A' : '$' + format(currentPrice)} · ${sourceText} · ${persistenceText}`;
             }
             cashEl.textContent = '$' + format(simCash);
             if (currentPriceEl) currentPriceEl.textContent = currentPrice == null ? 'N/A' : '$' + format(currentPrice);
@@ -3415,7 +3431,7 @@
                 card.className = 'post';
                 card.innerHTML = `
                     <h3>${escapeHtml(post.title)}</h3>
-                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} 쨌 ${escapeHtml(post.date)}</div>
+                    <div class="meta">${escapeHtml(post.author || 'Anonymous')} · ${escapeHtml(post.date)}</div>
                     <p>${escapeHtml(post.body)}</p>
                     <div class="actions">
                         <button class="ghost" data-index="${index}">Delete</button>

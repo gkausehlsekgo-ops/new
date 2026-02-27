@@ -253,6 +253,22 @@
                 height: 180px;
             }
         }
+    
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(15,23,42,0.18);
+            background: #fff;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -420,7 +436,7 @@
                 <article class="news-item">
                     <div class="news-content">
                         <a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a>
-                        <div class="meta">${escapeHtml(item.source)} 쨌 ${formatTime(item.publishedAt)}</div>
+                        <div class="meta">${escapeHtml(item.source)} · ${formatTime(item.publishedAt)}</div>
                         <div class="news-actions">
                             <a class="origin-btn" href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer">?먮Ц ?대룞</a>
                         </div>

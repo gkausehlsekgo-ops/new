@@ -561,7 +561,9 @@
             border-radius: 10px;
             padding: 14px;
             background: #fff;
+            overflow-x: auto;
         }
+        .dividend-portfolio-wrap { overflow-x: auto; }
 
         body.dark-mode .dividend-portfolio {
             background: #171a2d;
@@ -615,9 +617,20 @@
         }
 
         .dividend-portfolio-summary {
-            margin-top: 10px;
+            margin-top: 12px;
+            padding: 12px 14px;
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 600;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e8ecf1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        body.dark-mode .dividend-portfolio-summary {
+            background: #20243a;
+            border-color: #2f3348;
         }
         
         .info-box {
@@ -706,6 +719,22 @@
             background: #1a2a4a;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
+    
+        .logo-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(15,23,42,0.18);
+            background: #fff;
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        nav .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -720,14 +749,14 @@
 <body>
     <nav>
         <div class="container">
-            <div class="logo">Smart Investment Tips</div>
+            <div class="logo"><img class="logo-mark" src="./favicon.svg" alt="SI">Smart Investment Tips</div>
             <div>
-                <a href="./index.html">Home</a> 쨌
-                <a href="./market.html">Markets</a> 쨌
-                <a href="./journal.html">Journal</a> 쨌
-                <a href="./prop.html">Prop</a> 쨌
-                <a href="./advertise.html">Advertise</a> 쨌
-                <a href="./contact.html">Contact</a> 쨌
+                <a href="./index.html">Home</a> ·
+                <a href="./market.html">Markets</a> ·
+                <a href="./journal.html">Journal</a> ·
+                <a href="./prop.html">Prop</a> ·
+                <a href="./advertise.html">Advertise</a> ·
+                <a href="./contact.html">Contact</a> ·
                 <a href="./auth.html">Login</a>
             </div>
         </div>
@@ -754,7 +783,7 @@
                     <div class="market-change change-positive" id="sp500-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="sp500-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=SP500">Symbol Board</a>
-                    <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: SP:SPX</div>
+                    <div class="market-source">Source: Delayed feed (preferred) · Ref symbol: SP:SPX</div>
                 </div>
 
                 <div class="market-card">
@@ -764,7 +793,7 @@
                     <div class="market-change change-positive" id="nasdaq-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="nasdaq-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=NASDAQ">Symbol Board</a>
-                    <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: NASDAQ:IXIC</div>
+                    <div class="market-source">Source: Delayed feed (preferred) · Ref symbol: NASDAQ:IXIC</div>
                 </div>
 
                 <div class="market-card">
@@ -774,7 +803,7 @@
                     <div class="market-change change-positive" id="dow-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="dow-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=DOW">Symbol Board</a>
-                    <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: DJ:DJI</div>
+                    <div class="market-source">Source: Delayed feed (preferred) · Ref symbol: DJ:DJI</div>
                 </div>
 
                 <div class="market-card">
@@ -784,7 +813,7 @@
                     <div class="market-change change-positive" id="kospi-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="kospi-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=KOSPI">Symbol Board</a>
-                    <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: TVC:KOSPI</div>
+                    <div class="market-source">Source: Delayed feed (preferred) · Ref symbol: TVC:KOSPI</div>
                 </div>
                 
                 <div class="market-card">
@@ -794,7 +823,7 @@
                     <div class="market-change change-positive" id="kosdaq-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="kosdaq-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=KOSDAQ">Symbol Board</a>
-                    <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: KRX:KQ11</div>
+                    <div class="market-source">Source: Delayed feed (preferred) · Ref symbol: KRX:KQ11</div>
                 </div>
 
                 <div class="market-card">
@@ -804,7 +833,7 @@
                     <div class="market-change change-positive" id="aapl-change">+0.00%</div>
                     <div class="market-time">Last updated: <span id="aapl-time">-</span></div>
                     <a class="board-link" href="./symbol.html?symbol=AAPL">Symbol Board</a>
-                    <div class="market-source">Source: Delayed feed (preferred) 쨌 Ref symbol: NASDAQ:AAPL</div>
+                    <div class="market-source">Source: Delayed feed (preferred) · Ref symbol: NASDAQ:AAPL</div>
                 </div>
             </div>
             <div class="market-data-note" id="marketDataNote">Displayed data: loading...</div>
@@ -828,7 +857,7 @@
 
                 <div class="dividend-portfolio">
                     <h4>Custom Dividend Portfolio Builder</h4>
-                    <p style="font-size:12px; opacity:0.75; margin-bottom:10px;">Pick any stocks from this category and set quantity freely. Portfolio value updates with the latest fetched prices.</p>
+                    <p style="font-size:12px; opacity:0.75; margin-bottom:10px;">목록에서 종목을 선택해 수량을 입력 후 포트폴리오에 추가하세요. 주가·연간 예상 배당금·월 예상 배당금·배당 수익률을 실시간으로 계산합니다.</p>
                     <table class="dividend-portfolio-table">
                         <thead>
                             <tr>
@@ -837,11 +866,14 @@
                                 <th>Qty</th>
                                 <th>Price</th>
                                 <th>Value</th>
+                                <th>Annual Dividend</th>
+                                <th>Monthly Dividend</th>
+                                <th>Yield</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="dividendPortfolioBody">
-                            <tr><td colspan="6" class="calendar-note">No stocks added yet.</td></tr>
+                            <tr><td colspan="9" class="calendar-note">No stocks added yet.</td></tr>
                         </tbody>
                     </table>
                     <div class="dividend-portfolio-summary" id="dividendPortfolioSummary">Total value: $0.00</div>
@@ -853,7 +885,7 @@
                 <h3>Monthly Calendar for Key U.S. Economic Indicators</h3>
                 <div class="calendar-header">
                     <div class="calendar-month" id="calendarMonthLabel">-</div>
-                    <div style="font-size:12px; opacity:0.7;">Impact: High 쨌 Medium 쨌 Low</div>
+                    <div style="font-size:12px; opacity:0.7;">Impact: High · Medium · Low</div>
                 </div>
                 <div class="calendar-grid" id="economicCalendarGrid"></div>
                 <div class="calendar-note">Schedules may change. Please confirm with each institution's official calendar.</div>
@@ -1131,7 +1163,7 @@
 
             const note = document.getElementById('dividendRefreshNote');
             if (note) {
-                note.textContent = `Dividend list data: ${successCount > 0 ? 'Yahoo delayed quotes + market cap/dividend amount/turnover' : 'fallback mode'} 쨌 received ${successCount}/${items.length}, fallback ${fallbackCount}`;
+                note.textContent = `Dividend list data: ${successCount > 0 ? 'Yahoo delayed quotes + market cap/dividend amount/turnover' : 'fallback mode'} · received ${successCount}/${items.length}, fallback ${fallbackCount}`;
             }
         }
 
@@ -1181,7 +1213,7 @@
 
             listEl.innerHTML = items.map((item, index) => {
                 const boardSymbol = normalizeSymbolForBoard(item.symbol);
-                const regionText = item.region ? ` 쨌 ${item.region}` : ' 쨌 United States';
+                const regionText = item.region ? ` · ${item.region}` : ' · United States';
                 const quote = dividendQuoteCache[getDividendCacheKey(item)] || null;
                 const priceText = quote && typeof quote.price === 'number' ? `$${quote.price.toFixed(2)}` : 'N/A';
                 const changeText = quote && typeof quote.changePercent === 'number'
@@ -1195,7 +1227,7 @@
                         <div class="dividend-rank">Rank #${index + 1}</div>
                         <div class="dividend-symbol">${escapeHtml(item.symbol)}</div>
                         <div class="dividend-name">${escapeHtml(item.name)}</div>
-                        <div class="dividend-meta">Dividend payer${regionText} 쨌 <a class="board-link" href="./symbol.html?symbol=${encodeURIComponent(boardSymbol)}">Symbol Board</a></div>
+                        <div class="dividend-meta">Dividend payer${regionText} · <a class="board-link" href="./symbol.html?symbol=${encodeURIComponent(boardSymbol)}">Symbol Board</a></div>
                         <div class="dividend-live">
                             <span class="dividend-badge">Price ${priceText}</span>
                             <span class="dividend-badge">Change ${changeText}</span>
@@ -1222,18 +1254,26 @@
 
             const entries = Object.entries(dividendPortfolio);
             if (entries.length === 0) {
-                body.innerHTML = '<tr><td colspan="6" class="calendar-note">No stocks added yet.</td></tr>';
+                body.innerHTML = '<tr><td colspan="9" class="calendar-note">No stocks added yet.</td></tr>';
                 summary.textContent = 'Total value: $0.00';
                 return;
             }
 
-            let total = 0;
+            let totalValue = 0, totalAnnualDiv = 0;
             body.innerHTML = entries.map(([key, item]) => {
                 const cacheKey = `${item.tab}:${item.symbol}`;
                 const quote = dividendQuoteCache[cacheKey] || buildDividendFallback(item.symbol);
                 const price = typeof quote.price === 'number' ? quote.price : 0;
                 const value = price * item.qty;
-                total += value;
+                const annualDivPerShare = typeof quote.dividendRate === 'number' ? quote.dividendRate : 0;
+                const annualDiv = annualDivPerShare * item.qty;
+                const monthlyDiv = annualDiv / 12;
+                const yieldPct = price > 0 && annualDivPerShare > 0
+                    ? ((annualDivPerShare / price) * 100).toFixed(2) + '%'
+                    : 'N/A';
+                totalValue += value;
+                totalAnnualDiv += annualDiv;
+                const divStyle = annualDiv > 0 ? 'color:#16a34a;font-weight:700;' : 'color:#94a3b8;';
                 return `
                     <tr>
                         <td>${escapeHtml(item.symbol)}</td>
@@ -1241,12 +1281,21 @@
                         <td><input type="number" min="1" step="1" class="portfolio-qty-input" data-key="${key}" value="${item.qty}" /></td>
                         <td>$${price.toFixed(2)}</td>
                         <td>$${value.toFixed(2)}</td>
+                        <td style="${divStyle}">$${annualDiv.toFixed(2)}</td>
+                        <td style="${divStyle}">$${monthlyDiv.toFixed(2)}</td>
+                        <td>${yieldPct}</td>
                         <td><button class="dividend-remove-btn" type="button" data-key="${key}">Remove</button></td>
                     </tr>
                 `;
             }).join('');
 
-            summary.textContent = `Total value: $${total.toFixed(2)} 쨌 Holdings: ${entries.length}`;
+            const totalMonthlyDiv = totalAnnualDiv / 12;
+            summary.innerHTML = `
+                <span>보유 종목: <b>${entries.length}개</b></span> &nbsp;|&nbsp;
+                <span>총 평가금액: <b>$${totalValue.toFixed(2)}</b></span> &nbsp;|&nbsp;
+                <span style="color:#16a34a;">연간 예상 배당금: <b>$${totalAnnualDiv.toFixed(2)}</b></span> &nbsp;|&nbsp;
+                <span style="color:#16a34a;">월 예상 배당금: <b>$${totalMonthlyDiv.toFixed(2)}</b></span>
+            `;
         }
 
         function bindDividendPortfolioActions() {
@@ -1503,7 +1552,7 @@
                 const eventsHtml = events.map(evt => {
                     const impactClass = evt.impact === 'high' ? 'event-high' : (evt.impact === 'medium' ? 'event-medium' : 'event-low');
                     const impactText = evt.impact === 'high' ? 'High' : (evt.impact === 'medium' ? 'Medium' : 'Low');
-                    return `<div class="event-item ${impactClass}">${evt.title} 쨌 ${impactText}</div>`;
+                    return `<div class="event-item ${impactClass}">${evt.title} · ${impactText}</div>`;
                 }).join('');
 
                 html += `<div class="calendar-cell"><div class="calendar-day-num">${day}</div>${eventsHtml}</div>`;
@@ -1572,8 +1621,8 @@
             const note = document.getElementById('marketDataNote');
             if (note) {
                 note.textContent = usedDelayed
-                    ? `Displayed data: Yahoo Finance delayed quotes (free, usually ~15 min delay) 쨌 Missing items fallback to cache/base index (${delayedCount}/${markets.length} received)`
-                    : 'Displayed data: delayed quotes unavailable 쨌 showing cache/base index values';
+                    ? `Displayed data: Yahoo Finance delayed quotes (free, usually ~15 min delay) · Missing items fallback to cache/base index (${delayedCount}/${markets.length} received)`
+                    : 'Displayed data: delayed quotes unavailable · showing cache/base index values';
             }
         }
 
