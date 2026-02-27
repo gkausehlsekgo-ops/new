@@ -314,7 +314,7 @@
             </div>
 
             <div id="contactStatus" class="status"></div>
-            <div class="helper">For now, requests are stored in your browser. You can also forward submissions to admin email via FormSubmit.</div>
+            <div class="helper">We'll get back to you as soon as possible.</div>
         </div>
 
         <div class="panel">
@@ -408,51 +408,6 @@
 
         const contactStatus = document.getElementById('contactStatus');
 
-        const receiverWrap = document.createElement('div');
-        receiverWrap.style.marginBottom = '12px';
-        receiverWrap.innerHTML = `
-            <label for="receiverEmail">Admin Receiver Email</label>
-            <input id="receiverEmail" type="email" placeholder="owner@example.com" />
-            <div class="actions" style="margin-top:8px;">
-                <button id="saveReceiverBtn" class="ghost" type="button">Save Receiver Email</button>
-                <button id="testReceiverBtn" class="ghost" type="button">Send Test Email</button>
-            </div>
-            <div class="helper" style="margin-top:6px;">Submitted inquiries will be emailed to this address. For first use, confirm FormSubmit verification email.</div>
-        `;
-        document.querySelector('.panel').insertBefore(receiverWrap, document.querySelector('.panel').children[2]);
-
-        const receiverInput = document.getElementById('receiverEmail');
-        receiverInput.value = getReceiverEmail();
-
-        document.getElementById('saveReceiverBtn').addEventListener('click', () => {
-            const email = receiverInput.value.trim();
-            if (!email) {
-                contactStatus.textContent = 'Please enter a receiver email first.';
-                return;
-            }
-            localStorage.setItem(EMAIL_RECEIVER_KEY, email);
-            contactStatus.textContent = 'Receiver email saved.';
-        });
-
-        document.getElementById('testReceiverBtn').addEventListener('click', async () => {
-            const email = receiverInput.value.trim();
-            if (!email) {
-                contactStatus.textContent = 'Please enter a receiver email first.';
-                return;
-            }
-            localStorage.setItem(EMAIL_RECEIVER_KEY, email);
-
-            const result = await sendInquiryEmail(email, {
-                type: 'Test',
-                title: 'Contact Email Integration Test',
-                email,
-                source: 'contact.html',
-                message: 'If you received this email, the integration is working.'
-            });
-            contactStatus.textContent = result.ok
-                ? 'Test email sent. If this is your first send, check FormSubmit verification email.'
-                : 'Test email failed. Check network access and receiver email.';
-        });
 
         document.getElementById('contactSubmitBtn').addEventListener('click', async () => {
             const type = document.getElementById('contactType').value;
@@ -483,8 +438,8 @@
             const emailResult = await sendInquiryEmail(receiverEmail, payload);
 
             contactStatus.textContent = emailResult.ok
-                ? 'Inquiry submitted and sent to admin email.'
-                : 'Inquiry saved locally. Email sending failed (check receiver email/network).';
+                ? 'Inquiry submitted successfully.'
+                : 'Inquiry saved locally. Please try again later.';
             document.getElementById('contactTitle').value = '';
             document.getElementById('contactMessage').value = '';
             renderRequests();
