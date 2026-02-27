@@ -1944,43 +1944,22 @@
             const candidates = resolveYahooSymbols(symbol);
             if (!candidates.length) return;
 
-            const quoteRequest = (async () => {
-                const url = `/api/quote?symbols=${encodeURIComponent(candidates.join(','))}`;
-                const data = await fetchJsonWithFallback(url);
-                const results = data?.quoteResponse?.result || [];
-                const item = results.find(r => typeof r?.regularMarketPrice === 'number');
-                if (!item || typeof item.regularMarketPrice !== 'number') throw new Error('Delayed quote payload error');
-                return {
-                    price: Number(item.regularMarketPrice),
-                    prevClose: typeof item.regularMarketPreviousClose === 'number' ? Number(item.regularMarketPreviousClose) : null,
-                    time: typeof item.regularMarketTime === 'number' ? new Date(item.regularMarketTime * 1000) : new Date()
-                };
-            })();
-
-            const chartMetaRequests = candidates.map(yahooSymbol => (async () => {
-                const url = `/api/chart?symbol=${encodeURIComponent(yahooSymbol)}&range=5d&interval=1d`;
-                const data = await fetchJsonWithFallback(url);
-                const result = data?.chart?.result?.[0];
-                const meta = result?.meta || {};
-                const closes = result?.indicators?.quote?.[0]?.close || [];
-                const validCloses = closes.filter(v => typeof v === 'number');
-                const marketPrice = typeof meta.regularMarketPrice === 'number'
-                    ? Number(meta.regularMarketPrice)
-                    : Number(validCloses[validCloses.length - 1]);
-                if (!Number.isFinite(marketPrice)) throw new Error('No market price in chart meta');
-                const prevClose = typeof meta.chartPreviousClose === 'number'
-                    ? Number(meta.chartPreviousClose)
-                    : (validCloses.length > 1 ? Number(validCloses[validCloses.length - 2]) : marketPrice);
-                return {
-                    price: marketPrice,
-                    prevClose: Number.isFinite(prevClose) ? prevClose : null,
-                    time: new Date()
-                };
-            })());
-
-            const quote = await Promise.any([quoteRequest, ...chartMetaRequests]);
+            // Use direct fetch only (same as market.html) — no proxy fallback for quotes
+            // to avoid stale cached data from third-party proxy servers
+            const url = `/api/quote?symbols=${encodeURIComponent(candidates.join(','))}`;
+            const res = await fetch(url, { cache: 'no-store' });
+            if (!res.ok) throw new Error(`Quote HTTP ${res.status}`);
+            const data = await res.json();
+            const results = data?.quoteResponse?.result || [];
+            const item = results.find(r => typeof r?.regularMarketPrice === 'number');
+            if (!item) throw new Error('No quote result');
+            const quote = {
+                price: Number(item.regularMarketPrice),
+                prevClose: typeof item.regularMarketPreviousClose === 'number' ? Number(item.regularMarketPreviousClose) : null,
+                time: typeof item.regularMarketTime === 'number' ? new Date(item.regularMarketTime * 1000) : new Date()
+            };
             delayedQuotes[symbol] = quote;
-            saveQuoteToCache(symbol, delayedQuotes[symbol]);
+            saveQuoteToCache(symbol, quote);
         }
 
         async function fetchDelayedHistory(symbol) {
