@@ -143,7 +143,7 @@ export async function onRequestGet({ request, env }) {
       headers: {
         ...CORS,
         "Content-Type":  "application/json; charset=utf-8",
-        "Cache-Control": "s-maxage=60, max-age=60",
+        "Cache-Control": "s-maxage=30, max-age=30",
       },
     });
   } catch {

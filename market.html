@@ -1778,7 +1778,7 @@
             renderDividendPortfolio();
             renderEconomicCalendar();
             await updateMarketData();
-            setInterval(updateMarketData, 60000);
+            setInterval(updateMarketData, 30000);
             setInterval(async () => {
                 await updateDividendQuotes();
                 renderDividendList(currentDividendTab);

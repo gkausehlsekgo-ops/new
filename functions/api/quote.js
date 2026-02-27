@@ -72,7 +72,7 @@ export async function onRequestGet({ request, env }) {
     .filter(Boolean);
 
   return json({ quoteResponse: { result, error: null } }, 200, {
-    "Cache-Control": "s-maxage=15, max-age=15",
+    "Cache-Control": "s-maxage=10, max-age=10",
   });
 }
 
