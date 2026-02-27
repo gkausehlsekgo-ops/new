@@ -260,7 +260,7 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '?\u0080\u622a?;
+            themeToggle.textContent = '\u2600\uFE0F Light Mode';
         }
         
         // Theme toggle event
@@ -268,11 +268,11 @@
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '&#127769;';
+                themeToggle.textContent = '\uD83C\uDF19 Dark Mode';
             } else {
                 body.classList.add('dark-mode');
                 localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '&#9728;&#65039; ';
+                themeToggle.textContent = '\u2600\uFE0F Light Mode';
             }
         });
         
