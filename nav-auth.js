@@ -63,22 +63,66 @@
                 if (isLoggedIn()) {
                     const nick = getUserLabel();
 
-                    // Insert "My Page" link (nickname) before the login link
-                    const myLi = document.createElement('li');
-                    const myLink = document.createElement('a');
-                    myLink.href = './mypage.html';
-                    myLink.textContent = nick || 'My Page';
-                    myLi.appendChild(myLink);
-                    link.parentElement.parentElement.insertBefore(myLi, link.parentElement);
+                    // Build dropdown wrapper
+                    const li = link.parentElement;
+                    li.style.position = 'relative';
 
-                    // Turn login link into Logout
-                    link.textContent = 'Logout';
-                    link.removeAttribute('href');
-                    link.style.cursor = 'pointer';
-                    link.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        doSignOut(link);
+                    // Replace link with a toggle button
+                    const btn = document.createElement('button');
+                    btn.textContent = (nick || 'My Page') + ' \u25BE';
+                    btn.style.cssText = 'background:none;border:none;cursor:pointer;font-size:inherit;font-family:inherit;font-weight:500;color:inherit;padding:0;display:flex;align-items:center;gap:4px;white-space:nowrap;';
+
+                    // Dropdown panel
+                    const panel = document.createElement('div');
+                    panel.style.cssText = 'display:none;position:absolute;right:0;top:calc(100% + 8px);background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.12);min-width:130px;z-index:999;overflow:hidden;';
+
+                    const myPageLink = document.createElement('a');
+                    myPageLink.href = './mypage.html';
+                    myPageLink.textContent = 'My Page';
+                    myPageLink.style.cssText = 'display:block;padding:10px 16px;color:#333;text-decoration:none;font-size:14px;font-weight:500;border-bottom:1px solid #f1f5f9;';
+                    myPageLink.onmouseover = function() { this.style.background = '#f8fafc'; };
+                    myPageLink.onmouseout  = function() { this.style.background = ''; };
+
+                    const logoutBtn = document.createElement('button');
+                    logoutBtn.textContent = 'Logout';
+                    logoutBtn.style.cssText = 'display:block;width:100%;padding:10px 16px;background:none;border:none;cursor:pointer;font-size:14px;font-weight:500;color:#ef4444;text-align:left;font-family:inherit;';
+                    logoutBtn.onmouseover = function() { this.style.background = '#fff5f5'; };
+                    logoutBtn.onmouseout  = function() { this.style.background = ''; };
+                    logoutBtn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        doSignOut(null);
                     });
+
+                    panel.appendChild(myPageLink);
+                    panel.appendChild(logoutBtn);
+
+                    // Toggle on button click
+                    btn.addEventListener('click', function (e) {
+                        e.stopPropagation();
+                        const isOpen = panel.style.display === 'block';
+                        panel.style.display = isOpen ? 'none' : 'block';
+                    });
+
+                    // Close when clicking outside
+                    document.addEventListener('click', function () {
+                        panel.style.display = 'none';
+                    });
+
+                    // Dark mode: re-color panel on theme change
+                    function applyPanelTheme() {
+                        const dark = document.body.classList.contains('dark-mode');
+                        panel.style.background = dark ? '#1e293b' : '#fff';
+                        panel.style.borderColor = dark ? '#334155' : '#e2e8f0';
+                        myPageLink.style.color = dark ? '#e2e8f0' : '#333';
+                        myPageLink.style.borderBottomColor = dark ? '#1e293b' : '#f1f5f9';
+                        btn.style.color = dark ? '#e2e8f0' : '';
+                    }
+                    applyPanelTheme();
+                    new MutationObserver(applyPanelTheme).observe(document.body, { attributeFilter: ['class'] });
+
+                    li.innerHTML = '';
+                    li.appendChild(btn);
+                    li.appendChild(panel);
                 }
             }
         });
