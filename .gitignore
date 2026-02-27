@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Claude Code memory & session data
+.claude/
+
+# Environment / secrets (never commit these)
+.env
+.env.local
+.env.*.local
+*.secret
+resend.txt
+
+# Temp files
+.tmp-fix.js
+*.tmp
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
