@@ -1081,9 +1081,13 @@
         ];
 
         const DIVIDEND_TOP50_US = [
-            { symbol: 'MSFT', name: 'Microsoft' },
-            { symbol: 'AAPL', name: 'Apple' },
             { symbol: 'NVDA', name: 'NVIDIA' },
+            { symbol: 'AAPL', name: 'Apple' },
+            { symbol: 'GOOGL', name: 'Alphabet (Google)' },
+            { symbol: 'MSFT', name: 'Microsoft' },
+            { symbol: 'AMZN', name: 'Amazon' },
+            { symbol: 'META', name: 'Meta Platforms' },
+            { symbol: 'TSLA', name: 'Tesla' },
             { symbol: 'AVGO', name: 'Broadcom' },
             { symbol: 'XOM', name: 'Exxon Mobil' },
             { symbol: 'JPM', name: 'JPMorgan Chase' },
@@ -1197,6 +1201,24 @@
             }
         }
 
+        const MARKET_CAP_ESTIMATES = {
+            NVDA: 3_300e9, AAPL: 3_000e9, GOOGL: 2_100e9, MSFT: 2_800e9,
+            AMZN: 2_200e9, META: 1_600e9, TSLA: 1_100e9, AVGO: 900e9,
+            JPM: 700e9, WMT: 750e9, XOM: 530e9, LLY: 700e9,
+            JNJ: 360e9, PG: 350e9, HD: 365e9, BAC: 360e9,
+            KO: 260e9, PEP: 200e9, ABBV: 340e9, CVX: 270e9,
+            WFC: 290e9, IBM: 215e9, CSCO: 225e9, MRK: 220e9,
+            GE: 215e9, MCD: 215e9, QCOM: 165e9, T: 165e9,
+            VZ: 170e9, RTX: 195e9, TXN: 175e9, C: 175e9,
+            BLK: 155e9, AMGN: 155e9, PFE: 155e9, SCHW: 130e9,
+            NEE: 135e9, DE: 135e9, CAT: 190e9, LOW: 145e9,
+            LMT: 115e9, PLD: 100e9, BHP: 140e9, RY: 175e9,
+            PM: 175e9, BMY: 100e9, UPS: 95e9, BP: 95e9,
+            SO: 90e9, INTC: 80e9, MMM: 75e9, USB: 75e9,
+            MO: 90e9, DUK: 85e9, AEP: 55e9, O: 55e9, SPG: 60e9,
+            TROW: 23e9
+        };
+
         function buildDividendFallback(symbol) {
             const seed = symbol.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
             const base = 40 + (seed % 260);
@@ -1206,7 +1228,7 @@
             const dividendYield = Number((1.2 + (seed % 55) / 10).toFixed(2));
             const dividendRate = Number((price * (dividendYield / 100)).toFixed(2));
             const turnover = Number((price * (100000 + (seed % 900000))).toFixed(0));
-            const marketCap = Number(((seed % 900) + 100) * 1_000_000_000);
+            const marketCap = MARKET_CAP_ESTIMATES[symbol] ?? Number(((seed % 900) + 100) * 1_000_000_000);
             return { price, changePercent, dividendYield, dividendRate, turnover, marketCap, source: 'fallback' };
         }
 
