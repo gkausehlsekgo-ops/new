@@ -1050,15 +1050,15 @@
         const HISTORY_REFRESH_MIN_INTERVAL_MS = 45000;
 
         const DEMO_BASE_PRICE = {
-            KOSPI: 2580.12,
-            KOSDAQ: 865.34,
-            NASDAQ: 16520.22,
-            SP500: 5150.44,
-            DOW: 38800.10,
-            AAPL: 187.22,
-            MNQ: 20950.00,
-            NQ: 20950.00,
-            BTCUSD: 96000.00
+            KOSPI: 2560.00,
+            KOSDAQ: 730.00,
+            NASDAQ: 19800.00,
+            SP500: 5870.00,
+            DOW: 43500.00,
+            AAPL: 227.00,
+            MNQ: 21500.00,
+            NQ: 21500.00,
+            BTCUSD: 88000.00
         };
 
         const DELAYED_QUOTE_SYMBOLS = {
@@ -1900,12 +1900,13 @@
             try {
                 const yahooSymbols = resolveYahooSymbols(symbol);
                 if (!yahooSymbols.length) return null;
-                const r = await fetch(`/api/chart?symbol=${encodeURIComponent(yahooSymbols[0])}&range=1d&interval=1m`);
+                // Use /api/quote (same source as market.html) to avoid price discrepancy
+                const r = await fetch(`/api/quote?symbols=${encodeURIComponent(yahooSymbols[0])}`);
                 if (!r.ok) return null;
                 const j = await r.json();
-                const closes = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
-                if (!Array.isArray(closes)) return null;
-                return lastValidNumber(closes);
+                const price = j?.quoteResponse?.result?.[0]?.regularMarketPrice;
+                if (typeof price === 'number') return price;
+                return null;
             } catch { return null; }
         }
 
