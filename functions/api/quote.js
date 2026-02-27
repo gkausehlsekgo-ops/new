@@ -1,9 +1,12 @@
 /**
- * /api/quote  — Finnhub-based quote proxy
+ * /api/quote  — Finnhub-based quote proxy with Yahoo Finance fallback
  *
  * Cloudflare Pages Function.
  * Requires environment variable: FINNHUB_API_KEY
- * Set it in Cloudflare Pages → Settings → Environment variables.
+ *
+ * Priority:
+ *   1. Finnhub /api/v1/quote  (stocks, crypto)
+ *   2. Yahoo Finance chart meta (indices & symbols Finnhub free tier doesn't support)
  *
  * Returns response shaped like Yahoo Finance quoteResponse
  * so frontend code needs no changes.
@@ -15,14 +18,14 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Yahoo Finance symbol  →  Finnhub symbol
-// null = not supported on Finnhub free tier → filtered out (fallback to demo on frontend)
+// Yahoo Finance symbol → Finnhub symbol
+// null = Finnhub free tier doesn't support → fall back to Yahoo Finance chart meta
 const SYMBOL_MAP = {
-  "^GSPC":   "^GSPC",             // S&P 500
-  "^IXIC":   "^IXIC",             // NASDAQ Composite
-  "^DJI":    "^DJI",              // Dow Jones
-  "^KS11":   null,                // KOSPI  (not on free tier)
-  "^KQ11":   null,                // KOSDAQ (not on free tier)
+  "^GSPC":   null,                // S&P 500  — Finnhub free returns wrong price
+  "^IXIC":   null,                // NASDAQ   — same
+  "^DJI":    null,                // Dow Jones — same
+  "^KS11":   null,                // KOSPI    — not on Finnhub free
+  "^KQ11":   null,                // KOSDAQ   — not on Finnhub free
   "BTC-USD": "COINBASE:BTC-USD",  // Bitcoin
   "ETH-USD": "COINBASE:ETH-USD",  // Ethereum
   "MNQ=F":   null,                // Micro NQ futures
@@ -30,7 +33,6 @@ const SYMBOL_MAP = {
 };
 
 // Market-cap estimates (USD) used when API doesn't return marketCap.
-// Updated periodically — keeps dividend list market-cap sorting correct.
 const MARKET_CAP_EST = {
   NVDA: 3_300e9, AAPL: 3_000e9, MSFT: 2_800e9, GOOGL: 2_100e9,
   AMZN: 2_200e9, META: 1_600e9, TSLA: 1_100e9, AVGO:   900e9,
@@ -84,7 +86,9 @@ export async function onRequestOptions() {
 
 async function fetchOne(yahooSym, key) {
   const finnhubSym = yahooSym in SYMBOL_MAP ? SYMBOL_MAP[yahooSym] : yahooSym;
-  if (!finnhubSym) return null;
+
+  // null → Finnhub doesn't support this symbol → fall back to Yahoo Finance
+  if (!finnhubSym) return fetchYahooQuote(yahooSym);
 
   const res = await fetch(
     `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(finnhubSym)}&token=${key}`,
@@ -107,11 +111,53 @@ async function fetchOne(yahooSym, key) {
     regularMarketDayLow:         d.l,
     regularMarketTime:           d.t,
     regularMarketVolume:         null,
-    // marketCap not in basic Finnhub quote — use estimate table as fallback
     marketCap:                   MARKET_CAP_EST[yahooSym] ?? null,
     trailingAnnualDividendYield: null,
     trailingAnnualDividendRate:  null,
   };
+}
+
+// Fetch current price from Yahoo Finance chart meta (used for indices & futures)
+async function fetchYahooQuote(symbol) {
+  try {
+    const target = new URL(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}`
+    );
+    target.searchParams.set("range", "1d");
+    target.searchParams.set("interval", "1m");
+    target.searchParams.set("includePrePost", "false");
+
+    const res = await fetch(target.toString(), {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept":     "application/json,text/plain,*/*",
+      },
+    });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const meta = data?.chart?.result?.[0]?.meta;
+    if (!meta || typeof meta.regularMarketPrice !== "number") return null;
+
+    const price = meta.regularMarketPrice;
+    const prev  = meta.chartPreviousClose ?? null;
+
+    return {
+      symbol,
+      regularMarketPrice:          price,
+      regularMarketPreviousClose:  prev,
+      regularMarketChangePercent:  (price && prev) ? ((price - prev) / prev) * 100 : null,
+      regularMarketChange:         (price && prev) ? price - prev : null,
+      regularMarketOpen:           null,
+      regularMarketDayHigh:        meta.regularMarketDayHigh  ?? null,
+      regularMarketDayLow:         meta.regularMarketDayLow   ?? null,
+      regularMarketTime:           meta.regularMarketTime      ?? null,
+      regularMarketVolume:         null,
+      marketCap:                   MARKET_CAP_EST[symbol] ?? null,
+      trailingAnnualDividendYield: null,
+      trailingAnnualDividendRate:  null,
+    };
+  } catch { return null; }
 }
 
 function json(body, status = 200, extra = {}) {
