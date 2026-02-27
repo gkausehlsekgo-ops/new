@@ -380,6 +380,28 @@
 
         ensureSupabaseDefaults();
 
+        // Auto-redirect on successful login (handles Google OAuth timing issues)
+        (function () {
+            const c = getClient && (() => {
+                const url = localStorage.getItem('supabase_url');
+                const key = localStorage.getItem('supabase_anon_key');
+                if (!url || !key) return null;
+                return window.supabase.createClient(url, key);
+            })();
+            if (!c) return;
+            c.auth.onAuthStateChange(function (event, session) {
+                if (event === 'SIGNED_IN' && session && session.user) {
+                    const nick = session.user.user_metadata && (
+                        session.user.user_metadata.nickname ||
+                        session.user.user_metadata.full_name ||
+                        session.user.user_metadata.name
+                    ) || '';
+                    if (nick) localStorage.setItem('profile_nickname', nick);
+                    location.href = './index.html';
+                }
+            });
+        })();
+
         function getClient() {
             const supabaseUrl = localStorage.getItem('supabase_url');
             const supabaseAnonKey = localStorage.getItem('supabase_anon_key');
@@ -477,15 +499,7 @@
 
             const loginNickname = data?.user?.user_metadata?.nickname || '';
             if (loginNickname) localStorage.setItem('profile_nickname', loginNickname);
-
-            if (!data?.user?.email_confirmed_at) {
-                await client.auth.signOut();
-                loginStatus.textContent = 'Please verify your email before logging in.';
-                return;
-            }
-
             loginStatus.textContent = 'Login successful. Redirecting...';
-            setTimeout(() => { location.href = './index.html'; }, 800);
         });
 
         async function signInWithGoogle() {
