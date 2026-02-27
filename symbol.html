@@ -1001,6 +1001,11 @@
         let lwEntryLine = null;
         let lwTradeMarkers = [];
         let lwMainData = [];
+
+        // Fake realtime state
+        let lastBar = null;
+        let targetClose = null;
+        let _realtimeIntervals = [];
         let volumeChart;
         let volumeHistSeries;
         let volumeMaSeries;
@@ -1827,7 +1832,7 @@
             if (statusEl) statusEl.textContent = '';
             if (lwSeries) {
                 if (lwSeriesType === 'candlestick') {
-                    lwSeries.setData(lwMainData.map((x, idx) => {
+                    const candleData = lwMainData.map((x, idx) => {
                         const open = idx === 0 ? x.value : lwMainData[idx - 1].value;
                         return {
                             time: x.time,
@@ -1836,7 +1841,13 @@
                             low: x.low,
                             close: x.value
                         };
-                    }));
+                    });
+                    lwSeries.setData(candleData);
+                    if (candleData.length > 0) {
+                        lastBar = candleData[candleData.length - 1];
+                        targetClose = lastBar.close;
+                        startFakeRealtime(symbol);
+                    }
                 } else {
                     lwSeries.setData(lwMainData.map(x => ({ time: x.time, value: x.value })));
                 }
@@ -1870,6 +1881,51 @@
 
         function getDemoPrice(symbol) {
             return null;
+        }
+
+        function stopFakeRealtime() {
+            _realtimeIntervals.forEach(id => clearInterval(id));
+            _realtimeIntervals = [];
+        }
+
+        async function fetchLatestCloseForSymbol(symbol) {
+            const yahooSymbols = resolveYahooSymbols(symbol);
+            if (!yahooSymbols.length) return null;
+            try {
+                const r = await fetch(`/api/chart?symbol=${encodeURIComponent(yahooSymbols[0])}&range=1d&interval=1m`);
+                if (!r.ok) return null;
+                const j = await r.json();
+                const c = j?.chart?.result?.[0]?.indicators?.quote?.[0]?.close;
+                if (!Array.isArray(c)) return null;
+                for (let i = c.length - 1; i >= 0; i--) {
+                    if (c[i] != null) return c[i];
+                }
+                return null;
+            } catch { return null; }
+        }
+
+        function startFakeRealtime(symbol) {
+            stopFakeRealtime();
+            if (!lastBar) return;
+
+            // 250ms micro-wiggle: "살아있는 느낌"
+            const wiggleId = setInterval(() => {
+                if (!lastBar || targetClose == null || !lwSeries) return;
+                const micro = (Math.random() - 0.5) * Math.abs(lastBar.close) * 0.00005;
+                const close = lastBar.close + (targetClose - lastBar.close) * 0.08 + micro;
+                const high = Math.max(lastBar.high, close, lastBar.open);
+                const low  = Math.min(lastBar.low,  close, lastBar.open);
+                lastBar = { ...lastBar, close, high, low };
+                try { lwSeries.update(lastBar); } catch {}
+            }, 250);
+
+            // 15s마다 실제 최신 close 갱신
+            const refreshId = setInterval(async () => {
+                const latest = await fetchLatestCloseForSymbol(symbol);
+                if (latest != null) targetClose = latest;
+            }, 15000);
+
+            _realtimeIntervals = [wiggleId, refreshId];
         }
 
         async function fetchDelayedQuote(symbol) {
@@ -2296,6 +2352,7 @@
         }
 
         function updateChartsForSymbol(symbol) {
+            stopFakeRealtime();
             document.getElementById('chartTitle').textContent = `${symbol} Chart`;
             const targetSeriesType = 'candlestick';
             if (lwSeries && lwSeriesType !== targetSeriesType && lwChart.removeSeries) {
