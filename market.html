@@ -1738,6 +1738,7 @@
             themeToggle.textContent = '☀️';
         }
 
+        themeToggle.dataset.globalThemeBound = '1';
         themeToggle.addEventListener('click', function() {
             body.classList.toggle('dark-mode');
             const isDark = body.classList.contains('dark-mode');

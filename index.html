@@ -820,6 +820,7 @@
     const body = document.body;
     const saved = localStorage.getItem('theme') || 'light';
     if (saved === 'dark') { body.classList.add('dark-mode'); toggle.textContent = '☀️'; }
+    toggle.dataset.globalThemeBound = '1';
     toggle.addEventListener('click', function () {
         if (body.classList.contains('dark-mode')) {
             body.classList.remove('dark-mode');

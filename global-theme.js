@@ -49,13 +49,7 @@
     const existing = document.getElementById('themeToggle');
     if (!existing || existing.dataset.globalThemeBound === '1') return;
     existing.dataset.globalThemeBound = '1';
-    existing.addEventListener('click', function () {
-      setTimeout(function () {
-        const saved = getSavedTheme();
-        if (saved === 'dark' || saved === 'light') setTheme(saved);
-        else saveTheme(document.body.classList.contains('dark-mode') ? 'dark' : 'light');
-      }, 0);
-    });
+    existing.addEventListener('click', toggleTheme);
   }
 
   function ensureFloatingToggle() {
