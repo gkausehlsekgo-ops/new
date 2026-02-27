@@ -27,10 +27,11 @@
     document.documentElement.classList.toggle('dark', dark);
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
     const label = dark ? 'Light Mode' : 'Dark Mode';
+    const icon = dark ? '\u2600\uFE0F' : '\uD83C\uDF19';
 
     const existing = document.getElementById('themeToggle');
     if (existing) {
-      existing.textContent = label;
+      existing.textContent = icon;
       existing.setAttribute('aria-label', label);
     }
 

@@ -16,631 +16,827 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Smart Investment Tips - Trading & Investment Guides">
     <meta name="twitter:description" content="US-focused trading and investing guides with market dashboards and educational content.">
-    <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "Smart Investment Tips",
-            "url": "https://si-tip.com/",
-            "inLanguage": "en",
-            "publisher": {
-                "@type": "Organization",
-                "name": "Smart Investment Tips",
-                "url": "https://si-tip.com/"
-            }
-        }
-        </script>
-        <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "FAQPage",
-            "mainEntity": [
-                {
-                    "@type": "Question",
-                    "name": "What should beginners focus on first in trading?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "Beginners should focus on risk control first: define max loss per trade, use a simple routine, and track decisions in a journal before scaling position size."
-                    }
-                },
-                {
-                    "@type": "Question",
-                    "name": "Which market pages are useful for daily review?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "Start with the Market Dashboard for broad trend checks, then open Symbol Board for detailed chart review and scenario notes."
-                    }
-                },
-                {
-                    "@type": "Question",
-                    "name": "How can I practice without risking real money?",
-                    "acceptedAnswer": {
-                        "@type": "Answer",
-                        "text": "Use the simulator to test entries, exits, and position sizing rules. Review results and update your trading plan based on repeatable patterns."
-                    }
-                }
-            ]
-        }
-        </script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Smart Investment Tips","url":"https://si-tip.com/","inLanguage":"en","publisher":{"@type":"Organization","name":"Smart Investment Tips","url":"https://si-tip.com/"}}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What should beginners focus on first in trading?","acceptedAnswer":{"@type":"Answer","text":"Beginners should focus on risk control first: define max loss per trade, use a simple routine, and track decisions in a journal before scaling position size."}},{"@type":"Question","name":"Which market pages are useful for daily review?","acceptedAnswer":{"@type":"Answer","text":"Start with the Market Dashboard for broad trend checks, then open Symbol Board for detailed chart review and scenario notes."}},{"@type":"Question","name":"How can I practice without risking real money?","acceptedAnswer":{"@type":"Answer","text":"Use the simulator to test entries, exits, and position sizing rules. Review results and update your trading plan based on repeatable patterns."}}]}</script>
     <title>Smart Investment Tips - Trading & Investment Guides</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
-            background: #f8f9fa;
-            color: #333;
-            transition: background 0.3s, color 0.3s;
-        }
-        
-        body.dark-mode {
-            background: #0f0f1e;
-            color: #e0e0e0;
-        }
-        
-        .theme-toggle {
-            position: relative;
-            background: white;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            transition: all 0.3s;
-            z-index: auto;
-        }
-        
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
-        
-        body.dark-mode .theme-toggle {
-            background: #1a2a4a;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
-        
-        /* Navigation */
-        nav {
-            background: white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            padding: 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            transition: background 0.3s;
-        }
-        
-        body.dark-mode nav {
-            background: #1a1a2e;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-        
-        nav .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        nav .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 24px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            white-space: nowrap;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-nav: rgba(255,255,255,0.96);
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #2563eb;
+            --accent-bg: #eff6ff;
+            --r: 12px;
+            --nav-h: 62px;
+            --shadow: 0 1px 4px rgba(0,0,0,.06), 0 6px 20px rgba(0,0,0,.04);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
         }
 
-        .logo-mark {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            object-fit: cover;
-            box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
-            background: #fff;
-            padding: 2px;
+        body.dark-mode {
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-nav: rgba(15,23,42,0.97);
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --border: rgba(148,163,184,.15);
+            --accent-bg: rgba(37,99,235,.12);
+            --shadow: 0 1px 4px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.2);
+            --shadow-lg: 0 8px 32px rgba(0,0,0,.4);
         }
-        
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            transition: background .25s, color .25s;
         }
-        
-        nav a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s;
+
+        a { text-decoration: none; color: inherit; }
+
+        /* ── NAV ── */
+        nav {
+            background: var(--bg-nav);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            transition: background .25s, border-color .25s;
         }
-        
-        body.dark-mode nav a {
-            color: #e0e0e0;
-        }
-        
-        nav a:hover {
-            color: #667eea;
-        }
-        
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 20px;
-            text-align: center;
-        }
-        
-        body.dark-mode .hero {
-            background: linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%);
-        }
-        
-        .hero h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-        
-        .hero p {
-            font-size: 20px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        
-        .cta-button {
-            background: white;
-            color: #667eea;
-            padding: 14px 30px;
-            border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Container */
-        .container {
+
+        .nav-inner {
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+            height: var(--nav-h);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
         }
-        
-        /* Blog Grid */
-        .blog-section {
-            padding: 60px 20px;
-        }
-        
-        .section-title {
-            text-align: center;
-            font-size: 36px;
-            margin-bottom: 50px;
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 17px;
             font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
         }
-        
-        .blog-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-bottom: 40px;
+
+        .nav-logo img { width: 34px; height: 34px; border-radius: 8px; }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            list-style: none;
         }
-        
-        .blog-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            text-decoration: none;
-            color: #333;
-            cursor: pointer;
+
+        .nav-links a {
+            padding: 6px 11px;
+            border-radius: 7px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--muted);
+            transition: background .15s, color .15s;
         }
-        
-        body.dark-mode .blog-card {
-            background: #1a1a2e;
-            color: #e0e0e0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        
-        .blog-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        .blog-thumbnail {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 200px;
+
+        .nav-links a:hover { background: var(--accent-bg); color: var(--accent); }
+
+        #themeToggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 48px;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--muted);
+            transition: background .15s, border-color .15s;
         }
-        
-        .blog-content {
-            padding: 25px;
-        }
-        
-        .blog-category {
-            display: inline-block;
-            background: #667eea;
+
+        #themeToggle:hover { background: var(--accent-bg); border-color: var(--accent); }
+
+        /* ── HERO ── */
+        .hero {
+            background: linear-gradient(140deg, #0d1b3e 0%, #1e3a8a 55%, #1d4ed8 100%);
             color: white;
-            padding: 6px 12px;
-            border-radius: 20px;
+            padding: 84px 20px 96px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse 80% 60% at 50% 85%, rgba(96,165,250,.18), transparent);
+            pointer-events: none;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,.1);
+            border: 1px solid rgba(255,255,255,.2);
+            padding: 5px 16px;
+            border-radius: 100px;
             font-size: 12px;
             font-weight: 600;
-            margin-bottom: 10px;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.85);
+            margin-bottom: 22px;
         }
-        
-        .blog-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            line-height: 1.4;
+
+        .hero h1 {
+            font-size: clamp(30px, 5.5vw, 58px);
+            font-weight: 800;
+            line-height: 1.14;
+            letter-spacing: -.025em;
+            margin-bottom: 18px;
         }
-        
-        .blog-excerpt {
-            font-size: 14px;
-            opacity: 0.7;
-            line-height: 1.6;
-            margin-bottom: 15px;
+
+        .hero-sub {
+            font-size: 18px;
+            line-height: 1.65;
+            opacity: .82;
+            max-width: 540px;
+            margin: 0 auto 34px;
         }
-        
-        body.dark-mode .blog-excerpt {
-            opacity: 0.6;
-        }
-        
-        .blog-meta {
-            font-size: 12px;
-            opacity: 0.6;
-        }
-        
-        /* About Section */
-        .about-section {
-            background: white;
-            padding: 60px 20px;
-        }
-        
-        body.dark-mode .about-section {
-            background: #1a1a2e;
-        }
-        
-        .about-content {
-            max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        
-        .about-section h2 {
-            font-size: 32px;
-            margin-bottom: 25px;
-            font-weight: 700;
-        }
-        
-        .about-section p {
-            font-size: 16px;
-            line-height: 1.8;
-            margin-bottom: 20px;
-            opacity: 0.8;
-        }
-        
-        body.dark-mode .about-section p {
-            opacity: 0.7;
-        }
-        
-        /* Newsletter Section */
-        .newsletter-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 20px;
-            text-align: center;
-        }
-        
-        body.dark-mode .newsletter-section {
-            background: linear-gradient(135deg, #1a3a52 0%, #2d5a7b 100%);
-        }
-        
-        .newsletter-section h2 {
-            font-size: 32px;
-            margin-bottom: 15px;
-        }
-        
-        .newsletter-section p {
-            font-size: 16px;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-        
-        .newsletter-form {
+
+        .hero-actions {
             display: flex;
             gap: 10px;
-            max-width: 500px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-white {
+            background: white;
+            color: #1e40af;
+            padding: 13px 26px;
+            border-radius: 9px;
+            font-weight: 700;
+            font-size: 15px;
+            transition: transform .15s, box-shadow .15s;
+            display: inline-block;
+        }
+
+        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.22); color: #1e40af; }
+
+        .btn-ghost-white {
+            background: rgba(255,255,255,.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,.25);
+            padding: 13px 26px;
+            border-radius: 9px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: background .15s, transform .15s;
+            display: inline-block;
+        }
+
+        .btn-ghost-white:hover { background: rgba(255,255,255,.18); transform: translateY(-2px); color: white; }
+
+        /* ── STATS STRIP ── */
+        .stats-strip {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stats-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 18px 36px;
+            border-right: 1px solid var(--border);
+        }
+
+        .stat-item:last-child { border-right: none; }
+
+        .stat-num {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1.2;
+        }
+
+        .stat-label { font-size: 11px; color: var(--muted); margin-top: 3px; font-weight: 500; }
+
+        /* ── SHARED SECTION ── */
+        .section { padding: 64px 20px; }
+        .section-inner { max-width: 1200px; margin: 0 auto; }
+
+        .section-head { text-align: center; margin-bottom: 40px; }
+
+        .section-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .section-title {
+            font-size: clamp(22px, 3vw, 34px);
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -.02em;
+        }
+
+        /* ── FEATURES ── */
+        .features { background: var(--bg); }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 28px;
+            transition: transform .2s, box-shadow .2s, border-color .2s;
+            display: block;
+            color: var(--text);
+        }
+
+        .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--accent); }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent-bg);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 16px;
+        }
+
+        .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+
+        .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+
+        .feature-link {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--accent);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ── MARKETS ── */
+        .markets {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .market-tile {
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 22px 12px;
+            text-align: center;
+            color: var(--text);
+            transition: border-color .15s, transform .15s, background .15s;
+            display: block;
+        }
+
+        .market-tile:hover { border-color: var(--accent); transform: translateY(-3px); background: var(--accent-bg); color: var(--text); }
+
+        .market-name { font-size: 17px; font-weight: 800; display: block; margin-bottom: 4px; }
+        .market-sym { font-size: 11px; color: var(--muted); font-weight: 500; }
+        .market-note { margin-top: 20px; font-size: 12px; color: var(--muted); line-height: 1.65; text-align: center; }
+
+        /* ── BLOG ── */
+        .blog { background: var(--bg); }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 18px;
+        }
+
+        .post-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+            color: var(--text);
+            transition: transform .2s, box-shadow .2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+        .post-thumb {
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+        }
+
+        .pt1 { background: linear-gradient(135deg,#1e3a8a,#3b82f6); }
+        .pt2 { background: linear-gradient(135deg,#064e3b,#10b981); }
+        .pt3 { background: linear-gradient(135deg,#7c2d12,#f97316); }
+        .pt4 { background: linear-gradient(135deg,#312e81,#8b5cf6); }
+        .pt5 { background: linear-gradient(135deg,#831843,#ec4899); }
+        .pt6 { background: linear-gradient(135deg,#0c4a6e,#0ea5e9); }
+
+        .post-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+
+        .post-cat {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 7px;
+        }
+
+        .post-title { font-size: 16px; font-weight: 700; line-height: 1.4; margin-bottom: 8px; }
+        .post-excerpt { font-size: 13px; color: var(--muted); line-height: 1.6; flex: 1; margin-bottom: 12px; }
+        .post-meta { font-size: 12px; color: var(--muted); }
+
+        /* ── ABOUT ── */
+        .about {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        @media (max-width: 720px) { .about-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+        .about-text h2 {
+            font-size: clamp(22px, 3vw, 32px);
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 16px;
+        }
+
+        .about-text p { font-size: 15px; color: var(--muted); line-height: 1.75; margin-bottom: 14px; }
+
+        .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .about-stat {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+        }
+
+        .about-stat-num { font-size: 28px; font-weight: 800; color: var(--accent); }
+        .about-stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+        /* ── Q&A ── */
+        .qa-section { background: var(--bg); border-top: 1px solid var(--border); }
+
+        .qa-list { max-width: 720px; margin: 0 auto; }
+
+        .qa-item { border-bottom: 1px solid var(--border); padding: 22px 0; }
+        .qa-item:last-child { border-bottom: none; }
+
+        .qa-q { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .qa-a { font-size: 14px; color: var(--muted); line-height: 1.7; }
+        .qa-a a { color: var(--accent); font-weight: 500; }
+
+        /* ── NEWSLETTER ── */
+        .newsletter {
+            background: linear-gradient(140deg, #0d1b3e 0%, #1e3a8a 55%, #1d4ed8 100%);
+            color: white;
+            text-align: center;
+            padding: 72px 20px;
+        }
+
+        .newsletter h2 { font-size: clamp(22px, 3vw, 30px); font-weight: 800; margin-bottom: 10px; }
+        .newsletter > p { font-size: 15px; opacity: .82; margin-bottom: 28px; }
+
+        .nl-form {
+            display: flex;
+            gap: 8px;
+            max-width: 440px;
             margin: 0 auto;
             flex-wrap: wrap;
             justify-content: center;
         }
-        
-        .newsletter-form input {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 6px;
+
+        .nl-form input {
             flex: 1;
-            min-width: 250px;
+            min-width: 200px;
+            padding: 12px 16px;
+            border: 1px solid rgba(255,255,255,.25);
+            border-radius: 8px;
+            background: rgba(255,255,255,.12);
+            color: white;
             font-size: 14px;
+            outline: none;
         }
-        
-        .newsletter-form button {
-            padding: 12px 30px;
+
+        .nl-form input::placeholder { color: rgba(255,255,255,.55); }
+        .nl-form input:focus { border-color: rgba(255,255,255,.5); }
+
+        .nl-form button {
+            padding: 12px 22px;
             background: white;
-            color: #667eea;
+            color: #1e40af;
             border: none;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .newsletter-form button:hover {
-            transform: translateY(-2px);
-        }
-        
-        /* Footer */
-        footer {
-            background: white;
-            padding: 40px 20px;
-            text-align: center;
-            border-top: 1px solid #eee;
-        }
-        
-        body.dark-mode footer {
-            background: #1a1a2e;
-            border-top-color: #333;
-        }
-        
-        footer p {
-            opacity: 0.7;
+            border-radius: 8px;
+            font-weight: 700;
             font-size: 14px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity .15s;
         }
-        
-        footer a {
-            color: #667eea;
-            text-decoration: none;
-            margin: 0 15px;
+
+        .nl-form button:hover { opacity: .9; }
+        .nl-note { margin-top: 14px; font-size: 12px; opacity: .65; }
+
+        /* ── FOOTER ── */
+        footer { background: #0f172a; color: #94a3b8; padding: 36px 20px; }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
         }
-        
-        footer a:hover {
-            text-decoration: underline;
+
+        .footer-links { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+        .footer-links a { color: #94a3b8; font-size: 13px; transition: color .15s; }
+        .footer-links a:hover { color: white; }
+
+        .footer-copy { font-size: 13px; color: #64748b; }
+
+        .footer-ad-note {
+            width: 100%;
+            font-size: 12px;
+            color: #475569;
+            margin-top: 4px;
+            border-top: 1px solid #1e293b;
+            padding-top: 16px;
+        }
+
+        /* ── MOBILE ── */
+        @media (max-width: 640px) {
+            .stat-item { padding: 14px 18px; }
+            .stat-num { font-size: 20px; }
         }
     </style>
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "vmylxac7pb");
-</script>
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "vmylxac7pb");
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
     <link rel="shortcut icon" href="/favicon.ico?v=3">
 </head>
 <body>
-    <!-- Navigation -->
-    <nav>
-        <div class="container">
-            <div class="logo"><img class="logo-mark" src="./favicon.svg" alt="SI">Smart Investment Tips</div>
-            <ul>
-                <li><a href="./market.html">Markets</a></li>
-                <li><a href="./journal.html">Journal</a></li>
-                <li><a href="./prop.html">Prop</a></li>
-                <li><a href="./advertise.html">Advertise</a></li>
-                <li><a href="./contact.html">Contact</a></li>
-                <li><a href="./auth.html">Login</a></li>
-            </ul>
+
+<!-- NAV -->
+<nav>
+    <div class="nav-inner">
+        <a href="./index.html" class="nav-logo">
+            <img src="./favicon.svg" alt="SI">
+            Smart Investment Tips
+        </a>
+        <ul class="nav-links">
+            <li><a href="./market.html">Markets</a></li>
+            <li><a href="./journal.html">Journal</a></li>
+            <li><a href="./prop.html">Prop</a></li>
+            <li><a href="./advertise.html">Advertise</a></li>
+            <li><a href="./contact.html">Contact</a></li>
+            <li><button id="themeToggle" type="button" aria-label="Toggle theme">🌙</button></li>
+            <li><a href="./auth.html">Login</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-eyebrow">📈 Trading Education &amp; Tools</div>
+    <h1>Your First Step to<br>Smarter Trading</h1>
+    <p class="hero-sub">Track your trades, refine your strategy, and build a better routine — with real tools designed for serious learners.</p>
+    <div class="hero-actions">
+        <a href="./journal.html" class="btn-white">Write Trading Journal</a>
+        <a href="./symbol.html" class="btn-ghost-white">Try Live Simulator</a>
+        <a href="./market.html" class="btn-ghost-white">Market Dashboard</a>
+    </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+    <div class="stats-inner">
+        <div class="stat-item">
+            <div class="stat-num">6</div>
+            <div class="stat-label">Educational Articles</div>
         </div>
-    </nav>
-    
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>This is the first step to improve your trading skills</h1>
-            <p>Track your trades, refine your strategy, and build a better routine.</p>
-            <a href="./journal.html" class="cta-button">Write Trading Journal</a>
+        <div class="stat-item">
+            <div class="stat-num">6+</div>
+            <div class="stat-label">Live Markets</div>
         </div>
-    </section>
-    
-    <!-- Blog Preview -->
-    <section class="blog-section">
-        <div class="container">
-            <h2 class="section-title">Popular Markets (Simulator)</h2>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 60px;">
-                <a href="./symbol.html?symbol=ES%3DF" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 15px; border-radius: 10px; text-decoration: none; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <span style="font-size: 20px; font-weight: 800; display: block; margin-bottom: 4px;">S&amp;P 500</span>
-                    <span style="font-size: 11px; opacity: 0.8; font-weight: 500;">ES=F</span>
-                </a>
-                <a href="./symbol.html?symbol=NQ%3DF" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 15px; border-radius: 10px; text-decoration: none; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <span style="font-size: 20px; font-weight: 800; display: block; margin-bottom: 4px;">Nasdaq</span>
-                    <span style="font-size: 11px; opacity: 0.8; font-weight: 500;">NQ=F</span>
-                </a>
-                <a href="./symbol.html?symbol=GC%3DF" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 15px; border-radius: 10px; text-decoration: none; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <span style="font-size: 20px; font-weight: 800; display: block; margin-bottom: 4px;">Gold</span>
-                    <span style="font-size: 11px; opacity: 0.8; font-weight: 500;">GC=F</span>
-                </a>
-                <a href="./symbol.html?symbol=CL%3DF" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 15px; border-radius: 10px; text-decoration: none; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <span style="font-size: 20px; font-weight: 800; display: block; margin-bottom: 4px;">Crude Oil</span>
-                    <span style="font-size: 11px; opacity: 0.8; font-weight: 500;">CL=F</span>
-                </a>
-                <a href="./symbol.html?symbol=BTC-USD" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 15px; border-radius: 10px; text-decoration: none; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <span style="font-size: 20px; font-weight: 800; display: block; margin-bottom: 4px;">Bitcoin</span>
-                    <span style="font-size: 11px; opacity: 0.8; font-weight: 500;">BTC-USD</span>
-                </a>
-                <a href="./symbol.html?symbol=ETH-USD" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px 15px; border-radius: 10px; text-decoration: none; text-align: center; transition: transform 0.3s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
-                    <span style="font-size: 20px; font-weight: 800; display: block; margin-bottom: 4px;">Ethereum</span>
-                    <span style="font-size: 11px; opacity: 0.8; font-weight: 500;">ETH-USD</span>
-                </a>
-            </div>
-            <p style="font-size: 13px; opacity: 0.78; margin-top: -42px; margin-bottom: 48px; text-align: center; line-height: 1.7;">
-                Risk Disclosure (Simulator): Futures products are high risk due to leverage, volatility, contract expiry, and rollover effects.
-                Quotes may be delayed. This content is for simulator practice only and is not investment advice.
-            </p>
-            
-            <h2 class="section-title">Featured Stories</h2>
-            <div class="blog-grid">
-                <a href="./post-1.html" class="blog-card">
-                    <div class="blog-thumbnail">&#128200;</div>
-                    <div class="blog-content">
-                        <span class="blog-category">TRADING BASICS</span>
-                        <h3 class="blog-title">Beginner's Guide to Stock Trading</h3>
-                        <p class="blog-excerpt">Learn the fundamental concepts of stock trading, from opening an account to placing your first trade.</p>
-                        <p class="blog-meta">5 min read &middot; Feb 24, 2026</p>
-                    </div>
-                </a>
-
-                <a href="./post-2.html" class="blog-card">
-                    <div class="blog-thumbnail">&#128161;</div>
-                    <div class="blog-content">
-                        <span class="blog-category">STRATEGY</span>
-                        <h3 class="blog-title">5 Golden Rules of Smart Investing</h3>
-                        <p class="blog-excerpt">Discover the essential principles that separate successful investors from the rest. Master these rules to build wealth.</p>
-                        <p class="blog-meta">7 min read &middot; Feb 24, 2026</p>
-                    </div>
-                </a>
-
-                <a href="./post-3.html" class="blog-card">
-                    <div class="blog-thumbnail">&#128737;</div>
-                    <div class="blog-content">
-                        <span class="blog-category">RISK MANAGEMENT</span>
-                        <h3 class="blog-title">How to Manage Investment Risk</h3>
-                        <p class="blog-excerpt">Understand portfolio diversification, stop-loss strategies, and risk management techniques that protect your capital.</p>
-                        <p class="blog-meta">6 min read &middot; Feb 24, 2026</p>
-                    </div>
-                </a>
-
-                <a href="./post-4.html" class="blog-card">
-                    <div class="blog-thumbnail">&#128202;</div>
-                    <div class="blog-content">
-                        <span class="blog-category">ANALYSIS</span>
-                        <h3 class="blog-title">Technical Analysis for Beginners</h3>
-                        <p class="blog-excerpt">Learn how to read charts, identify trends, and make informed trading decisions using technical analysis.</p>
-                        <p class="blog-meta">8 min read &middot; Feb 24, 2026</p>
-                    </div>
-                </a>
-
-                <a href="./post-5.html" class="blog-card">
-                    <div class="blog-thumbnail">&#127919;</div>
-                    <div class="blog-content">
-                        <span class="blog-category">SUCCESS STORIES</span>
-                        <h3 class="blog-title">Common Trading Mistakes & How to Avoid Them</h3>
-                        <p class="blog-excerpt">Learn from the most common pitfalls that traders face and discover proven strategies to sidestep these errors.</p>
-                        <p class="blog-meta">6 min read &middot; Feb 24, 2026</p>
-                    </div>
-                </a>
-
-                <a href="./post-6.html" class="blog-card">
-                    <div class="blog-thumbnail">&#129504;</div>
-                    <div class="blog-content">
-                        <span class="blog-category">PSYCHOLOGY</span>
-                        <h3 class="blog-title">The Psychology of Winning Traders</h3>
-                        <p class="blog-excerpt">Master the mental game of trading. Learn emotional control, discipline, and the mindset of successful investors.</p>
-                        <p class="blog-meta">7 min read &middot; Feb 24, 2026</p>
-                    </div>
-                </a>
-            </div>
+        <div class="stat-item">
+            <div class="stat-num">Free</div>
+            <div class="stat-label">Practice Simulator</div>
         </div>
-    </section>
-    
-    <!-- About Section -->
-    <section class="about-section" id="about">
-        <div class="container">
-            <div class="about-content">
+        <div class="stat-item">
+            <div class="stat-num">24/7</div>
+            <div class="stat-label">Market Data</div>
+        </div>
+    </div>
+</div>
+
+<!-- FEATURES -->
+<section class="section features">
+    <div class="section-inner">
+        <div class="section-head">
+            <div class="section-eyebrow">What You Get</div>
+            <div class="section-title">Everything to level up your trading</div>
+        </div>
+        <div class="feature-grid">
+            <a href="./symbol.html" class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Live Market Simulator</h3>
+                <p>Practice on real-time futures, crypto, and equity data with zero real risk. Track P&amp;L, manage positions, and sharpen your entries.</p>
+                <span class="feature-link">Start practicing →</span>
+            </a>
+            <a href="./journal.html" class="feature-card">
+                <div class="feature-icon">📓</div>
+                <h3>Trading Journal</h3>
+                <p>Log every trade with market context, setup quality scores, and emotional state notes. Spot patterns and improve over time.</p>
+                <span class="feature-link">Open Journal →</span>
+            </a>
+            <a href="./market.html" class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>Market Dashboard</h3>
+                <p>Get a daily overview of major indices, commodities, and crypto. See what's moving and why before you sit down to trade.</p>
+                <span class="feature-link">View Markets →</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- MARKETS -->
+<section class="section markets">
+    <div class="section-inner">
+        <div class="section-head">
+            <div class="section-eyebrow">Popular Markets</div>
+            <div class="section-title">Jump into the Simulator</div>
+        </div>
+        <div class="market-grid">
+            <a href="./symbol.html?symbol=ES%3DF" class="market-tile">
+                <span class="market-name">S&amp;P 500</span>
+                <span class="market-sym">ES=F</span>
+            </a>
+            <a href="./symbol.html?symbol=NQ%3DF" class="market-tile">
+                <span class="market-name">Nasdaq</span>
+                <span class="market-sym">NQ=F</span>
+            </a>
+            <a href="./symbol.html?symbol=GC%3DF" class="market-tile">
+                <span class="market-name">Gold</span>
+                <span class="market-sym">GC=F</span>
+            </a>
+            <a href="./symbol.html?symbol=CL%3DF" class="market-tile">
+                <span class="market-name">Crude Oil</span>
+                <span class="market-sym">CL=F</span>
+            </a>
+            <a href="./symbol.html?symbol=BTC-USD" class="market-tile">
+                <span class="market-name">Bitcoin</span>
+                <span class="market-sym">BTC-USD</span>
+            </a>
+            <a href="./symbol.html?symbol=ETH-USD" class="market-tile">
+                <span class="market-name">Ethereum</span>
+                <span class="market-sym">ETH-USD</span>
+            </a>
+        </div>
+        <p class="market-note">Risk Disclosure (Simulator): Futures products are high risk due to leverage, volatility, contract expiry, and rollover effects. Quotes may be delayed. This content is for simulator practice only and is not investment advice.</p>
+    </div>
+</section>
+
+<!-- BLOG -->
+<section class="section blog">
+    <div class="section-inner">
+        <div class="section-head">
+            <div class="section-eyebrow">Learn &amp; Improve</div>
+            <div class="section-title">Featured Stories</div>
+        </div>
+        <div class="blog-grid">
+            <a href="./post-1.html" class="post-card">
+                <div class="post-thumb pt1">📈</div>
+                <div class="post-body">
+                    <div class="post-cat">Trading Basics</div>
+                    <div class="post-title">Beginner's Guide to Stock Trading</div>
+                    <p class="post-excerpt">Learn the fundamental concepts of stock trading, from opening an account to placing your first trade.</p>
+                    <div class="post-meta">5 min read &middot; Feb 24, 2026</div>
+                </div>
+            </a>
+            <a href="./post-2.html" class="post-card">
+                <div class="post-thumb pt2">💡</div>
+                <div class="post-body">
+                    <div class="post-cat">Strategy</div>
+                    <div class="post-title">5 Golden Rules of Smart Investing</div>
+                    <p class="post-excerpt">Discover the essential principles that separate successful investors from the rest. Master these rules to build wealth.</p>
+                    <div class="post-meta">7 min read &middot; Feb 24, 2026</div>
+                </div>
+            </a>
+            <a href="./post-3.html" class="post-card">
+                <div class="post-thumb pt3">🛡</div>
+                <div class="post-body">
+                    <div class="post-cat">Risk Management</div>
+                    <div class="post-title">How to Manage Investment Risk</div>
+                    <p class="post-excerpt">Understand portfolio diversification, stop-loss strategies, and risk management techniques that protect your capital.</p>
+                    <div class="post-meta">6 min read &middot; Feb 24, 2026</div>
+                </div>
+            </a>
+            <a href="./post-4.html" class="post-card">
+                <div class="post-thumb pt4">📉</div>
+                <div class="post-body">
+                    <div class="post-cat">Analysis</div>
+                    <div class="post-title">Technical Analysis for Beginners</div>
+                    <p class="post-excerpt">Learn how to read charts, identify trends, and make informed trading decisions using technical analysis.</p>
+                    <div class="post-meta">8 min read &middot; Feb 24, 2026</div>
+                </div>
+            </a>
+            <a href="./post-5.html" class="post-card">
+                <div class="post-thumb pt5">🎯</div>
+                <div class="post-body">
+                    <div class="post-cat">Success Stories</div>
+                    <div class="post-title">Common Trading Mistakes &amp; How to Avoid Them</div>
+                    <p class="post-excerpt">Learn from the most common pitfalls that traders face and discover proven strategies to sidestep these errors.</p>
+                    <div class="post-meta">6 min read &middot; Feb 24, 2026</div>
+                </div>
+            </a>
+            <a href="./post-6.html" class="post-card">
+                <div class="post-thumb pt6">🧠</div>
+                <div class="post-body">
+                    <div class="post-cat">Psychology</div>
+                    <div class="post-title">The Psychology of Winning Traders</div>
+                    <p class="post-excerpt">Master the mental game of trading. Learn emotional control, discipline, and the mindset of successful investors.</p>
+                    <div class="post-meta">7 min read &middot; Feb 24, 2026</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section about">
+    <div class="section-inner">
+        <div class="about-grid">
+            <div class="about-text">
                 <h2>Why Smart Investment Tips?</h2>
-                <p>We believe that financial education should be accessible to everyone. Whether you're a complete beginner or looking to refine your trading strategies, our comprehensive guides and expert tips will help you make smarter investment decisions.</p>
-                <p>Join thousands of readers who are building their wealth through informed trading and smart investment decisions.</p>
+                <p>We believe financial education should be accessible to everyone. Whether you're a complete beginner or refining your strategy, our practical guides help you make smarter decisions — faster.</p>
+                <p>Build your skills through hands-on tools: a live simulator, a personal trading journal, and a real-time market dashboard. All free.</p>
+            </div>
+            <div class="about-stats">
+                <div class="about-stat">
+                    <div class="about-stat-num">100%</div>
+                    <div class="about-stat-label">Free to Use</div>
+                </div>
+                <div class="about-stat">
+                    <div class="about-stat-num">Real</div>
+                    <div class="about-stat-label">Market Data</div>
+                </div>
+                <div class="about-stat">
+                    <div class="about-stat-num">6</div>
+                    <div class="about-stat-label">Core Articles</div>
+                </div>
+                <div class="about-stat">
+                    <div class="about-stat-num">$0</div>
+                    <div class="about-stat-label">Real $ Risk</div>
+                </div>
             </div>
         </div>
-    </section>
-    
-    <!-- Newsletter Section -->
-    <section class="newsletter-section">
-        <div class="container">
-            <h2>Subscribe for Weekly Tips</h2>
-            <p>Get exclusive trading strategies and investment insights delivered directly to your inbox every week.</p>
-            <form class="newsletter-form" action="https://formspree.io/f/mqedglyo" method="POST">
-                <input type="email" name="email" placeholder="Enter your email" required>
-                <button type="submit">Subscribe</button>
-            </form>
-            <p style="margin-top: 12px; font-size: 12px; opacity: .8;">Last content update: 2026-02-26</p>
-        </div>
-    </section>
+    </div>
+</section>
 
-    <section class="about-section" id="geo-qa" style="padding-top: 10px;">
-        <div class="container">
-            <div class="about-content">
-                <h2>Quick Q&A for AI and Users</h2>
-                <p><strong>Q:</strong> I am in my 30s and want a simple daily routine. What should I check first?<br><strong>A:</strong> Open <a href="./market.html">Market Dashboard</a>, check major index direction, then review 1-2 symbols in <a href="./symbol.html">Symbol Board</a>.</p>
-                <p><strong>Q:</strong> When should I use the journal page?<br><strong>A:</strong> Use <a href="./journal.html">Journal</a> right after each session to record setup quality, risk taken, and emotional state.</p>
-                <p><strong>Q:</strong> How do I practice for consistency before real trading?<br><strong>A:</strong> Start in <a href="./simulator.html">Simulator</a>, apply fixed risk rules, and evaluate at least 20 trades before changing strategy.</p>
+<!-- Q&A -->
+<section class="section qa-section" id="geo-qa">
+    <div class="section-inner">
+        <div class="section-head">
+            <div class="section-eyebrow">Common Questions</div>
+            <div class="section-title">Quick Q&amp;A</div>
+        </div>
+        <div class="qa-list">
+            <div class="qa-item">
+                <div class="qa-q">What should beginners focus on first in trading?</div>
+                <div class="qa-a">Focus on risk control first: define your max loss per trade, use a simple daily routine, and track decisions in a <a href="./journal.html">journal</a> before scaling position size.</div>
+            </div>
+            <div class="qa-item">
+                <div class="qa-q">Which market pages are useful for daily review?</div>
+                <div class="qa-a">Start with the <a href="./market.html">Market Dashboard</a> for broad trend checks, then open <a href="./symbol.html">Symbol Board</a> for detailed chart review and scenario notes.</div>
+            </div>
+            <div class="qa-item">
+                <div class="qa-q">How can I practice without risking real money?</div>
+                <div class="qa-a">Use the <a href="./symbol.html">Simulator</a> to test entries, exits, and position sizing rules. Review results and update your trading plan based on repeatable patterns.</div>
+            </div>
+            <div class="qa-item">
+                <div class="qa-q">I want a simple daily routine. What should I check first?</div>
+                <div class="qa-a">Open <a href="./market.html">Market Dashboard</a>, check major index direction, then review 1–2 symbols in <a href="./symbol.html">Symbol Board</a>.</div>
+            </div>
+            <div class="qa-item">
+                <div class="qa-q">When should I use the journal page?</div>
+                <div class="qa-a">Use <a href="./journal.html">Journal</a> right after each session to record setup quality, risk taken, and emotional state. Review weekly to spot your patterns.</div>
             </div>
         </div>
-    </section>
-    
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 Smart Investment Tips. All rights reserved. | <a href="./contact.html">Contact Us</a> | <a href="./advertise.html">Advertise</a> | <a href="./privacy.html">Privacy Policy</a> | <a href="./terms.html">Terms</a></p>
-            <p style="margin-top:8px; font-size:12px; opacity:.8;">Ad disclosure: This site may display third-party ads, including Google AdSense.</p>
-            <p style="margin-top: 15px; font-size: 12px;">
-                <button id="themeToggle" class="theme-toggle">&#127769; Dark Mode</button>
-            </p>
+    </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter">
+    <h2>Subscribe for Weekly Tips</h2>
+    <p>Get exclusive trading strategies and investment insights delivered directly to your inbox.</p>
+    <form class="nl-form" action="https://formspree.io/f/mqedglyo" method="POST">
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Subscribe</button>
+    </form>
+    <p class="nl-note">Last content update: 2026-02-26</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-inner">
+        <div class="footer-links">
+            <a href="./contact.html">Contact</a>
+            <a href="./advertise.html">Advertise</a>
+            <a href="./privacy.html">Privacy Policy</a>
+            <a href="./terms.html">Terms</a>
+            <a href="./community-rules.html">Community Rules</a>
         </div>
-    </footer>
-    
-    <script>
-        // Dark mode toggle
-        const themeToggle = document.getElementById('themeToggle');
-        const body = document.body;
-        
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        if (savedTheme === 'dark') {
+        <div class="footer-copy">&copy; 2026 Smart Investment Tips</div>
+        <div class="footer-ad-note">Ad disclosure: This site may display third-party ads, including Google AdSense.</div>
+    </div>
+</footer>
+
+<script>
+    const toggle = document.getElementById('themeToggle');
+    const body = document.body;
+    const saved = localStorage.getItem('theme') || 'light';
+    if (saved === 'dark') { body.classList.add('dark-mode'); toggle.textContent = '☀️'; }
+    toggle.addEventListener('click', function () {
+        if (body.classList.contains('dark-mode')) {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light');
+            toggle.textContent = '🌙';
+        } else {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '\u2600\ufe0f Light Mode';
+            localStorage.setItem('theme', 'dark');
+            toggle.textContent = '☀️';
         }
-        
-        themeToggle.addEventListener('click', function() {
-            if (body.classList.contains('dark-mode')) {
-                body.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '\ud83c\udf19 Dark Mode';
-            } else {
-                body.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '\u2600\ufe0f Light Mode';
-            }
-        });
-    </script>
-    <script src="./analytics.js"></script>
-    <script src="./legal-consent.js"></script>
-    <script src="./assistant-widget.js"></script>
-    <script src="./userback.js"></script>
-    <script src="./global-theme.js"></script>
+    });
+</script>
+<script src="./analytics.js"></script>
+<script src="./legal-consent.js"></script>
+<script src="./assistant-widget.js"></script>
+<script src="./userback.js"></script>
+<script src="./global-theme.js"></script>
 <script src="./nav-auth.js"></script>
 </body>
 </html>
-
