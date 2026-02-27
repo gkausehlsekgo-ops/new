@@ -591,6 +591,76 @@
             align-items: center;
             gap: 10px;
         }
+
+        /* ── Dark mode overrides ── */
+        body.dark-mode {
+            --ink: #e2e8f0;
+            --muted: #94a3b8;
+            --panel: #0f172a;
+            --bg: #0b1220;
+            --line: rgba(148,163,184,0.18);
+            --accent-soft: #1e3a5f;
+            background: #0b1220 !important;
+            color: #e2e8f0 !important;
+        }
+        body.dark-mode nav {
+            background: #0f172a !important;
+            border-color: rgba(148,163,184,0.18) !important;
+        }
+        body.dark-mode nav a { color: #cbd5e1 !important; }
+        body.dark-mode .panel {
+            background: #0f172a !important;
+            border-color: rgba(148,163,184,0.18) !important;
+        }
+        body.dark-mode .panel h2 { color: #93c5fd !important; }
+        body.dark-mode .panel p,
+        body.dark-mode .panel span,
+        body.dark-mode .panel label,
+        body.dark-mode p, body.dark-mode label { color: #94a3b8 !important; }
+        body.dark-mode input,
+        body.dark-mode textarea,
+        body.dark-mode select {
+            background: #1e293b !important;
+            color: #e2e8f0 !important;
+            border-color: rgba(148,163,184,0.25) !important;
+        }
+        body.dark-mode input::placeholder,
+        body.dark-mode textarea::placeholder { color: #475569 !important; }
+        body.dark-mode button.ghost {
+            background: #1e293b !important;
+            color: #cbd5e1 !important;
+            border-color: rgba(148,163,184,0.25) !important;
+        }
+        body.dark-mode button.ghost:hover { background: #293548 !important; }
+        body.dark-mode .tab {
+            background: #1e293b !important;
+            color: #94a3b8 !important;
+            border-color: rgba(148,163,184,0.18) !important;
+        }
+        body.dark-mode .tab.active {
+            background: #1e3a5f !important;
+            color: #93c5fd !important;
+            border-color: #3b82f6 !important;
+        }
+        body.dark-mode .post {
+            background: #131f35 !important;
+            border-color: rgba(148,163,184,0.18) !important;
+        }
+        body.dark-mode .post h3 { color: #e2e8f0 !important; }
+        body.dark-mode .post p,
+        body.dark-mode .post span { color: #94a3b8 !important; }
+        /* Simulator value boxes */
+        body.dark-mode .sim-val,
+        body.dark-mode [class*="value"],
+        body.dark-mode [class*="price"],
+        body.dark-mode [class*="balance"] { color: #e2e8f0 !important; }
+        body.dark-mode h1,
+        body.dark-mode h2,
+        body.dark-mode h3,
+        body.dark-mode h4 { color: #e2e8f0 !important; }
+        body.dark-mode strong { color: #f1f5f9 !important; }
+        body.dark-mode small,
+        body.dark-mode .desc { color: #64748b !important; }
     </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -1840,7 +1910,11 @@
                     lwSeries.setData(candleData);
                     if (candleData.length > 0) {
                         lastBar = candleData[candleData.length - 1];
-                        targetClose = lastBar.close;
+                        // Prefer live Finnhub quote over candle close to match market.html
+                        const livePrice = delayedQuotes[symbol]?.price;
+                        targetClose = (typeof livePrice === 'number' && Number.isFinite(livePrice))
+                            ? livePrice
+                            : lastBar.close;
                         startFakeRealtime({ candleSeries: lwSeries, symbol });
                     }
                 } else {
