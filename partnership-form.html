@@ -205,7 +205,7 @@
     <link rel="shortcut icon" href="/favicon.ico?v=3">
 </head>
 <body>
-    <button class="theme-toggle" id="themeToggle">?&#46676;</button>
+    <button class="theme-toggle" id="themeToggle">&#127769; Dark Mode</button>
     
     <div class="container">
         <h1>Partnership Inquiry</h1>
@@ -268,11 +268,11 @@
             if (body.classList.contains('dark-mode')) {
                 body.classList.remove('dark-mode');
                 localStorage.setItem('theme', 'light');
-                themeToggle.textContent = '?&#46676;';
+                themeToggle.textContent = '&#127769;';
             } else {
                 body.classList.add('dark-mode');
                 localStorage.setItem('theme', 'dark');
-                themeToggle.textContent = '?&#128;&#25130;?;
+                themeToggle.textContent = '&#9728;&#65039; ';
             }
         });
         
