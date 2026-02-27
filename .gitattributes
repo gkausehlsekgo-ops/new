@@ -1,0 +1,20 @@
+# Force UTF-8 and LF line endings for all text files
+* text=auto eol=lf
+*.html text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.svg text eol=lf
+*.xml text eol=lf
+*.sql text eol=lf
+
+# Binary files - never modify
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.woff binary
+*.woff2 binary

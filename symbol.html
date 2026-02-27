@@ -2924,7 +2924,7 @@
 
             const shortname = getDisqusShortname();
             if (!shortname) {
-                statusEl.textContent = 'Disqus shortname???ㅼ젙?섏? ?딆븯?듬땲?? localStorage key(disqus_shortname_v1)??shortname????ν븯硫??볤? 湲곕뒫???쒖꽦?붾맗?덈떎.';
+                statusEl.textContent = 'Disqus shortname???\u317c\uc819?\uc10f? ?\ub506\ube2f?\ub4ec\ub572?? localStorage key(disqus_shortname_v1)??shortname???\u0080?\u03bd\ube2f\uf9ce??\ubce4? \u6e72\uacd5\ub4ab???\uc496\uaf66?\ubdbe\ub9d7?\ub348\ub58e.';
                 return;
             }
 
@@ -3086,7 +3086,7 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            alert(`Rule breach detected: ${reason}\n?④쑴伊뽩첎? 筌앸맩???ル굝利??뤿???щ빍?? Reset Account嚥???쇰뻻 ??뽰삂??뤾쉭??`);
+            alert(`Rule breach detected: ${reason}\n?\u2463\uc474\u4f0a\ubf69\ucc8e? \u7b4c\uc578\ub9e9???\u30eb\uad5d\uf9dd??\ub93f???\u0449\ube4d?? Reset Account\u56a5???\uc1f0\ubefb ??\ubf70\uc082??\ub93e\uc26d??`);
         }
 
         function consumeReadResetRequest() {
@@ -3274,7 +3274,7 @@
 
         function executeSimTrade(orderType, side) {
             if (propAccountFailedReason) {
-                alert(`?④쑴伊뽩첎? ??? ?ル굝利??뤿???щ빍?? ${propAccountFailedReason}\nReset Account嚥?????臾볥릭?紐꾩뒄.`);
+                alert(`?\u2463\uc474\u4f0a\ubf69\ucc8e? ??\u0080? ?\u30eb\uad5d\uf9dd??\ub93f???\u0449\ube4d?? ${propAccountFailedReason}\nReset Account\u56a5?????\u81fe\ubce5\ub9ad?\uf9cf\uafa9\ub484.`);
                 return;
             }
             const qty = parseInt(document.getElementById('simQtyInput').value, 10);
@@ -3396,7 +3396,7 @@
 
         async function closeAllPositions() {
             if (propAccountFailedReason) {
-                alert(`?④쑴伊뽩첎? ??? ?ル굝利??뤿???щ빍?? ${propAccountFailedReason}\nReset Account嚥?????臾볥릭?紐꾩뒄.`);
+                alert(`?\u2463\uc474\u4f0a\ubf69\ucc8e? ??\u0080? ?\u30eb\uad5d\uf9dd??\ub93f???\u0449\ube4d?? ${propAccountFailedReason}\nReset Account\u56a5?????\u81fe\ubce5\ub9ad?\uf9cf\uafa9\ub484.`);
                 return;
             }
             const symbols = Object.keys(simPortfolio);

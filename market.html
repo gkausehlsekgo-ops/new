@@ -767,7 +767,7 @@
             <div class="dashboard-header">
                 <h1>Market Dashboard</h1>
                 <p>Real-time market data for major indices and stocks</p>
-                <button class="refresh-btn" onclick="refreshData()">?봽 Refresh Data</button>
+                <button class="refresh-btn" onclick="refreshData()">?&#48445; Refresh Data</button>
             </div>
             
             <div class="info-box">
@@ -857,7 +857,7 @@
 
                 <div class="dividend-portfolio">
                     <h4>Custom Dividend Portfolio Builder</h4>
-                    <p style="font-size:12px; opacity:0.75; margin-bottom:10px;">목록에서 종목을 선택해 수량을 입력 후 포트폴리오에 추가하세요. 주가·연간 예상 배당금·월 예상 배당금·배당 수익률을 실시간으로 계산합니다.</p>
+                    <p style="font-size:12px; opacity:0.75; margin-bottom:10px;">&#47785;&#47197;&#50640;&#49436; &#51333;&#47785;&#51012; &#49440;&#53469;&#54644; &#49688;&#47049;&#51012; &#51077;&#47141; &#54980; &#54252;&#53944;&#54260;&#47532;&#50724;&#50640; &#52628;&#44032;&#54616;&#49464;&#50836;. &#51452;&#44032;·&#50672;&#44036; &#50696;&#49345; &#48176;&#45817;&#44552;·&#50900; &#50696;&#49345; &#48176;&#45817;&#44552;·&#48176;&#45817; &#49688;&#51061;&#47456;&#51012; &#49892;&#49884;&#44036;&#51004;&#47196; &#44228;&#49328;&#54633;&#45768;&#45796;.</p>
                     <table class="dividend-portfolio-table">
                         <thead>
                             <tr>
@@ -892,7 +892,7 @@
             </div>
 
             <div class="setup-guide">
-                <h3>?뱟 Schedule Guide</h3>
+                <h3>?&#48223; Schedule Guide</h3>
                 <p style="margin-bottom: 20px;">This calendar shows expected release dates for key U.S. indicators in a monthly view.</p>
                 <p style="margin-top: 20px; font-size: 14px; opacity: 0.7;">
                     Priority is given to high-impact items such as jobs data, CPI/PPI, retail sales, FOMC, GDP, and PCE.
@@ -1291,10 +1291,10 @@
 
             const totalMonthlyDiv = totalAnnualDiv / 12;
             summary.innerHTML = `
-                <span>보유 종목: <b>${entries.length}개</b></span> &nbsp;|&nbsp;
-                <span>총 평가금액: <b>$${totalValue.toFixed(2)}</b></span> &nbsp;|&nbsp;
-                <span style="color:#16a34a;">연간 예상 배당금: <b>$${totalAnnualDiv.toFixed(2)}</b></span> &nbsp;|&nbsp;
-                <span style="color:#16a34a;">월 예상 배당금: <b>$${totalMonthlyDiv.toFixed(2)}</b></span>
+                <span>\ubcf4\uc720 \uc885\ubaa9: <b>${entries.length}\uac1c</b></span> &nbsp;|&nbsp;
+                <span>\ucd1d \ud3c9\uac00\uae08\uc561: <b>$${totalValue.toFixed(2)}</b></span> &nbsp;|&nbsp;
+                <span style="color:#16a34a;">\uc5f0\uac04 \uc608\uc0c1 \ubc30\ub2f9\uae08: <b>$${totalAnnualDiv.toFixed(2)}</b></span> &nbsp;|&nbsp;
+                <span style="color:#16a34a;">\uc6d4 \uc608\uc0c1 \ubc30\ub2f9\uae08: <b>$${totalMonthlyDiv.toFixed(2)}</b></span>
             `;
         }
 
@@ -1640,14 +1640,14 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         if (savedTheme === 'dark') {
             body.classList.add('dark-mode');
-            themeToggle.textContent = '☀️ Light Mode';
+            themeToggle.textContent = '&#9728;&#65039; Light Mode';
         }
 
         themeToggle.addEventListener('click', function() {
             body.classList.toggle('dark-mode');
             const isDark = body.classList.contains('dark-mode');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            themeToggle.textContent = isDark ? '☀️ Light Mode' : '🌙 Dark Mode';
+            themeToggle.textContent = isDark ? '&#9728;&#65039; Light Mode' : '&#127769; Dark Mode';
         });
 
         window.addEventListener('load', async function() {
