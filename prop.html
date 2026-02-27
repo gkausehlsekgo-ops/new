@@ -195,12 +195,9 @@
             <p>This site provides educational content, not investment advice. In leveraged products, strict rules (position size, stop-loss, and daily max loss limits) are essential.</p>
         </article>
 
-        <article class="panel">
-            <h2>Read Complete Check</h2>
-            <p>Click the button below after reading this page. Your demo account will reset for a fresh education run.</p>
-            <button id="propReadDoneBtn" class="read-reset-btn" type="button">I've read this (Reset Demo Account)</button>
-            <div class="helper" style="margin-top:8px;">No payment required. This is an education-only reset flow.</div>
-        </article>
+        <div style="text-align:center;margin-top:6px;">
+            <button id="propReadDoneBtn" class="read-reset-btn" type="button">Reset Demo Account</button>
+        </div>
 
         <div class="helper">Tip: If you are new, start with no leverage or very low leverage and focus on consistency first.</div>
     </section>
@@ -211,10 +208,13 @@
                 localStorage.setItem('prop_read_reset_request_v1', JSON.stringify({ requestedAt: Date.now() }));
             } catch {
             }
-            location.href = './symbol.html';
+            location.href = './reset-ad.html';
         });
     </script>
 
+    <footer style="text-align:center;padding:20px;font-size:13px;color:#64748b;border-top:1px solid #e2e8f0;margin-top:24px;">
+        &copy; 2026 Smart Investment Tips &nbsp;|&nbsp; <a href="./privacy.html" style="color:#667eea;text-decoration:none;">Privacy Policy</a> &nbsp;|&nbsp; <a href="./terms.html" style="color:#667eea;text-decoration:none;">Terms</a>
+    </footer>
     <script src="./analytics.js"></script>
     <script src="./legal-consent.js"></script>
     <script src="./assistant-widget.js"></script>
