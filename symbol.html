@@ -846,7 +846,7 @@
 
                 <div class="actions" style="margin-top:8px;">
                     <button id="propApplyRulesBtn" class="primary" type="button">Apply Rules</button>
-                    <button id="propResetAccountBtn" class="ghost" type="button">Reset Account</button>
+                    <button id="propResetAccountBtn" type="button" style="background:linear-gradient(135deg,#f97316,#ef4444);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:700;cursor:pointer;font-size:13px;transition:opacity 0.15s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Reset Account</button>
                     <button id="propSavePresetBtn" class="ghost" type="button">Save Current to Preset</button>
                 </div>
                 <div class="helper" id="propRuleMemberNote">Login required to change prop rules.</div>
@@ -3000,32 +3000,21 @@
         function resetPropAccount(options = {}) {
             const skipAuthCheck = !!options.skipAuthCheck;
             const silent = !!options.silent;
-            const fromAdWatch = !!options.fromAdWatch;
             if (!skipAuthCheck && !isPersistentSimSession()) {
                 alert('Login required to reset account.');
                 return;
             }
 
-            let resetCount = 0;
-            if (!silent && !fromAdWatch) {
-                resetCount = bumpManualResetClickCount();
-                if (resetCount >= 3 && !consumeResetAdGrant()) {
-                    alert('From the 3rd reset, ad watch is required before reset. You will be redirected now.');
-                    const nextUrl = `./symbol.html?symbol=${encodeURIComponent(currentSymbol)}&ad_reset=1`;
-                    location.href = `./advertise.html?flow=reset-ad&next=${encodeURIComponent(nextUrl)}`;
-                    return;
-                }
-            }
-
-            if (!silent && fromAdWatch) {
+            if (!silent) {
+                // Always route through reset-ad.html (ad shown there after AdSense approval)
                 try {
-                    const current = Number(localStorage.getItem(getResetClickCountStorageKey()) || '3');
-                    resetCount = Number.isFinite(current) ? current : 3;
-                } catch {
-                    resetCount = 3;
-                }
+                    localStorage.setItem(READ_RESET_REQUEST_KEY, JSON.stringify({ requestedAt: Date.now() }));
+                } catch {}
+                location.href = './reset-ad.html';
+                return;
             }
 
+            // Silent reset: called on return from reset-ad.html via consumeReadResetRequest
             simBaseCash = propRules.startingBalance;
             simCash = simBaseCash;
             simPortfolio = {};
@@ -3043,13 +3032,6 @@
             renderEntryPriceLine();
             renderTradeMarkers();
             refreshRealtimeValuation();
-            if (!silent) {
-                if (resetCount >= 2) {
-                    alert('Reset completed. From the 3rd attempt, ad watch is required before reset.');
-                } else {
-                    alert('Reset completed successfully.');
-                }
-            }
         }
 
         function blowPropAccountByRule(reason) {
@@ -3089,7 +3071,6 @@
 
             if (!requested) return;
             resetPropAccount({ skipAuthCheck: true, silent: true });
-            alert('Read confirmation complete: demo account has been reset.');
         }
 
         function consumeAdResetRequest() {
